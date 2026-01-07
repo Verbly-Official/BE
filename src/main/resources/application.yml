@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: demo
+
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true

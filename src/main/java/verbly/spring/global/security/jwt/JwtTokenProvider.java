@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.constants.Constants;
 import verbly.spring.global.config.properties.JwtProperties;
 
@@ -108,12 +109,12 @@ public class JwtTokenProvider {
 
         String socialId = claims.getSubject();
 
-        Member member = memberRepository.findBySocialId(socialId)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.SOCIALID_NOT_FOUND));
+        User user = memberRepository.findBySocialId(socialId)
+                .orElseThrow(() -> new UserHandler(ErrorStatus.SOCIALID_NOT_FOUND));
 
-        MemberDetails memberDetails = new MemberDetails(member);
+        UserDetails userDetails = new UserDetails(user);
 
-        return new UsernamePasswordAuthenticationToken(memberDetails, token, memberDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
     }
 
     public static String resolveToken(HttpServletRequest request) {
@@ -142,7 +143,7 @@ public class JwtTokenProvider {
     public Authentication extractAuthentication(HttpServletRequest request){ // HttpServletRequest 에서 토큰 값을 추출
         String accessToken = resolveToken(request);
         if(accessToken == null || !validateToken(accessToken)) {
-            throw new MemberHandler(ErrorStatus.INVALID_JWT_ACCESS_TOKEN);
+            throw new userHandler(ErrorStatus.INVALID_JWT_ACCESS_TOKEN);
         }
         return getAuthentication(accessToken); // getAuthentication 메소드를 이용해서 Spring Security의 Authentication 객체로 변환
     }

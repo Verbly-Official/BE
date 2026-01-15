@@ -49,7 +49,7 @@ public class User extends BaseEntity {
     private String bio;
 
     //    private String profileImage;
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
     private ProfileImage profileImage;
 
     @Column(nullable = false, length = 50)

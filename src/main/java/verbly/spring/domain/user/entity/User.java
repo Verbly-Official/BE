@@ -58,6 +58,9 @@ public class User extends BaseEntity {
     @Column(length = 50)
     private String email;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
+    private NotificationSettings notificationSettings;
+
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }

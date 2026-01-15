@@ -11,7 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import verbly.spring.global.config.properties.Constants;
+import verbly.spring.global.common.constants.Constants;
 
 import java.io.IOException;
 

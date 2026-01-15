@@ -31,3 +31,9 @@ spring:
       # false (기본값): 파일 파싱이 컨트롤러 진입 전에 이뤄짐
       # true: 파일 파싱을 컨트롤러 파라미터 바인딩 시점으로 미룸
       resolve-lazily: false
+jwt:
+  token:
+    secretKey: ${JWT_SECRETKEY}
+    expiration: # (만료) 시간 설정은 ms단위
+      access: 14400000 # 4시간(보통 1시간~4시간 단위를 많이 채택)
+      refresh: 604800000 # 7일

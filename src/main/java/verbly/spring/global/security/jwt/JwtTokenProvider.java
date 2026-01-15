@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import verbly.spring.domain.user.entity.User;
+import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.constants.Constants;
 import verbly.spring.global.config.properties.JwtProperties;
 
@@ -25,7 +26,7 @@ public class JwtTokenProvider {
     // JWT 토큰을 생성하고, 검증하고, 인증 객체를 반환하는 역할을 수행
 
     private final JwtProperties jwtProperties;
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes());
@@ -109,7 +110,7 @@ public class JwtTokenProvider {
 
         String socialId = claims.getSubject();
 
-        User user = memberRepository.findBySocialId(socialId)
+        User user = usrRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.SOCIALID_NOT_FOUND));
 
         UserDetails userDetails = new UserDetails(user);

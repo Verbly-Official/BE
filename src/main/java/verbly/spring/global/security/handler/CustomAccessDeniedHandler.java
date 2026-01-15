@@ -29,21 +29,13 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler { // 인�
 
         ErrorReasonDTO reason;
 
-        if (accessDeniedException instanceof InvalidCsrfTokenException || accessDeniedException instanceof MissingCsrfTokenException) {
-            reason = ErrorReasonDTO.builder()
-                    .httpStatus(ErrorStatus.INVALID_CSRF_TOKEN.getHttpStatus())
-                    .isSuccess(false)
-                    .code(ErrorStatus.INVALID_CSRF_TOKEN.getCode())
-                    .message(ErrorStatus.INVALID_CSRF_TOKEN.getMessage())
-                    .build();
-        } else {
-            reason = ErrorReasonDTO.builder()
-                    .httpStatus(ErrorStatus.ACCESS_DENIED.getHttpStatus())
-                    .isSuccess(false)
-                    .code(ErrorStatus.ACCESS_DENIED.getCode())
-                    .message(ErrorStatus.ACCESS_DENIED.getMessage())
-                    .build();
-        }
+        reason = ErrorReasonDTO.builder()
+                .httpStatus(ErrorStatus.ACCESS_DENIED.getHttpStatus())
+                .isSuccess(false)
+                .code(ErrorStatus.ACCESS_DENIED.getCode())
+                .message(ErrorStatus.ACCESS_DENIED.getMessage())
+                .build();
+
         log.warn("❗ AccessDeniedException 발생 - 클래스: {}", accessDeniedException.getClass().getName());
         log.warn("❗ AccessDeniedException 메시지: {}", accessDeniedException.getMessage());
         log.error("❌ [AccessDenied] URI: {}, Method: {}", request.getRequestURI(), request.getMethod());

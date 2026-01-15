@@ -16,13 +16,13 @@ public enum ErrorStatus implements BaseErrorCode {
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "COMMON4004", "권한이 없습니다."),
 
     // 유저 관련 에러
-    USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER4001", "사용자가 없습니다."),
-    NICKNAME_NOT_EXIST(HttpStatus.BAD_REQUEST, "MEMBER4002", "닉네임은 필수입니다."),
-    ONBOARDING_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "MEMBER4003", "온보딩을 마치지 않았습니다."),
-    SOCIALID_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER4005", "socialId가 없습니다."),
+    USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER4001", "사용자가 없습니다."),
+    NICKNAME_NOT_EXIST(HttpStatus.BAD_REQUEST, "USER4002", "닉네임은 필수입니다."),
+    ONBOARDING_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "USER4003", "온보딩을 마치지 않았습니다."),
+    SOCIALID_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER4005", "socialId가 없습니다."),
     INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "IMAGE4006", "이미지 형식의 파일만 업로드할 수 있습니다."),
     IMAGE_FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "IMAGE4007", "이미지 파일은 10MB 이하로 업로드해주세요."),
-    NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST, "MEMBER4008", "이미 사용 중인 닉네임입니다."),
+    NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST, "USER4008", "이미 사용 중인 닉네임입니다."),
 
     //jwt 토큰
     INVALID_JWT_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4001", "유효하지 않은 AccessToken입니다."),

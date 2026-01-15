@@ -12,17 +12,17 @@ public enum SuccessStatus implements BaseCode {
     _OK(HttpStatus.OK, "COMMON2000", "성공입니다."),
 
     // 멤버 관련 응답
-    USER_NEEDS_ONBOARDING(HttpStatus.CREATED, "MEMBER2001", "신규 유저입니다. 온보딩이 필요합니다."),
-    USER_ALREADY_LOGIN(HttpStatus.OK, "MEMBER2002", "이미 등록된 유저입니다."),
-    USER_ONBOARDING_SUCCESS(HttpStatus.CREATED, "MEMBER2003", "온보딩 정보를 성공적으로 저장했습니다."),
-    USER_INFO_READ_SUCCESS(HttpStatus.OK, "MEMBER2004", "유저 정보를 성공적으로 조회했습니다."),
-    USER_LOGOUT_SUCCESS(HttpStatus.OK, "MEMBER2005", "로그아웃이 완료되었습니다."),
-    USER_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "MEMBER2006", "회원 탈퇴가 완료되었습니다."),
-    USER_PROFILE_IMAGE_UPDATED(HttpStatus.OK, "MEMBER2007", "프로필 이미지가 성공적으로 변경되었습니다."),
-    USER_NICKNAME_UPDATE_SUCCESS(HttpStatus.OK, "MEMBER2008", "닉네임이 성공적으로 변경되었습니다."),
-    USER_PROFILE_IMAGE_UPDATE_SUCCESS(HttpStatus.OK, "MEMBER2010", "프로필 이미지가 성공적으로 변경되었습니다."),
-    USER_ALREADY_ONBOARDING_COMPLETED(HttpStatus.OK, "MEMBER2011", "온보딩이 이미 완료된 유저입니다."),
-    USER_NICKNAME_CHECK_COMPLETED(HttpStatus.OK, "MEMBER2012", "사용 가능한 닉네임입니다.");
+    USER_NEEDS_ONBOARDING(HttpStatus.CREATED, "USER2001", "신규 유저입니다. 온보딩이 필요합니다."),
+    USER_ALREADY_LOGIN(HttpStatus.OK, "USER2002", "이미 등록된 유저입니다."),
+    USER_ONBOARDING_SUCCESS(HttpStatus.CREATED, "USER2003", "온보딩 정보를 성공적으로 저장했습니다."),
+    USER_INFO_READ_SUCCESS(HttpStatus.OK, "USER2004", "유저 정보를 성공적으로 조회했습니다."),
+    USER_LOGOUT_SUCCESS(HttpStatus.OK, "USER2005", "로그아웃이 완료되었습니다."),
+    USER_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "USER2006", "회원 탈퇴가 완료되었습니다."),
+    USER_PROFILE_IMAGE_UPDATED(HttpStatus.OK, "USER2007", "프로필 이미지가 성공적으로 변경되었습니다."),
+    USER_NICKNAME_UPDATE_SUCCESS(HttpStatus.OK, "USER2008", "닉네임이 성공적으로 변경되었습니다."),
+    USER_PROFILE_IMAGE_UPDATE_SUCCESS(HttpStatus.OK, "USER2010", "프로필 이미지가 성공적으로 변경되었습니다."),
+    USER_ALREADY_ONBOARDING_COMPLETED(HttpStatus.OK, "USER2011", "온보딩이 이미 완료된 유저입니다."),
+    USER_NICKNAME_CHECK_COMPLETED(HttpStatus.OK, "USER2012", "사용 가능한 닉네임입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import verbly.spring.domain.user.enums.AuthProvider;
 import verbly.spring.global.common.entity.BaseEntity;
 
 import java.util.ArrayList;

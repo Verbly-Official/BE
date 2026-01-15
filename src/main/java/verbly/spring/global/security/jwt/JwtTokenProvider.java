@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.repository.UserRepository;
+import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.common.constants.Constants;
 import verbly.spring.global.config.properties.JwtProperties;
 

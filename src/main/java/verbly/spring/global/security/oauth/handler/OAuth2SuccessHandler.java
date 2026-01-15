@@ -27,7 +27,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper;
-//    private final CookieCsrfTokenRepository csrfTokenRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {

@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import verbly.spring.domain.user.enums.AuthProvider;
+import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.entity.BaseEntity;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class User extends BaseEntity {
     private String learningLang; // ISO code (e.g. "en")
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false)
     private UserStatus status;
 
     @Column(nullable = false, length = 50)

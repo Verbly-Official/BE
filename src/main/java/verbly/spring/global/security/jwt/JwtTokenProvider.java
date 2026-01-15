@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import verbly.spring.global.config.properties.Constants;
 import verbly.spring.global.config.properties.JwtProperties;
 
 import java.security.Key;

@@ -110,7 +110,7 @@ public class JwtTokenProvider {
 
         String socialId = claims.getSubject();
 
-        User user = usrRepository.findBySocialId(socialId)
+        User user = userRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.SOCIALID_NOT_FOUND));
 
         UserDetails userDetails = new UserDetails(user);

@@ -10,13 +10,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import verbly.spring.domain.user.entity.User;
+import verbly.spring.domain.user.exception.UserHandler;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.common.constants.Constants;
 import verbly.spring.global.config.properties.JwtProperties;
+import verbly.spring.global.security.auth.CustomUserDetails;
 
 import java.security.Key;
 import java.util.Date;
@@ -112,7 +115,7 @@ public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인
         User user = userRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.SOCIALID_NOT_FOUND));
 
-        UserDetails userDetails = new UserDetails(user);
+        CustomUserDetails userDetails = new CustomUserDetails(user);
 
         return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
     }
@@ -143,7 +146,7 @@ public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인
     public Authentication extractAuthentication(HttpServletRequest request){ // HttpServletRequest 에서 토큰 값을 추출
         String accessToken = resolveToken(request);
         if(accessToken == null || !validateToken(accessToken)) {
-            throw new userHandler(ErrorStatus.INVALID_JWT_ACCESS_TOKEN);
+            throw new UserHandler(ErrorStatus.INVALID_JWT_ACCESS_TOKEN);
         }
         return getAuthentication(accessToken); // getAuthentication 메소드를 이용해서 Spring Security의 Authentication 객체로 변환
     }

@@ -18,7 +18,6 @@ import java.io.IOException;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter { // 필터 역할: 클라이언트가 서버에게 전달되기 전에 인증 과정
-
     private final JwtTokenProvider jwtTokenProvider;
 
 //    private static final Set<String> NO_FILTER_URIS = Set.of("/auth/reissue", "/generate"); // /auth/reissue 외에도 필요하면

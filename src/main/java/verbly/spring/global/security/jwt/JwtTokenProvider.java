@@ -22,9 +22,7 @@ import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
-public class JwtTokenProvider {
-    // JWT 토큰을 생성하고, 검증하고, 인증 객체를 반환하는 역할을 수행
-
+public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인증 객체를 반환하는 역할을 수행
     private final JwtProperties jwtProperties;
     private final UserRepository userRepository;
 

@@ -2,8 +2,6 @@ package verbly.spring.domain.user.dto.response;
 
 import lombok.*;
 
-import java.util.List;
-
 public class UserResponseDTO {
     @Getter
     @Builder

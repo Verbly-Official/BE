@@ -8,7 +8,7 @@ public class UserResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class OnboardingResultDTO {
-        private Long memberId;
+        private Long userId;
         private String nickname;
         private String profileImage;
         private String learningLang; // 학습 언어

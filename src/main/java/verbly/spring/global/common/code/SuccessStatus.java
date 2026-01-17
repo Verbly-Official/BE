@@ -18,11 +18,8 @@ public enum SuccessStatus implements BaseCode {
     USER_INFO_READ_SUCCESS(HttpStatus.OK, "USER2004", "유저 정보를 성공적으로 조회했습니다."),
     USER_LOGOUT_SUCCESS(HttpStatus.OK, "USER2005", "로그아웃이 완료되었습니다."),
     USER_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "USER2006", "회원 탈퇴가 완료되었습니다."),
-    USER_PROFILE_IMAGE_UPDATED(HttpStatus.OK, "USER2007", "프로필 이미지가 성공적으로 변경되었습니다."),
-    USER_NICKNAME_UPDATE_SUCCESS(HttpStatus.OK, "USER2008", "닉네임이 성공적으로 변경되었습니다."),
-    USER_PROFILE_IMAGE_UPDATE_SUCCESS(HttpStatus.OK, "USER2010", "프로필 이미지가 성공적으로 변경되었습니다."),
-    USER_ALREADY_ONBOARDING_COMPLETED(HttpStatus.OK, "USER2011", "온보딩이 이미 완료된 유저입니다."),
-    USER_NICKNAME_CHECK_COMPLETED(HttpStatus.OK, "USER2012", "사용 가능한 닉네임입니다.");
+    USER_PROFILE_UPDATE_SUCCESS(HttpStatus.OK, "USER2007", "프로필이 성공적으로 변경되었습니다."),
+    USER_ALREADY_ONBOARDING_COMPLETED(HttpStatus.OK, "USER2011", "온보딩이 이미 완료된 유저입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

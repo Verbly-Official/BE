@@ -52,7 +52,7 @@ public class UserResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class MyPageUpdateResultDTO {
+    public static class ProfileUpdateResultDTO {
         private Long userId;
         private String profileImage;
         private String nickname;

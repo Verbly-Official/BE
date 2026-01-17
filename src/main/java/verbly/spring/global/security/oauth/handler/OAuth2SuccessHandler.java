@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.code.SuccessStatus;
+import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.auth.CustomOAuth2User;
 import verbly.spring.global.security.jwt.JwtTokenProvider;
 import org.springframework.stereotype.Component;
@@ -57,27 +58,30 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         response.sendRedirect(redirectUri);
         */
 
-        /*
+        /**/
         // JSON 응답 방식 (SPA 등 API 호출용)
+        boolean isOnboardingCompleted = user.getStatus() == UserStatus.ACTIVE;
+
         AuthResponseDTO.LoginResultDTO result = AuthResponseDTO.LoginResultDTO.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .userId(user.getId())
-                .isOnboardingCompleted(user.isOnboardingCompleted())
+                .isOnboardingCompleted(isOnboardingCompleted)
                 .build();
 
         ApiResponse<AuthResponseDTO.LoginResultDTO> apiResponse;
         if (user.isOnboardingCompleted()) {
             apiResponse = ApiResponse.of(SuccessStatus.USER_ALREADY_LOGIN, result);
         } else {
-            apiResponse = ApiResponse.of(SuccessStatus.User_NEEDS_ONBOARDING, result);
+            apiResponse = ApiResponse.of(SuccessStatus.USER_NEEDS_ONBOARDING, result);
         }
 
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
-        */
 
+
+        /*
         // 쿠키로 프론트에게 내려주기
         boolean isOnboardingCompleted = user.getStatus() == UserStatus.ONBOARDING;
         SuccessStatus status = isOnboardingCompleted
@@ -99,6 +103,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // 3. 리다이렉트 (브릿지 페이지)
         response.sendRedirect("https://www.verbly.site/oauth-redirect");
+        */
     }
 
     private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {

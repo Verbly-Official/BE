@@ -12,8 +12,6 @@ public class UserRequestDTO {
         @Size(max = 3, message = "학습 언어 코드를 선택해주세요.")
         private String learningLang; // "en"
 
-//        String profileImage;
-
         @NotEmpty(message = "모국어는 필수입니다.")
         @Size(max = 3, message = "모국어 코드를 선택해주세요.")
         private String nativeLang; // "ko"

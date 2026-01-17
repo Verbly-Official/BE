@@ -32,17 +32,17 @@ public class User extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String socialId;
 
-    @Column(nullable = false, length = 3)
+    @Column(length = 3)
     private String nativeLang; // ISO code (e.g. "ko")
 
-    @Column(nullable = false, length = 3)
+    @Column(length = 3)
     private String learningLang; // ISO code (e.g. "en")
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String nickname;
 
     @Column(columnDefinition = "TEXT") // 길이 제한 없도록
@@ -52,7 +52,7 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
     private ProfileImage profileImage;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String timezone;
 
     @Column(length = 50)

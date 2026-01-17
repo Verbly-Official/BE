@@ -32,10 +32,10 @@ public class User extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String socialId;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 3)
     private String nativeLang; // ISO code (e.g. "ko")
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 3)
     private String learningLang; // ISO code (e.g. "en")
 
     @Enumerated(EnumType.STRING)
@@ -57,6 +57,9 @@ public class User extends BaseEntity {
 
     @Column(length = 50)
     private String email;
+
+    @Column(length = 20)
+    private String phoneNumber; // +82 010-1234-5678
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
     private NotificationSettings notificationSettings;

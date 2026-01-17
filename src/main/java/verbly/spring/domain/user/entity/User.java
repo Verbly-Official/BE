@@ -40,7 +40,7 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserStatus status;
+    private UserStatus status; // ONBOARDING(소셜 로그인 직후), ACTIVE(온보딩 완료), SUSPENDED, DELETED
 
     @Column(length = 50)
     private String nickname;

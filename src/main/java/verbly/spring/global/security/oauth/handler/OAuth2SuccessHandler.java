@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import verbly.spring.domain.auth.dto.response.AuthResponseDTO;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.code.SuccessStatus;
@@ -60,17 +61,15 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         /**/
         // JSON 응답 방식 (SPA 등 API 호출용)
-        boolean isOnboardingCompleted = user.getStatus() == UserStatus.ACTIVE;
-
         AuthResponseDTO.LoginResultDTO result = AuthResponseDTO.LoginResultDTO.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .userId(user.getId())
-                .isOnboardingCompleted(isOnboardingCompleted)
+                .status(user.getStatus().name())
                 .build();
 
         ApiResponse<AuthResponseDTO.LoginResultDTO> apiResponse;
-        if (user.isOnboardingCompleted()) {
+        if (user.getStatus() == UserStatus.ACTIVE) {
             apiResponse = ApiResponse.of(SuccessStatus.USER_ALREADY_LOGIN, result);
         } else {
             apiResponse = ApiResponse.of(SuccessStatus.USER_NEEDS_ONBOARDING, result);

@@ -1,11 +1,8 @@
 package verbly.spring.domain.user.dto.request;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 public class UserRequestDTO {
     @Getter
@@ -13,13 +10,13 @@ public class UserRequestDTO {
     public static class OnboardingDTO {
         @NotBlank(message = "학습 언어는 필수입니다.")
         @Size(max = 3, message = "학습 언어 코드를 선택해주세요.")
-        String learningLang; // "en"
+        private String learningLang; // "en"
 
 //        String profileImage;
 
         @NotEmpty(message = "모국어는 필수입니다.")
         @Size(max = 3, message = "모국어 코드를 선택해주세요.")
-        String nativeLang; // "ko"
+        private String nativeLang; // "ko"
     }
 
     @Getter
@@ -27,7 +24,7 @@ public class UserRequestDTO {
     public static class ProfileUpdateDTO {
         @NotBlank(message = "필수 입력칸 미입력입니다. 다시 확인해주세요.")
         @Size(max = 50, message = "닉네임은 최대 50자입니다.")
-        String nickname;
+        private String nickname;
 
 //        String profileImage;
 

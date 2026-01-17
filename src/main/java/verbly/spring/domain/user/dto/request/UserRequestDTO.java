@@ -12,20 +12,20 @@ public class UserRequestDTO {
     @Setter
     public static class OnboardingDTO {
         @NotBlank(message = "학습 언어는 필수입니다.")
-        @Size(max = 3, message = "언어 코드는 최대 10자입니다.")
+        @Size(max = 3, message = "학습 언어 코드를 선택해주세요.")
         String learningLang; // "en"
 
 //        String profileImage;
 
         @NotEmpty(message = "모국어는 필수입니다.")
-        @Size(max = 3, message = "언어 코드는 최대 10자입니다.")
+        @Size(max = 3, message = "모국어 코드를 선택해주세요.")
         String nativeLang; // "ko"
     }
 
     @Getter
     @Setter
     public static class ProfileUpdateDTO {
-        @NotBlank(message = "닉네임을 입력해주세요.")
+        @NotBlank(message = "필수 입력칸 미입력입니다. 다시 확인해주세요.")
         @Size(max = 50, message = "닉네임은 최대 50자입니다.")
         String nickname;
 

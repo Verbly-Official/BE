@@ -34,9 +34,6 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true
-#    redis:
-#      host: localhost
-#      port: 6379 # redis port 기본값
   security:
     oauth2:
       client:

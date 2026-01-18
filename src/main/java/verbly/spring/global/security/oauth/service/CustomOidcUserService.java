@@ -51,7 +51,7 @@ public class CustomOidcUserService extends OidcUserService {
         User user = User.builder()
                 .socialId(socialId)
                 .provider(AuthProvider.from(provider))
-                .status(UserStatus.ONBOARDING)
+                .status(UserStatus.NEED_ONBOARDING)
                 .build();
         return userRepository.save(user);
     }

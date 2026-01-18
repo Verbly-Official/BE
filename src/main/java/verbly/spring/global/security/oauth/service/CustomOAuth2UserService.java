@@ -55,7 +55,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
         User user = User.builder()
                 .socialId(socialId)
                 .provider(AuthProvider.from(provider))
-                .status(UserStatus.ONBOARDING)
+                .status(UserStatus.NEED_ONBOARDING)
                 .build();
         return userRepository.save(user);
     }

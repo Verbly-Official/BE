@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import verbly.spring.domain.auth.dto.response.AuthResponseDTO;
+import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.code.SuccessStatus;
@@ -58,26 +59,29 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             log.info("🖼 profile image: {}", attributes.get("picture"));
             log.info("📧 email: {}", attributes.get("email"));
             log.info("🆔 sub: {}", attributes.get("sub"));
-        } else if ("kakao".equals(provider)) {
-
-            log.info("🟡 [KAKAO] 로그인 성공");
-
-            Map<String, Object> attributes = oAuth2User.getAttributes();
-            log.info("🧩 attributes = {}", attributes);
-
-            Map<String, Object> kakaoAccount =
-                    (Map<String, Object>) attributes.get("kakao_account");
-            Map<String, Object> profile =
-                    (Map<String, Object>) kakaoAccount.get("profile");
-
-            log.info("👤 nickname: {}", profile.get("nickname"));
-            log.info("🖼 profile image: {}", profile.get("profile_image_url"));
-            log.info("📧 email: {}", kakaoAccount.get("email"));
-            log.info("🆔 kakao id: {}", attributes.get("id"));
         }
 
         User user = oAuth2User.getUser();
         log.info("🙋‍♂️ 로그인한 유저 ID: {}, 온보딩 상태: {}", user.getId(), user.getStatus());
+
+        Map<String, Object> attributes = oAuth2User.getAttributes();
+        if ("google".equals(provider)) {
+            String nickname = (String) attributes.get("name");
+            String email = (String) attributes.get("email");
+            String profileImageUrl = (String) attributes.get("picture");
+
+            user.setNickname(nickname);
+            user.setEmail(email);
+
+            if (user.getProfileImage() == null) {
+                user.setProfileImage(ProfileImage.builder()
+                        .user(user)
+                        .imageUrl(profileImageUrl)
+                        .build());
+            } else {
+                user.getProfileImage().setImageUrl(profileImageUrl);
+            }
+        }
 
         // JWT 발급
         String accessToken = jwtTokenProvider.generateAccessToken(authentication); // kakao_12345
@@ -91,6 +95,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .userId(user.getId())
+                .provider(user.getProvider().toString())
+                .nickname(user.getNickname())
+                .profileImage(user.getProfileImage().getImageUrl())
+                .email(user.getEmail())
                 .status(user.getStatus().name())
                 .build();
 

@@ -6,6 +6,7 @@ import verbly.spring.global.common.entity.BaseEntity;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder

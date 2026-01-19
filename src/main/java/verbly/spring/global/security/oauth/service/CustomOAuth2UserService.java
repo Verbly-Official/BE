@@ -10,6 +10,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.enums.AuthProvider;
 import verbly.spring.domain.user.enums.UserStatus;
@@ -20,6 +22,10 @@ import verbly.spring.global.security.auth.CustomOAuth2User;
 import verbly.spring.global.security.oauth.userinfo.OAuth2UserInfo;
 import verbly.spring.global.security.oauth.userinfo.OAuth2UserInfoFactory;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,6 +33,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
         OAuth2User oAuth2User = super.loadUser(userRequest); // 1. 소셜 API에서 사용자 정보 가져오기
@@ -45,18 +52,49 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
         User user = userRepository.findBySocialId(checkSocialId)
                 .orElseGet(() -> saveNewUser(userInfo, provider)); // 3. 회원 조회 or 신규 회원 등록
 
+        log.info("🟡 [KAKAO] 로그인 성공");
+
+        Map<String, Object> attributes = oAuth2User.getAttributes();
+        log.info("🧩 attributes = {}", attributes);
+
+        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+
+        log.info("👤 nickname: {}", profile.get("nickname"));
+        log.info("🖼 profile image: {}", profile.get("profile_image_url"));
+        log.info("📧 email: {}", kakaoAccount.get("email"));
+        log.info("🆔 kakao id: {}", attributes.get("id"));
+
         return new CustomOAuth2User(user, oAuth2User.getAttributes(), provider); // 4. 반환할 OAuth2User 구현체 (권한 부여용)
 //        return super.loadUser(userRequest);
     }
 
     private User saveNewUser(OAuth2UserInfo userInfo, String provider) {
         log.info("🆕 {} 신규 유저로 저장 시도", provider);
+
+        Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.getAttributes().get("kakao_account");
+        //Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+        Map<String, Object> profile = (Map<String, Object>) Optional.ofNullable(kakaoAccount.get("profile"))
+                .orElse(Collections.emptyMap());
         String socialId = provider.toLowerCase() + "_" + userInfo.getSocialId(); // kakao_12345
+
         User user = User.builder()
                 .socialId(socialId)
                 .provider(AuthProvider.from(provider))
+                .nickname((String) profile.get("nickname"))
+                .email((String) kakaoAccount.get("email"))
                 .status(UserStatus.NEED_ONBOARDING)
                 .build();
+
+        //String profileImageUrl = (String) profile.get("profile_image_url");
+        String profileImageUrl = (String) Optional.ofNullable(profile.get("profile_image_url"))
+                .orElse("default_profile_url");
+
+        user.setProfileImage(ProfileImage.builder()
+                .user(user)
+                .imageUrl(profileImageUrl)
+                .build());
+
         return userRepository.save(user);
     }
 }

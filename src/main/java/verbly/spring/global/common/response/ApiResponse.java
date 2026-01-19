@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import verbly.spring.global.common.code.BaseCode;
+import verbly.spring.global.common.code.BaseErrorCode;
 import verbly.spring.global.common.code.SuccessStatus;
 
 @Getter
@@ -29,7 +30,10 @@ public class ApiResponse<T> {
     }
 
     // 실패한 경우 응답 생성
-    public static <T> ApiResponse<T> onFailure(String code, String message, T data){
-        return new ApiResponse<>(false, code, message, data);
+//    public static <T> ApiResponse<T> onFailure(String code, String message, T data){
+//        return new ApiResponse<>(false, code, message, data);
+//    }
+    public static <T> ApiResponse<T> onFailure(BaseErrorCode code) {
+        return new ApiResponse<>(false, code.getReason().getCode(), code.getReason().getMessage(), null);
     }
 }

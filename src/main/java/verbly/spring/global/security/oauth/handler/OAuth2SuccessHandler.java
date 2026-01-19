@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import verbly.spring.domain.auth.dto.response.AuthResponseDTO;
 import verbly.spring.domain.user.entity.User;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -37,6 +40,41 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         log.info("🔐 authentication.getPrincipal() 타입: {}", authentication.getPrincipal().getClass().getName());
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+        String provider = oAuth2User.getProvider();
+        if ("google".equals(provider)) {
+
+            log.info("🔵 [GOOGLE] 로그인 성공");
+
+            Map<String, Object> attributes = oAuth2User.getAttributes();
+            log.info("🧩 attributes = {}", attributes);
+            if (oAuth2User.getIdToken() != null) { // idToken은 null일 수도 있음
+                log.info("🧩 idToken claims = {}", oAuth2User.getIdToken().getClaims());
+            } else {
+                log.info("⚠️ idToken is null (userinfo 기반 인증)");
+            }
+
+            log.info("👤 name: {}", attributes.get("name"));
+            log.info("📛 nickname(given_name): {}", attributes.get("given_name"));
+            log.info("🖼 profile image: {}", attributes.get("picture"));
+            log.info("📧 email: {}", attributes.get("email"));
+            log.info("🆔 sub: {}", attributes.get("sub"));
+        } else if ("kakao".equals(provider)) {
+
+            log.info("🟡 [KAKAO] 로그인 성공");
+
+            Map<String, Object> attributes = oAuth2User.getAttributes();
+            log.info("🧩 attributes = {}", attributes);
+
+            Map<String, Object> kakaoAccount =
+                    (Map<String, Object>) attributes.get("kakao_account");
+            Map<String, Object> profile =
+                    (Map<String, Object>) kakaoAccount.get("profile");
+
+            log.info("👤 nickname: {}", profile.get("nickname"));
+            log.info("🖼 profile image: {}", profile.get("profile_image_url"));
+            log.info("📧 email: {}", kakaoAccount.get("email"));
+            log.info("🆔 kakao id: {}", attributes.get("id"));
+        }
 
         User user = oAuth2User.getUser();
         log.info("🙋‍♂️ 로그인한 유저 ID: {}, 온보딩 상태: {}", user.getId(), user.getStatus());

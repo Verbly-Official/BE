@@ -45,7 +45,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
         User user = userRepository.findBySocialId(checkSocialId)
                 .orElseGet(() -> saveNewUser(userInfo, provider)); // 3. 회원 조회 or 신규 회원 등록
 
-        return new CustomOAuth2User(user, oAuth2User.getAttributes()); // 4. 반환할 OAuth2User 구현체 (권한 부여용)
+        return new CustomOAuth2User(user, oAuth2User.getAttributes(), provider); // 4. 반환할 OAuth2User 구현체 (권한 부여용)
 //        return super.loadUser(userRequest);
     }
 

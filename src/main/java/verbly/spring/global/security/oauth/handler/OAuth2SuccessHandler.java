@@ -85,18 +85,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         log.info("🔑 AccessToken: {}, RefreshToken: {}", accessToken, refreshToken);
 
-        /*
-        // 리다이렉트 + 쿼리파라미터 방식: 프론트엔드가 토큰 읽을 수 있도록 전달 -> url에 토큰 노출
-        String redirectUri = (user.getStatus() == UserStatus.ONBOARDING)
-                ? "https://verbly.com/onboarding"
-                : "https://verbly.com/home";
-
-        redirectUri += "?accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8)
-                + "&refreshToken=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
-
-        response.sendRedirect(redirectUri);
-        */
-
         /**/
         // JSON 응답 방식 (SPA 등 API 호출용)
         AuthResponseDTO.LoginResultDTO result = AuthResponseDTO.LoginResultDTO.builder()

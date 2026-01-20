@@ -18,6 +18,7 @@ import verbly.spring.domain.user.repository.ProfileImageRepository;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.domain.uuid.entity.Uuid;
 import verbly.spring.domain.uuid.repository.UuidRepository;
+import verbly.spring.global.common.aws.s3.AmazonS3Manager;
 import verbly.spring.global.common.code.ErrorStatus;
 
 import java.util.List;
@@ -104,7 +105,7 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .bio(user.getBio())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
-                .profileImageUrl(
+                .profileImage(
                         profileImageUrl != null
                                 ? profileImageUrl
                                 : user.getProfileImage() != null

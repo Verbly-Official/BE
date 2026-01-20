@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import verbly.spring.domain.user.dto.request.UserRequestDTO;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.domain.user.entity.User;
+import verbly.spring.domain.user.service.UserCommandService;
 import verbly.spring.domain.user.service.UserQueryService;
 import verbly.spring.global.common.code.SuccessStatus;
 import verbly.spring.global.common.response.ApiResponse;

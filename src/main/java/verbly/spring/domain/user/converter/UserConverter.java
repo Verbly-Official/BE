@@ -36,10 +36,10 @@ public class UserConverter {
                 .streakDays(user.getStats().getStreakDays())
                 .point(user.getStats().getPoint())
                 .level(user.getStats().getLevel().getValue())
-                .followCount(user.getFollowCount())
-                .postCount(user.getPostCount())
-                .correctionsGiven(user.getCorrectionsGiven())
-                .correctionsReceived(user.getCorrectionsReceived())
+//                .followCount(user.getFollowCount())
+//                .postCount(user.getPostCount())
+//                .correctionsGiven(user.getCorrectionsGiven())
+//                .correctionsReceived(user.getCorrectionsReceived())
                 .status(user.getStatus().name())
                 .build();
     }

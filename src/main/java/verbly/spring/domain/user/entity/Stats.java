@@ -20,6 +20,7 @@ public class Stats {
     @Id
     private Long userId;
 
+    @MapsId
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;

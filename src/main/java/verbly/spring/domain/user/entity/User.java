@@ -64,6 +64,16 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
     private NotificationSettings notificationSettings;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Stats stats;
+
+    public void setStats(Stats stats) {
+        this.stats = stats;
+        if (stats.getUser() != this) {
+            stats.setUser(this); // 양방향 연관관계 세팅
+        }
+    }
+
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }

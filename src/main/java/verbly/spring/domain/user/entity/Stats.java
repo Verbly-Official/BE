@@ -61,4 +61,15 @@ public class Stats {
 
         lastActiveDate = today;
     }
+
+    @Column(name = "review_count")
+    private Long reviewCount;
+
+    @Column(name = "review_average")
+    private Double reviewAverage;
+
+    public void updateReviewMeta(Long reviewCount, Double averageByRevieweeId) {
+        this.reviewCount = reviewCount + 1;
+        this.reviewAverage = averageByRevieweeId;
+    }
 }

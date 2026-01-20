@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.domain.user.entity.User;
+import verbly.spring.domain.user.exception.UserHandler;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.security.jwt.JwtTokenProvider;

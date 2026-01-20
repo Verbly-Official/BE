@@ -5,17 +5,18 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import verbly.spring.domain.docs.enums.CorrectorType;
+import verbly.spring.domain.docs.enums.DocStatus;
+import verbly.spring.domain.user.entity.User;
+import verbly.spring.global.common.entity.BaseEntity;
 
-import java.time.Instant;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @Entity
 @Table(name = "docs")
-public class Document {
+public class Document extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,9 +31,9 @@ public class Document {
      * private Long corrector;
      **/
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private CorrectorType correctorType;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "author_id", nullable = false)
+    private User author; // 작성자
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
@@ -49,35 +50,6 @@ public class Document {
     private boolean isTemp;
 
     @Column(nullable = false)
-    private boolean bookmarked;
+    private boolean bookmark;
 
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @UpdateTimestamp
-    @Column(nullable = false)
-    private Instant updatedAt;
-
-    public void updateContent(String content) {
-        this.content = content;
-    }
-
-    public void updateStatus(DocStatus status) {
-        this.status = status;
-    }
-
-    public void setBookmarked(boolean bookmarked) {
-        this.bookmarked = bookmarked;
-    }
-
-    public void setTemp(boolean temp) {
-        isTemp = temp;
-    }
-
-
-//    public void setCorrector(CorrectorType type, Long correctorId) {
-//        this.correctorType = type;
-//        this.correctorId = correctorId;
-//    }
 }

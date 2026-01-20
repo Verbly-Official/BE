@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.user.entity.ProfileImage;
+import verbly.spring.domain.user.entity.Stats;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.enums.AuthProvider;
 import verbly.spring.domain.user.enums.UserStatus;
@@ -94,6 +95,15 @@ public class CustomOidcUserService extends OidcUserService {
                 .user(user)
                 .imageUrl(profileImageUrl)
                 .build());
+
+        Stats stats = Stats.builder()
+                .user(user)
+                .userId(user.getId()) // 아직 DB 저장 전이라 null일 수 있음, save 후 update 가능
+                .point(100) // 가입 보너스 100P
+                .streakDays(0)
+                .lastActiveDate(null)
+                .build();
+        user.setStats(stats);
 
         return userRepository.save(user);
     }

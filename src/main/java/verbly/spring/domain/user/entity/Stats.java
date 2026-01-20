@@ -47,6 +47,7 @@ public class Stats {
 
     private LocalDate lastActiveDate;
 
+    // home 조회 api에서 통계 서비스의 markAttendance 호출하기
     public void markAttendance(String timezone) {
         LocalDate today = LocalDate.now(ZoneId.of(timezone));
 

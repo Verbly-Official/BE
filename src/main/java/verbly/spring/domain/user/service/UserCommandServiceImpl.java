@@ -115,7 +115,6 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .build();
     }
 
-    @ValidateS3ImageUpload
     private String updateProfileImage(User user, MultipartFile profileImage) {
         // 파일 형식 검사
         String contentType = profileImage.getContentType();

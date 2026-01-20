@@ -20,6 +20,7 @@ import verbly.spring.domain.user.service.UserQueryService;
 import verbly.spring.global.common.code.SuccessStatus;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.auth.CustomUserDetails;
+import verbly.spring.global.security.utils.SecurityUtils;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,7 +39,7 @@ public class UserRestController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestPart("request") @Valid UserRequestDTO.OnboardingDTO request
     ) {
-        Long userId = userDetails.getUser().getId();
+        Long userId = SecurityUtils.getCurrentUserId();
         User user = userCommandService.onboardingUser(userId, request);
         return ResponseEntity.status(SuccessStatus.USER_ONBOARDING_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.USER_ONBOARDING_SUCCESS, UserConverter.toOnboardingResponseDTO(user)));
@@ -52,7 +53,7 @@ public class UserRestController {
     public ResponseEntity<ApiResponse<UserResponseDTO.UserInfoDTO>> getMyInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Long userId = userDetails.getUser().getId();
+        Long userId = SecurityUtils.getCurrentUserId();
         UserResponseDTO.UserInfoDTO info = userQueryService.getUserInfo(userId);
         return ResponseEntity.status(SuccessStatus.USER_INFO_READ_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.USER_INFO_READ_SUCCESS, info));
@@ -64,7 +65,8 @@ public class UserRestController {
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     public ResponseEntity<ApiResponse<Void>> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        userCommandService.deleteUser(userDetails.getUser().getId());
+        Long userId = SecurityUtils.getCurrentUserId();
+        userCommandService.deleteUser(userId);
         return ResponseEntity.status(SuccessStatus.USER_DELETE_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.USER_DELETE_SUCCESS, null));
     }
@@ -81,7 +83,7 @@ public class UserRestController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
-        Long userId = userDetails.getUser().getId();
+        Long userId = SecurityUtils.getCurrentUserId();
         UserResponseDTO.ProfileUpdateResultDTO result = userCommandService.updateUser(userId, request, profileImage);
         return ResponseEntity.status(SuccessStatus.USER_PROFILE_UPDATE_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.USER_PROFILE_UPDATE_SUCCESS, result));

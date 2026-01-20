@@ -1,12 +1,11 @@
-package verbly.spring.domain.docs.entity;
+package verbly.spring.domain.post.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import verbly.spring.domain.docs.enums.CorrectorType;
-import verbly.spring.domain.docs.enums.DocStatus;
+import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.entity.BaseEntity;
 
@@ -16,20 +15,11 @@ import verbly.spring.global.common.entity.BaseEntity;
 @Builder
 @Entity
 @Table(name = "docs")
-public class Document extends BaseEntity {
+public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    /**
-     * @ManyToOne(fetch = FetchType.LAZY, optional = false)
-     * @JoinColumn(name = "author_id", nullable = false)
-     * private User author;
-     *
-     * @Column(name = "corrector_id")
-     * private Long corrector;
-     **/
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "author_id", nullable = false)
@@ -37,7 +27,7 @@ public class Document extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private DocStatus status;
+    private PostStatus status;
 
     @Column(nullable = false)
     private String title;

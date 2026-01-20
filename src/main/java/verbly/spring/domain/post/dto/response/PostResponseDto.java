@@ -1,20 +1,18 @@
-package verbly.spring.domain.docs.dto.response;
+package verbly.spring.domain.post.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import verbly.spring.domain.docs.enums.CorrectorType;
-import verbly.spring.domain.docs.enums.DocStatus;
+import verbly.spring.domain.post.enums.PostStatus;
 
 import java.time.Instant;
 
 @AllArgsConstructor
 @Builder
-public class DocsResponseDto {
+public class PostResponseDto {
     private Long id;
     private Long authorId;
-    private CorrectorType correctorType;
     private Long correctorId;
-    private DocStatus status;
+    private PostStatus status;
     private String content;
     private boolean bookmarked;
     private Instant createdAt;

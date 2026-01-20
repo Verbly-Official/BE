@@ -1,20 +1,20 @@
-package verbly.spring.domain.docs.dto.request;
+package verbly.spring.domain.post.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import verbly.spring.domain.docs.enums.DocStatus;
+import verbly.spring.domain.post.enums.PostStatus;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DocsUpdateRequestDto {
+public class PostUpdateRequestDto {
     @NotBlank
     private String title;
 
     @NotBlank
     private String content;
 
-    private DocStatus status;
+    private PostStatus status;
 }

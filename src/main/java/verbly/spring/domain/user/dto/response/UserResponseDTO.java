@@ -56,6 +56,7 @@ public class UserResponseDTO {
         private Long userId;
         private String profileImage;
         private String nickname;
+        private String bio;
         private String email;
         private String phoneNumber;
     }

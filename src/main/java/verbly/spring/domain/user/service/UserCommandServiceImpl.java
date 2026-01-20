@@ -46,6 +46,9 @@ public class UserCommandServiceImpl implements UserCommandService {
             throw new UserHandler(ErrorStatus.ONBOARDING_ALREADY_COMPLETED);
         }
 
+        user.setNativeLang(request.getNativeLang());
+        user.setLearningLang(request.getLearningLang());
+
         user.setStatus(UserStatus.ACTIVE); // 조건이 충족되지 않으면, user의 status는 기본값(NEED_ONBOARDING)인 채로 유지
 
         return user;

@@ -38,9 +38,8 @@ public class User extends BaseEntity {
     @Column(length = 3)
     private String learningLang; // ISO code (e.g. "en")
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserStatus status; // ONBOARDING(소셜 로그인 직후), ACTIVE(온보딩 완료), SUSPENDED, DELETED
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
+    private ProfileImage profileImage;
 
     @Column(length = 50)
     private String nickname;
@@ -48,18 +47,18 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "TEXT") // 길이 제한 없도록
     private String bio;
 
-    //    private String profileImage;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
-    private ProfileImage profileImage;
-
-    @Column(length = 50)
-    private String timezone;
-
     @Column(length = 50)
     private String email;
 
     @Column(length = 20)
     private String phoneNumber; // +82 010-1234-5678
+
+    @Column(length = 50)
+    private String timezone;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserStatus status; // ONBOARDING(소셜 로그인 직후), ACTIVE(온보딩 완료), SUSPENDED, DELETED
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
     private NotificationSettings notificationSettings;

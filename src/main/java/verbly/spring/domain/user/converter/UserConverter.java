@@ -35,7 +35,7 @@ public class UserConverter {
                 .phoneNumber(user.getPhoneNumber())
                 .streakDays(user.getStats().getStreakDays())
                 .point(user.getStats().getPoint())
-                .level(user.getStats().getLevel())
+                .level(user.getStats().getLevel().getValue())
                 .followCount(user.getFollowCount())
                 .postCount(user.getPostCount())
                 .correctionsGiven(user.getCorrectionsGiven())

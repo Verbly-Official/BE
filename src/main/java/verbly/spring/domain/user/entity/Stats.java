@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import verbly.spring.domain.user.enums.Level;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -62,5 +63,9 @@ public class Stats {
         }
 
         lastActiveDate = today;
+    }
+
+    public Level getLevel() {
+        return Level.fromPoint(this.point);
     }
 }

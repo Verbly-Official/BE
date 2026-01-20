@@ -1,11 +1,22 @@
 spring:
   application:
     name: Verbly
+  profiles:
+    active: local # dev, prod(배포 때 Amazon Config 같이 동작하도록 수정)
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: app-hikari
+      maximum-pool-size: 20 # CPU/부하/DB 여건에 따라 10~30부터 시작
+      minimum-idle: 5
+      connection-timeout: 30000 # 밀리초, 풀에서 빌리는 대기 최대시간
+      idle-timeout: 600000 # 10분, 놀고있는 커넥션 정리
+      max-lifetime: 1700000 # 28m20s, DB wait_timeout보다 1~2분 짧게
+      validation-timeout: 5000
+      leak-detection-threshold: 20000 # 20초 넘게 반납 안 하면 로그로 경고(원인 추적용)
   sql:
     init:
       mode: never
@@ -17,17 +28,44 @@ spring:
         format_sql: true
         use_sql_comments: true
         hbm2ddl:
-          auto: update #validate
+          auto: create # update #validate
         default_batch_fetch_size: 1000
   data:
     web:
       pageable:
         one-indexed-parameters: true
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-authentication-method: client_secret_post
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_SECRET}
+            redirect-uri: ${KAKAO_REDIRECT_URL}
+            authorization-grant-type: authorization_code
+            scope:
+              - profile_nickname
+              - profile_image
+              - account_email
+            client-name: Kakao
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
   servlet:
     multipart:
       maxFileSize: 10MB # 파일 하나의 최대 크기
-      maxRequestSize: 100MB  # 한 번에 최대 업로드 가능 용량
+      maxRequestSize: 100MB # 한 번에 최대 업로드 가능 용량
       # resolve-lazily 옵션 설명:
       # false (기본값): 파일 파싱이 컨트롤러 진입 전에 이뤄짐
       # true: 파일 파싱을 컨트롤러 파라미터 바인딩 시점으로 미룸
       resolve-lazily: false
+jwt:
+  token:
+    secretKey: ${JWT_SECRETKEY}
+    expiration: # (만료) 시간 설정은 ms단위
+      access: 14400000 # 4시간(보통 1시간~4시간 단위를 많이 채택)
+      refresh: 604800000 # 7일

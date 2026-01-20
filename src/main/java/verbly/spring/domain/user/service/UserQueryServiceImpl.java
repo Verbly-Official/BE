@@ -7,6 +7,7 @@ import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.exception.UserHandler;
 import verbly.spring.domain.user.repository.UserRepository;
+import verbly.spring.domain.user.validator.ProfileValidator;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.security.jwt.JwtTokenProvider;
 
@@ -15,7 +16,7 @@ import verbly.spring.global.security.jwt.JwtTokenProvider;
 public class UserQueryServiceImpl implements UserQueryService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final OnboardingValidator onboardingValidator;
+    private final ProfileValidator profileValidator;
 
     @Override
     @Transactional(readOnly = true)
@@ -26,7 +27,7 @@ public class UserQueryServiceImpl implements UserQueryService {
         User user = userRepository.findById(userId) // UserRepository 로부터 사용자 정보를 조회
                 .orElseThrow(()-> new UserHandler(ErrorStatus.USER_NOT_FOUND));
 
-        boolean complete = onboardingValidator.isCompleteOnboarding(user);
+        boolean complete = profileValidator.hasRequiredProfileInfo(user);
 
         return UserConverter.toUserInfoDTO(user, complete); // 정보 조회에 성공하면, 우리가 정의한 Response DTO인 MemberInfoDTO 로 반환
     }

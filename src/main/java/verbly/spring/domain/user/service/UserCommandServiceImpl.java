@@ -7,6 +7,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import verbly.spring.domain.user.converter.UserConverter;
 import verbly.spring.domain.user.dto.request.UserRequestDTO;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.domain.user.entity.ProfileImage;

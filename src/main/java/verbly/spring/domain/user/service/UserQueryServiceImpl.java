@@ -3,6 +3,7 @@ package verbly.spring.domain.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import verbly.spring.domain.user.converter.UserConverter;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.exception.UserHandler;
@@ -27,8 +28,6 @@ public class UserQueryServiceImpl implements UserQueryService {
         User user = userRepository.findById(userId) // UserRepository 로부터 사용자 정보를 조회
                 .orElseThrow(()-> new UserHandler(ErrorStatus.USER_NOT_FOUND));
 
-        boolean complete = profileValidator.hasRequiredProfileInfo(user);
-
-        return UserConverter.toUserInfoDTO(user, complete); // 정보 조회에 성공하면, 우리가 정의한 Response DTO인 MemberInfoDTO 로 반환
+        return UserConverter.toUserInfoDTO(user); // 정보 조회에 성공하면, 우리가 정의한 Response DTO인 UserInfoDTO 로 반환
     }
 }

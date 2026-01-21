@@ -37,9 +37,9 @@ public class UserConverter {
                 .point(user.getStats().getPoint())
                 .level(user.getStats().getLevel().getValue())
 //                .followCount(user.getFollowCount())
-//                .postCount(user.getPostCount())
-//                .correctionsGiven(user.getCorrectionsGiven())
-//                .correctionsReceived(user.getCorrectionsReceived())
+//                .postCount(postCount)
+//                .correctionsGiven(correctionsGiven)
+//                .correctionsReceived(correctionsReceived)
                 .status(user.getStatus().name())
                 .build();
     }

@@ -28,6 +28,10 @@ public class UserQueryServiceImpl implements UserQueryService {
         User user = userRepository.findById(userId) // UserRepository 로부터 사용자 정보를 조회
                 .orElseThrow(()-> new UserHandler(ErrorStatus.USER_NOT_FOUND));
 
-        return UserConverter.toUserInfoDTO(user); // 정보 조회에 성공하면, 우리가 정의한 Response DTO인 UserInfoDTO 로 반환
+//        long totalCount = postRepository.countByUserId(user.getId());
+//        long correctionsGiven = correctionRepository.countByUserId(user.getId());
+//        long correctionsReceived = feedbackRepository.countByUserId(user.getId());
+
+        return UserConverter.toUserInfoDTO(user);//, totalCount, correctionsGiven, correctionsReceived); // 정보 조회에 성공하면, 우리가 정의한 Response DTO인 UserInfoDTO 로 반환
     }
 }

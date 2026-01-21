@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import verbly.spring.domain.auth.dto.response.AuthResponseDTO;
 import verbly.spring.domain.auth.exception.AuthHandler;
+import verbly.spring.domain.auth.service.AuthCommandService;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.common.code.SuccessStatus;
 import verbly.spring.global.common.response.ApiResponse;

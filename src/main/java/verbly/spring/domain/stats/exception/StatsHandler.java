@@ -1,7 +1,10 @@
 package verbly.spring.domain.stats.exception;
 
-public class StatsHandler extends RuntimeException {
-    public StatsHandler(String message) {
-        super(message);
+import verbly.spring.global.common.code.BaseErrorCode;
+import verbly.spring.global.common.exception.BaseException;
+
+public class StatsHandler extends BaseException {
+    public StatsHandler(BaseErrorCode errorCode) {
+        super(errorCode);
     }
 }

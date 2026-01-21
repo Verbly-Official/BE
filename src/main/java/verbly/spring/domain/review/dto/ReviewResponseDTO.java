@@ -13,7 +13,6 @@ public class ReviewResponseDTO {
 
     private String reviewerName;
 
-    //NATIVE 확인 변수 없을까?
     private String nativeLang;
 
     private String imageUrl;

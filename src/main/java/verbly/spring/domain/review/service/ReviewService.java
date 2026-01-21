@@ -27,7 +27,7 @@ public class ReviewService {
     private final StatsRepository statsRepository;
 
     // review only once? or not?
-    public ReviewResponseDTO createReview(Long reviewerId, Long revieweeId, ReviewRequestDTO reviewRequestDTO) {
+    public void createReview(Long reviewerId, Long revieweeId, ReviewRequestDTO reviewRequestDTO) {
 
         //reviewer
         Optional<User> optionalReviewer = userRepository.findById(reviewerId);
@@ -51,8 +51,6 @@ public class ReviewService {
         //update stats_review
         stats.updateReviewMeta(stats.getReviewCount(), statsRepository.getAverageByRevieweeId(revieweeId));
         statsRepository.save(stats);
-
-        return ReviewResponseDTO.from(review);
     }
 
     public List<ReviewResponseDTO> getReviewList(Long revieweeId) {
@@ -61,7 +59,7 @@ public class ReviewService {
         if (optionalReviewee.isEmpty()) throw new UserHandler(ErrorStatus.USER_NOT_FOUND);
         User reviewee = optionalReviewee.get();
 
-        List<Review> reviewList = reviewRepository.findByReviewee(reviewee);
+        List<Review> reviewList = reviewRepository.findByRevieweeId(revieweeId);
 
         // dto convert
         return reviewList

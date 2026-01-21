@@ -2,6 +2,7 @@ package verbly.spring.domain.review.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,14 +30,14 @@ public class ReviewController {
 //            description = "JWT 인증된 유저가 nativeLang과 learningLang을 등록하는 API입니다.",
 //            security = @SecurityRequirement(name = "JWT TOKEN")
 //    )
-    public ResponseEntity<ApiResponse<ReviewResponseDTO>> createReview(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long revieweeId, @RequestBody @Valid ReviewRequestDTO reviewRequestDTO) {
+    public ResponseEntity<ApiResponse<Null>> createReview(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long revieweeId, @RequestBody @Valid ReviewRequestDTO reviewRequestDTO) {
 
         Long reviewerId = customUserDetails.getUser().getId();
-        ReviewResponseDTO reviewResponseDTO = reviewService.createReview(reviewerId, revieweeId, reviewRequestDTO);
+        reviewService.createReview(reviewerId, revieweeId, reviewRequestDTO);
 
         return ResponseEntity
                 .status(SuccessStatus.REVIEW_CREATE_SUCCESS.getHttpStatus())
-                .body(ApiResponse.of(SuccessStatus.REVIEW_CREATE_SUCCESS, reviewResponseDTO));
+                .body(ApiResponse.of(SuccessStatus.REVIEW_CREATE_SUCCESS, null));
     }
 
     @GetMapping("/{revieweeId}")

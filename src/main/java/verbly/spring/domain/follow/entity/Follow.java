@@ -1,8 +1,7 @@
 package verbly.spring.domain.follow.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import verbly.spring.domain.user.entity.User;
 
@@ -10,7 +9,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
+@Builder(access = AccessLevel.PRIVATE)
 public class Follow {
 
     @Id
@@ -27,4 +28,13 @@ public class Follow {
 
     @Column(name = "followed_at")
     private LocalDateTime followedAt;
+
+    public static Follow of (User follower, User followee) {
+
+        return Follow.builder()
+                .follower(follower)
+                .followee(followee)
+                .followedAt(LocalDateTime.now())
+                .build();
+    }
 }

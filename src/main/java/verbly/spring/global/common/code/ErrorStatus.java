@@ -31,7 +31,8 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4003", "유효하지 않은 SocialToken입니다."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "PW4001", "잘못된 비밀번호입니다."),
 
-    STATS_NOT_FOUND();
+    // 통계 관련 에러
+    STATS_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATS4001", "사용자 통계 정보가 존재하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

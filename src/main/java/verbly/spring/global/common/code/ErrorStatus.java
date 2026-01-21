@@ -16,7 +16,7 @@ public enum ErrorStatus implements BaseErrorCode {
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "COMMON4004", "권한이 없습니다."),
 
     // 유저 관련 에러
-    USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER4001", "사용자가 없습니다."),
+    USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER4001", "사용자가 존재하지 않습니다."),
     NICKNAME_NOT_EXIST(HttpStatus.BAD_REQUEST, "USER4002", "닉네임은 필수입니다."),
     ONBOARDING_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "USER4003", "온보딩을 마치지 않았습니다."),
     SOCIALID_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER4005", "socialId가 없습니다."),

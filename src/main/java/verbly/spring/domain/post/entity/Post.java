@@ -16,7 +16,7 @@ import verbly.spring.global.common.entity.BaseEntity;
 @Builder
 @Table(name = "posts")
 @Check(constraints = "likes_count >= 0 AND comments_count >= 0")
-public class Posts extends BaseEntity {
+public class Post extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

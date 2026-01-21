@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import verbly.spring.domain.auth.converter.AuthConverter;
 import verbly.spring.domain.auth.dto.response.AuthResponseDTO;
 import verbly.spring.domain.auth.exception.AuthHandler;
 import verbly.spring.domain.user.entity.User;

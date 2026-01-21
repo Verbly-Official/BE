@@ -71,7 +71,7 @@ public class UserRestController {
     @PatchMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(
             summary = "마이페이지 회원 정보 수정 API - JWT AccessToken 인증 필요",
-            description = "JWT 인증된 사용자가 프로필 이미지, 닉네임, bio, 이메일, 전화번호를 수정하는 API입니다.",
+            description = "JWT 인증된 유저가 프로필 이미지, 닉네임, bio, 이메일, 전화번호를 수정하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     public ResponseEntity<ApiResponse<UserResponseDTO.ProfileUpdateResultDTO>> updateMyPage(

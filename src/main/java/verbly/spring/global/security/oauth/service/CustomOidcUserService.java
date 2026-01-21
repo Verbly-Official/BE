@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.user.entity.ProfileImage;
-import verbly.spring.domain.user.entity.Stats;
+import verbly.spring.domain.stats.entity.Stats;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.enums.AuthProvider;
 import verbly.spring.domain.user.enums.UserStatus;

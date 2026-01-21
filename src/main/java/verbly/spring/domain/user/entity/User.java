@@ -4,12 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import verbly.spring.domain.stats.entity.Stats;
 import verbly.spring.domain.user.enums.AuthProvider;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.entity.BaseEntity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "users") // user는 예약어라 users로

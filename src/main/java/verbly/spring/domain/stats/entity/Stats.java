@@ -1,9 +1,10 @@
-package verbly.spring.domain.user.entity;
+package verbly.spring.domain.stats.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.enums.Level;
 
 import java.time.LocalDate;

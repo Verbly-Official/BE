@@ -29,7 +29,6 @@ import verbly.spring.global.security.utils.SecurityUtils;
 public class AuthRestController {
     private final AuthCommandService authCommandService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final CookieCsrfTokenRepository csrfTokenRepository;
 
     @PostMapping("/logout")
     @Operation(summary = "회원 로그아웃 API - JWT AccessToken 인증 필요",

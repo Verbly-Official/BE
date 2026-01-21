@@ -36,7 +36,6 @@ public class UserRestController {
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
     public ResponseEntity<ApiResponse<UserResponseDTO.OnboardingResultDTO>> onboard(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestPart("request") @Valid UserRequestDTO.OnboardingDTO request
     ) {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -50,9 +49,7 @@ public class UserRestController {
             description = "JWT 인증된 유저가 자신의 정보를 조회하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
-    public ResponseEntity<ApiResponse<UserResponseDTO.UserInfoDTO>> getMyInfo(
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+    public ResponseEntity<ApiResponse<UserResponseDTO.UserInfoDTO>> getMyInfo() {
         Long userId = SecurityUtils.getCurrentUserId();
         UserResponseDTO.UserInfoDTO info = userQueryService.getUserInfo(userId);
         return ResponseEntity.status(SuccessStatus.USER_INFO_READ_SUCCESS.getHttpStatus())
@@ -64,7 +61,7 @@ public class UserRestController {
             description = "JWT 인증된 유저가 자신의 계정을 탈퇴(삭제)하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser() {
         Long userId = SecurityUtils.getCurrentUserId();
         userCommandService.deleteUser(userId);
         return ResponseEntity.status(SuccessStatus.USER_DELETE_SUCCESS.getHttpStatus())
@@ -80,7 +77,6 @@ public class UserRestController {
     public ResponseEntity<ApiResponse<UserResponseDTO.ProfileUpdateResultDTO>> updateMyPage(
             @RequestPart(value = "request") @Valid UserRequestDTO.ProfileUpdateDTO request,
             @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         Long userId = SecurityUtils.getCurrentUserId();

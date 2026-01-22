@@ -39,11 +39,11 @@ public class CorrectionService {
      * 새 글 작성 (첨삭 요청)
      */
     @Transactional
-    public CorrectionResponseDTO createCorrection(CorrectionRequestDTO.CreateDto reqestDTO) {
+    public CorrectionResponseDTO createCorrection(CorrectionRequestDTO.CreateDto requestDTO) {
         User user = SecurityUtils.getCurrentUser();
 
-        String title = normalize(reqestDTO.getTitle());
-        String content = normalize(reqestDTO.getContent());
+        String title = normalize(requestDTO.getTitle());
+        String content = normalize(requestDTO.getContent());
 
         validateRequiredFields(title, content);
 
@@ -64,13 +64,13 @@ public class CorrectionService {
      * 문서 수정
      */
     @Transactional
-    public CorrectionResponseDTO updateCorrection(Long correctionId, CorrectionRequestDTO.UpdateDto reqestDTO) {
+    public CorrectionResponseDTO updateCorrection(Long correctionId, CorrectionRequestDTO.UpdateDto requestDTO) {
         Long userId = SecurityUtils.getCurrentUserId();
 
         Post post = findOwnedPostOrThrow(userId, correctionId);
 
-        String newTitle = normalize(defaultIfNull(reqestDTO.getTitle(), post.getTitle()));
-        String newContent = normalize(defaultIfNull(reqestDTO.getContent(), post.getContent()));
+        String newTitle = normalize(defaultIfNull(requestDTO.getTitle(), post.getTitle()));
+        String newContent = normalize(defaultIfNull(requestDTO.getContent(), post.getContent()));
 
         validateRequiredFields(newTitle, newContent);
 

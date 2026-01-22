@@ -32,8 +32,8 @@ public class CorrectionController {
             security = @SecurityRequirement(name = "JWT TOKEN"),
             description = "새로운 글을 작성합니다.\n\n" +
                     "✅ 요청 본문에 포함할 수 있는 값:\n" +
-                    "- title: 제목 (String)\n" +
-                    "- content: 내용 (String)\n"
+                    "- title: 제목 (String, 필수)\n" +
+                    "- content: 내용 (String, 필수)\n"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Correction Write 요청 예시",

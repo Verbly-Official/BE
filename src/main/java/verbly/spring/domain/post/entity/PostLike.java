@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import verbly.spring.domain.user.entity.User;
+import verbly.spring.global.common.entity.BaseEntity;
 
 @Entity
 @Getter
@@ -20,7 +21,7 @@ import verbly.spring.domain.user.entity.User;
                 )
         }
         )
-public class PostLike {
+public class PostLike extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

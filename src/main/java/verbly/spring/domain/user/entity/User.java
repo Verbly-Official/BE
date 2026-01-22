@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import verbly.spring.domain.post.entity.Post;
+import verbly.spring.domain.post.entity.PostLike;
 import verbly.spring.domain.user.enums.AuthProvider;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.entity.BaseEntity;
@@ -78,6 +79,9 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private List<Post> posts;
+
+    @OneToMany(mappedBy = "user")
+    private List<PostLike> postLikes;
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;

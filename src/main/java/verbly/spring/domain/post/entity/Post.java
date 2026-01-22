@@ -42,9 +42,6 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private boolean temp;
 
-    // 즐겨찾기
-    @Column(nullable = false)
-    private boolean bookmark;
 
     public void update(String title, String content) {
         this.title = title;

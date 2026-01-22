@@ -22,9 +22,11 @@ public enum SuccessStatus implements BaseCode {
     USER_ALREADY_ONBOARDING_COMPLETED(HttpStatus.OK, "USER2011", "온보딩이 이미 완료된 유저입니다."),
 
     CORRECTION_CREATE_SUCCESS(HttpStatus.CREATED, "CORRECTION2001", "Correction - 글을 성공적으로 저장했습니다."),
-    CORRECTION_READ_SUCCESS(HttpStatus.CREATED, "CORRECTION2002", "Correction - 글을 성공적으로 조회했습니다."),
-    CORRECTION_UPDATE_SUCCESS(HttpStatus.CREATED, "CORRECTION2001", "Correction - 글을 성공적으로 수정했습니다."),
-    CORRECTION_DELETE_SUCCESS(HttpStatus.CREATED, "CORRECTION2001", "Correction - 글을 성공적으로 삭제했습니다."),
+    CORRECTION_READ_SUCCESS(HttpStatus.OK, "CORRECTION2002", "Correction - 글을 성공적으로 조회했습니다."),
+    CORRECTION_UPDATE_SUCCESS(HttpStatus.OK, "CORRECTION2003", "Correction - 글을 성공적으로 수정했습니다."),
+    CORRECTION_DELETE_SUCCESS(HttpStatus.OK, "CORRECTION2004", "Correction - 글을 성공적으로 삭제했습니다."),
+    CORRECTION_BOOKMARK_ADD_SUCCESS(HttpStatus.OK, "CORRECTION2005", "Correction - 글을 성공적으로 즐겨찾기에 추가했습니다."),
+    CORRECTION_BOOKMARK_REMOVE_SUCCESS(HttpStatus.OK, "CORRECTION2006", "Correction - 글을 즐겨찾기에서 성공적으로 삭제했습니다"),
     ;
 
     private final HttpStatus httpStatus;

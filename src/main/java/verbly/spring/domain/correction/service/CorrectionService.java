@@ -70,7 +70,6 @@ public class CorrectionService {
                 .title(title)
                 .content(content)
                 .temp(false)
-                .bookmark(false)
                 .build();
 
         Post savedPost = postRepository.save(post);
@@ -123,6 +122,33 @@ public class CorrectionService {
         correctionRepository.delete(correction);
         postRepository.delete(post);
     }
+
+    /**
+     * 즐겨찾기(bookmark) 추가
+     */
+    @Transactional
+    public void addBookmark(Long correctionId) {
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
+
+        correction.addBookmark();
+        correctionRepository.save(correction);
+    }
+
+    /**
+     * 즐겨찾기(bookmark) 삭제
+     */
+    @Transactional
+    public void removeBookmark(Long correctionId) {
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
+
+        correction.removeBookmark();
+        correctionRepository.save(correction);
+    }
+
 
     private String normalize(String s) {
         return s == null ? null : s.trim();

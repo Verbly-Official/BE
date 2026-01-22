@@ -31,7 +31,6 @@ public class CorrectionConverter {
                 .correctorName(latestCorrectorName)
                 .correctionCreatedAt(correction.getCreatedAt())
                 .status(post.getStatus())
-                .bookmark(post.isBookmark())
                 .build();
     }
 }

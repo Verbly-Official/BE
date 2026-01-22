@@ -36,9 +36,9 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository{
 
         where.and(post.author.id.eq(authorId));
 
-        if (Boolean.TRUE.equals(bookmark)) {
-            where.and(post.bookmark.isTrue());
-        }
+//        if (Boolean.TRUE.equals(bookmark)) {
+//            where.and(post.bookmark.isTrue());
+//        }
 
         if (status != null) {
             where.and(post.status.eq(status));
@@ -59,7 +59,6 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository{
                         post.id,
                         post.title,
                         post.status,
-                        post.bookmark,
                         latestFeedback.correctorType,
                         new CaseBuilder()
                                 .when(latestFeedback.correctorType.eq(CorrectorType.AI_ASSISTANT))

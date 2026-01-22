@@ -164,4 +164,41 @@ public class CorrectionController {
                 .status(SuccessStatus.CORRECTION_DELETE_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.CORRECTION_DELETE_SUCCESS, null));
     }
+
+    /**
+     * 즐겨찾기(bookmark) 추가
+     */
+    @Operation(
+            summary = "커렉션 즐겨찾기 추가",
+            description = "내가 작성한 커렉션 문서를 즐겨찾기에 추가합니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    @PatchMapping("/{correctionId}/bookmark")
+    public ResponseEntity<ApiResponse<Long>> addBookmark(
+            @PathVariable Long correctionId
+    ) {
+        correctionService.addBookmark(correctionId);
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_BOOKMARK_ADD_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_BOOKMARK_ADD_SUCCESS, correctionId));
+    }
+
+    /**
+     * 즐겨찾기(bookmark) 삭제
+     */
+    @Operation(
+            summary = "커렉션 즐겨찾기 삭제",
+            description = "내가 작성한 커렉션 문서를 즐겨찾기에서 제거합니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    @DeleteMapping("/{correctionId}/bookmark")
+    public ResponseEntity<ApiResponse<Void>> removeBookmark(
+            @PathVariable Long correctionId
+    ) {
+        correctionService.removeBookmark(correctionId);
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_BOOKMARK_REMOVE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_BOOKMARK_REMOVE_SUCCESS, null));
+    }
+
 }

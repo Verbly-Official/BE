@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.user.enums.AuthProvider;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.entity.BaseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users") // user는 예약어라 users로
@@ -61,8 +63,21 @@ public class User extends BaseEntity {
     @Column(length = 20)
     private String phoneNumber; // +82 010-1234-5678
 
+    @Column(columnDefinition = "BINARY(16)", nullable = false, unique = true)
+    private UUID uuid;
+
+    @PrePersist
+    public void generateUuid() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID();
+        }
+    }
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
     private NotificationSettings notificationSettings;
+
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts;
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;

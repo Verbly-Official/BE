@@ -7,7 +7,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
 import verbly.spring.domain.post.enums.Status;
+import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.entity.BaseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,6 +31,7 @@ public class Post extends BaseEntity {
     private String content;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @Column(nullable = false)
@@ -40,4 +45,13 @@ public class Post extends BaseEntity {
 
     @Column(nullable = false)
     private Boolean helpNeeded;
+
+    private Boolean isCorrected;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostTag> postTags = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

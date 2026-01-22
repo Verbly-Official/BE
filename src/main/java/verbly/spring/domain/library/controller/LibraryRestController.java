@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import verbly.spring.domain.library.service.LibraryService;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.common.exception.BaseException;
 import verbly.spring.global.common.response.ApiResponse;
+import verbly.spring.global.security.auth.CustomUserDetails;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,19 +24,19 @@ public class LibraryRestController {
 
     private final LibraryService libraryService;
 
-    /**
-     * 토큰 고려: 현재 프로젝트에서 principal에 userId가 들어오는 방식에 맞춰 수정
-     * - 지금은 (Long) 또는 "123" String 형태를 지원
-     */
+    /** 시큐리티에서 현재 로그인 된 유저 아이디 빼오기*/
     private Long currentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) throw new BaseException(ErrorStatus._UNAUTHORIZED);
+        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+            throw new BaseException(ErrorStatus._UNAUTHORIZED);
+        }
 
         Object principal = auth.getPrincipal();
-        if (principal instanceof Long l) return l;
-        if (principal instanceof String s) {
-            try { return Long.valueOf(s); } catch (NumberFormatException ignore) {}
+
+        if (principal instanceof CustomUserDetails cud) {
+            return cud.getUserId();
         }
+
         throw new BaseException(ErrorStatus._UNAUTHORIZED);
     }
 

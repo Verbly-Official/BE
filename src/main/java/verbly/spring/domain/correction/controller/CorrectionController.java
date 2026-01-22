@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.correction.dto.request.CorrectionRequestDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
+import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.correction.service.CorrectionService;
 import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.global.common.code.SuccessStatus;
@@ -58,10 +59,10 @@ public class CorrectionController {
 
     )
     @PostMapping
-    public ResponseEntity<ApiResponse<CorrectionResponseDTO>> createCorrection(
-            @RequestBody @Valid CorrectionRequestDTO.CreateDto request
+    public ResponseEntity<ApiResponse<CorrectionResponseDTO.CreateCorrectionResponseDTO>> createCorrection(
+            @RequestBody @Valid CorrectionRequestDTO.CreateDTO request
     ) {
-        CorrectionResponseDTO result = correctionService.createCorrection(request);
+        CorrectionResponseDTO.CreateCorrectionResponseDTO result = correctionService.createCorrection(request);
 
         return ResponseEntity.status(SuccessStatus.CORRECTION_CREATE_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.CORRECTION_CREATE_SUCCESS, result));
@@ -74,30 +75,31 @@ public class CorrectionController {
             summary = "커렉션 - 내 문서 조회",
             description = "자신이 작성한 커렉션 글 목록을 조회합니다.\n\n" +
                     "### QueryString\n" +
-                    "모든 쿼리 파라미터는 선택(Optional)입니다.\n\n" +
+                    "모든 쿼리 파라미터는 **선택(Optional)**입니다.\n\n" +
                     "미선택시(GET `/api/correction`) 모든 문서가 조회됩니다.\n\n" +
                     "| 쿼리 파라미터 | 종류 | 기능 |\n" +
                     "| --- | --- | --- |\n" +
                     "| bookmark | true | 즐겨찾기 |\n" +
-                    "| sort | date | 최근 항목 |\n" +
+                    "| sort | true | 최근 항목 |\n" +
                     "| status | COMPLETED, IN_PROGRESS, PENDING | 상단 상태 탭 |\n" +
                     "| corrector | AI_ASSISTANT, NATIVE_SPEAKER | corrector 필터 |\n",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     @Parameters({
             @Parameter(name = "bookmark", description = "즐겨찾기 필터 (true일 때만 필터 적용)", example = "true"),
-            @Parameter(name = "sort", description = "정렬 기준 (date만 지원)", example = "date"),
+            @Parameter(name = "sort", description = "최신순 정렬 (true일 때만 필터 적용)", example = "true"),
             @Parameter(name = "status", description = "상태 탭 필터", example = "COMPLETED"),
-            @Parameter(name = "corrector", description = "Corrector 필터", example = "AI_ASSISTANT")
+            @Parameter(name = "correctorType", description = "correctorType 필터", example = "AI_ASSISTANT")
     })
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CorrectionResponseDTO>>> getMyCorrections(
+    public ResponseEntity<ApiResponse<List<CorrectionResponseDTO.MyCorrectionDto>>> getMyCorrections(
             @RequestParam(required = false) Boolean bookmark,
-            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Boolean sort,
             @RequestParam(required = false) PostStatus status,
-            @RequestParam(required = false) CorrectorType corrector
+            @RequestParam(required = false) CorrectorType correctorType
     ) {
-        List<CorrectionResponseDTO> result = correctionService.getMyCorrections();
+        List<CorrectionResponseDTO.MyCorrectionDto> result =
+                correctionService.getMyCorrections(bookmark, sort, status, correctorType);
 
         return ResponseEntity
                 .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())
@@ -132,11 +134,11 @@ public class CorrectionController {
             )
     )
     @PatchMapping("/{correctionId}")
-    public ResponseEntity<ApiResponse<CorrectionResponseDTO>> updateCorrection(
+    public ResponseEntity<ApiResponse<CorrectionResponseDTO.MyCorrectionDto>> updateCorrection(
             @PathVariable Long correctionId,
-            @RequestBody @Valid CorrectionRequestDTO.UpdateDto request
+            @RequestBody @Valid CorrectionRequestDTO.UpdateDTO request
     ) {
-        CorrectionResponseDTO result =
+        CorrectionResponseDTO.MyCorrectionDto result =
                 correctionService.updateCorrection(correctionId, request);
 
         return ResponseEntity

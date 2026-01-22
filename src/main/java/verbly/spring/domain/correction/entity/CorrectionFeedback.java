@@ -1,16 +1,15 @@
 package verbly.spring.domain.correction.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.entity.BaseEntity;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Getter
 @Entity
 @Table(name = "correction_feedback")
 public class CorrectionFeedback extends BaseEntity {
@@ -30,6 +29,10 @@ public class CorrectionFeedback extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "corrector_id", nullable = false)
     private User corrector;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CorrectorType correctorType;
 
     @Lob
     @Column(nullable = false, columnDefinition = "TEXT")

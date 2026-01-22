@@ -40,7 +40,7 @@ public class Post extends BaseEntity {
 
     // 임시저장 유무
     @Column(nullable = false)
-    private boolean isTemp;
+    private boolean temp;
 
     // 즐겨찾기
     @Column(nullable = false)

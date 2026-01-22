@@ -6,7 +6,12 @@ import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.correction.converter.CorrectionConverter;
 import verbly.spring.domain.correction.dto.request.CorrectionRequestDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
+import verbly.spring.domain.correction.entity.Correction;
+import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.correction.exception.CorrectionHandler;
+import verbly.spring.domain.correction.repository.CorrectionFeedbackRepository;
+import verbly.spring.domain.correction.repository.CorrectionQueryRepository;
+import verbly.spring.domain.correction.repository.CorrectionRepository;
 import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.post.repository.PostRepository;
@@ -22,24 +27,36 @@ import java.util.List;
 public class CorrectionService {
 
     private final PostRepository postRepository;
+    private final CorrectionRepository correctionRepository;
+    private final CorrectionQueryRepository correctionQueryRepository;
+    private final CorrectionFeedbackRepository correctionFeedbackRepository;
 
     /**
      * 내 문서 조회
      */
-    public List<CorrectionResponseDTO> getMyCorrections() {
+    public List<CorrectionResponseDTO.MyCorrectionDto> getMyCorrections(
+            Boolean bookmark,
+            Boolean sort,
+            PostStatus status,
+            CorrectorType correctorType
+    ) {
         Long userId = SecurityUtils.getCurrentUserId();
 
-        List<Post> posts = postRepository.findAllByAuthorIdOrderByIdDesc(userId);
-        return posts.stream()
-                .map(CorrectionConverter::toResponseDTO)
-                .toList();
+        return correctionQueryRepository.findMyCorrections(
+                userId,
+                bookmark,
+                sort,
+                status,
+                correctorType
+        );
     }
+
 
     /**
      * 새 글 작성 (첨삭 요청)
      */
     @Transactional
-    public CorrectionResponseDTO createCorrection(CorrectionRequestDTO.CreateDto requestDTO) {
+    public CorrectionResponseDTO.CreateCorrectionResponseDTO createCorrection(CorrectionRequestDTO.CreateDTO requestDTO) {
         User user = SecurityUtils.getCurrentUser();
 
         String title = normalize(requestDTO.getTitle());
@@ -52,22 +69,30 @@ public class CorrectionService {
                 .status(PostStatus.PENDING)
                 .title(title)
                 .content(content)
-                .isTemp(false)
+                .temp(false)
                 .bookmark(false)
                 .build();
 
-        Post saved = postRepository.save(post);
-        return CorrectionConverter.toResponseDTO(saved);
+        Post savedPost = postRepository.save(post);
+
+        Correction correction = Correction.builder()
+                .post(savedPost)
+                .build();
+
+        Correction savedCorrection = correctionRepository.save(correction);
+
+        return CorrectionConverter.toCreateCorrectionResponse(savedCorrection);
     }
 
     /**
      * 문서 수정
      */
     @Transactional
-    public CorrectionResponseDTO updateCorrection(Long correctionId, CorrectionRequestDTO.UpdateDto requestDTO) {
+    public CorrectionResponseDTO.MyCorrectionDto updateCorrection(Long correctionId, CorrectionRequestDTO.UpdateDTO requestDTO) {
         Long userId = SecurityUtils.getCurrentUserId();
 
-        Post post = findOwnedPostOrThrow(userId, correctionId);
+        Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
+        Post post = correction.getPost();
 
         String newTitle = normalize(defaultIfNull(requestDTO.getTitle(), post.getTitle()));
         String newContent = normalize(defaultIfNull(requestDTO.getContent(), post.getContent()));
@@ -75,14 +100,13 @@ public class CorrectionService {
         validateRequiredFields(newTitle, newContent);
 
         if (post.isSameContent(newTitle, newContent)) {
-            return CorrectionConverter.toResponseDTO(post);
+            return CorrectionConverter.toMyCorrectionDTO(correction, null, null);
         }
 
         post.update(newTitle, newContent);
+        postRepository.save(post);
 
-        Post saved = postRepository.save(post);
-
-        return CorrectionConverter.toResponseDTO(saved);
+        return CorrectionConverter.toMyCorrectionDTO(correction, null, null);
     }
 
     /**
@@ -92,15 +116,12 @@ public class CorrectionService {
     public void deleteCorrection(Long correctionId) {
         Long userId = SecurityUtils.getCurrentUserId();
 
-        Post post = findOwnedPostOrThrow(userId, correctionId);
+        Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
+        Post post = correction.getPost();
 
+        correctionFeedbackRepository.deleteAllByCorrectionId(correctionId);
+        correctionRepository.delete(correction);
         postRepository.delete(post);
-    }
-
-    private Post findOwnedPostOrThrow(Long userId, Long postId) {
-        return postRepository.findById(postId)
-                .filter(p -> p.getAuthor().getId().equals(userId))
-                .orElseThrow(() -> new CorrectionHandler(ErrorStatus.CORRECTION_ACCESS_DENIED));
     }
 
     private String normalize(String s) {
@@ -116,4 +137,11 @@ public class CorrectionService {
             throw new CorrectionHandler(ErrorStatus.CORRECTION_NOT_VALIDATE);
         }
     }
+
+    private Correction findOwnedCorrectionOrThrow(Long userId, Long correctionId) {
+        return correctionRepository.findById(correctionId)
+                .filter(c -> c.getPost().getAuthor().getId().equals(userId))
+                .orElseThrow(() -> new CorrectionHandler(ErrorStatus.CORRECTION_ACCESS_DENIED));
+    }
+
 }

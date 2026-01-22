@@ -12,6 +12,8 @@ import verbly.spring.domain.post.repository.PostLikeRepository;
 import verbly.spring.domain.post.repository.PostRepository;
 import verbly.spring.domain.user.entity.User;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -30,6 +32,18 @@ public class PostQueryServiceImpl implements PostQueryService {
                 isLiked = postLikeRepository.existsByUserAndPost(viewer, post);
             }
             return postConverter.toHomePosts(post, isLiked);
+        });
+    }
+
+    @Override
+    public Slice<PostResponseDTO.UserPosts> getUserPosts(Pageable pageable, UUID uuid, User viewer) {
+        Slice<Post> postSlice = postRepository.findAllByUser_Uuid(uuid, pageable);
+        return postSlice.map(post -> {
+            boolean isLiked = false;
+            if (viewer != null) {
+                isLiked = postLikeRepository.existsByUserAndPost(viewer, post);
+            }
+            return postConverter.toUserPosts(post, isLiked);
         });
     }
 }

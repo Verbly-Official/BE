@@ -15,6 +15,8 @@ import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.auth.CustomUserDetails;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
@@ -30,8 +32,18 @@ public class PostRestController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         User viewer = userDetails != null ? userDetails.getUser() : null;
-        Slice<PostResponseDTO.HomePosts> postSlice = postQueryService.getHomePosts(pageable, viewer);
-        return ApiResponse.onSuccess(postSlice);
+        return ApiResponse.onSuccess(postQueryService.getHomePosts(pageable, viewer));
+    }
+
+    @GetMapping("/{uuid}")
+    @Operation(summary = "특정 유저 포스트 조회", description = "스크롤 페이지를 위한 slice 객체 반환")
+    public ApiResponse<Slice<PostResponseDTO.UserPosts>> getUserPosts(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @PathVariable(name = "uuid") UUID uuid,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        User viewer = userDetails != null ? userDetails.getUser() : null;
+        return ApiResponse.onSuccess(postQueryService.getUserPosts(pageable,uuid, viewer));
     }
 
     @PostMapping("/{postId}/like")
@@ -41,7 +53,7 @@ public class PostRestController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(postCommandService.addPostLike(viewer.getId(), postId));
+        return ApiResponse.onSuccess(postCommandService.addPostLike(postId, viewer.getId()));
     }
 
     @DeleteMapping("/{postId}/like")
@@ -51,6 +63,6 @@ public class PostRestController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(postCommandService.deletePostLike(viewer.getId(), postId));
+        return ApiResponse.onSuccess(postCommandService.deletePostLike(postId, viewer.getId()));
     }
 }

@@ -43,4 +43,26 @@ public class PostResponseDTO {
         Boolean isLiked;
     }
 
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserPosts{
+        String userImageUrl;
+        String nickname;
+        Boolean isFollowing;
+        UUID uuid;
+
+        Long postId;
+        String content;
+        Boolean isCorrected;
+        Integer likesCount;
+        Integer commentsCount;
+        LocalDateTime createdAt;
+
+        List<String> tags;
+
+        Boolean isLiked;
+    }
+
 }

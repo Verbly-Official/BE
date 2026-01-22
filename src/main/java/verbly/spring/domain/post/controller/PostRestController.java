@@ -43,4 +43,14 @@ public class PostRestController {
         User viewer = userDetails != null ? userDetails.getUser() : null;
         return ApiResponse.onSuccess(postCommandService.addPostLike(viewer.getId(), postId));
     }
+
+    @DeleteMapping("/{postId}/like")
+    @Operation(summary = "포스트 좋아요 삭제")
+    public ApiResponse<PostResponseDTO.AddPostLike> deletePostLike(
+            @PathVariable(name = "postId") Long postId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        User viewer = userDetails != null ? userDetails.getUser() : null;
+        return ApiResponse.onSuccess(postCommandService.deletePostLike(viewer.getId(), postId));
+    }
 }

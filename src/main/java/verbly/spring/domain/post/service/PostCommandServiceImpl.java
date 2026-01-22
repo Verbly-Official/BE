@@ -34,4 +34,17 @@ public class PostCommandServiceImpl implements PostCommandService {
         Boolean isLiked = postLikeRepository.existsByUserAndPost(user, updatedPost);
         return postConverter.addPostLike(updatedPost, isLiked);
     }
+
+    @Override
+    public PostResponseDTO.AddPostLike deletePostLike(Long postId, Long userId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("유저가 없습니다."));
+        PostLike postLike = postLikeRepository.findByUserAndPost(user, post)
+                .orElseThrow(() -> new IllegalStateException("이미 좋아요를 취소했거나, 누른 적이 없습니다."));
+        postLikeRepository.delete(postLike);
+        postRepository.decreaseLikeCount(postId);
+        Post updatedPost = postRepository.findById(postId).orElseThrow();
+        Boolean isLiked = postLikeRepository.existsByUserAndPost(user, updatedPost);
+        return postConverter.addPostLike(updatedPost, isLiked);
+    }
 }

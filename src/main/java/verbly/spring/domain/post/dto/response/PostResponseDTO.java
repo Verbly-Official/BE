@@ -32,4 +32,15 @@ public class PostResponseDTO {
 
         Boolean isLiked;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class AddPostLike{
+        Long postId;
+        Integer likesCount;
+        Boolean isLiked;
+    }
+
 }

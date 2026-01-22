@@ -32,4 +32,12 @@ public class PostConverter {
                 .isLiked(isLiked)
                 .build();
     }
+
+    public PostResponseDTO.AddPostLike addPostLike(Post post, Boolean isLiked){
+        return PostResponseDTO.AddPostLike.builder()
+                .isLiked(isLiked)
+                .likesCount(post.getLikesCount())
+                .postId(post.getId())
+                .build();
+    }
 }

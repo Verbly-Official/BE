@@ -12,7 +12,14 @@ import verbly.spring.domain.user.entity.User;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "post_like")
+@Table(name = "post_like",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_post_like_user_post",
+                        columnNames = {"user_id", "post_id"}
+                )
+        }
+        )
 public class PostLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,4 +32,9 @@ public class PostLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public PostLike(User user, Post post) {
+        this.user = user;
+        this.post = post;
+    }
 }

@@ -29,5 +29,7 @@ public class PostResponseDTO {
         LocalDateTime createdAt;
 
         List<String> tags;
+
+        Boolean isLiked;
     }
 }

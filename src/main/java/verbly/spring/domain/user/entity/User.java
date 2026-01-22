@@ -8,9 +8,6 @@ import verbly.spring.domain.user.enums.AuthProvider;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.entity.BaseEntity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Table(name = "users") // user는 예약어라 users로
 @Getter

@@ -1,22 +1,8 @@
 package verbly.spring.domain.user.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import verbly.spring.domain.user.dto.request.UserRequestDTO;
-import verbly.spring.domain.user.dto.response.UserResponseDTO;
-import verbly.spring.domain.user.entity.User;
-import verbly.spring.global.common.code.SuccessStatus;
-import verbly.spring.global.common.response.ApiResponse;
-import verbly.spring.global.security.auth.CustomUserDetails;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor

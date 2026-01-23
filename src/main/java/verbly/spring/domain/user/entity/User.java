@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import verbly.spring.domain.post.entity.Comment;
 import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.post.entity.PostLike;
 import verbly.spring.domain.user.enums.AuthProvider;
@@ -80,8 +81,12 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<Post> posts;
 
-    @OneToMany(mappedBy = "user")
-    private List<PostLike> postLikes;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostLike> postLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;

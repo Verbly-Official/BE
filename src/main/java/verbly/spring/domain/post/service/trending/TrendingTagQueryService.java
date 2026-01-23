@@ -1,4 +1,4 @@
-package verbly.spring.domain.post.service;
+package verbly.spring.domain.post.service.trending;
 
 import verbly.spring.domain.post.dto.response.TagResponseDTO;
 

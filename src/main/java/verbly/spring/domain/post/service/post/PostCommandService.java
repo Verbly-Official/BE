@@ -1,4 +1,4 @@
-package verbly.spring.domain.post.service;
+package verbly.spring.domain.post.service.post;
 
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
 

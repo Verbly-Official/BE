@@ -1,4 +1,4 @@
-package verbly.spring.domain.post.service;
+package verbly.spring.domain.post.service.post;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

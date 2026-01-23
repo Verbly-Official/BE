@@ -1,4 +1,4 @@
-package verbly.spring.domain.post.service;
+package verbly.spring.domain.post.service.comment;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

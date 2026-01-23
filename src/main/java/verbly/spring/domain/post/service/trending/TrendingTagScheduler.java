@@ -1,4 +1,4 @@
-package verbly.spring.domain.post.service;
+package verbly.spring.domain.post.service.trending;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

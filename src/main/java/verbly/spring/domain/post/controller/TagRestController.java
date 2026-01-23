@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import verbly.spring.domain.post.dto.response.TagResponseDTO;
-import verbly.spring.domain.post.service.TrendingTagQueryService;
+import verbly.spring.domain.post.service.trending.TrendingTagQueryService;
 import verbly.spring.global.common.response.ApiResponse;
 
 import java.util.List;

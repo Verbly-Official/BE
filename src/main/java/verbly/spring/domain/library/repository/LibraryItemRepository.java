@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import verbly.spring.domain.library.entity.LibraryItem;
 import verbly.spring.domain.library.enums.LibraryItemStatus;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface LibraryItemRepository extends JpaRepository<LibraryItem, Long> {
@@ -28,4 +29,5 @@ public interface LibraryItemRepository extends JpaRepository<LibraryItem, Long> 
     Page<LibraryItem> findByUserIdAndStatusAndStarredAndPhraseContaining(
             Long userId, LibraryItemStatus status, boolean starred, String q, Pageable pageable
     );
+    List<LibraryItem> findAllByUserIdAndStatus(Long userId, LibraryItemStatus status);
 }

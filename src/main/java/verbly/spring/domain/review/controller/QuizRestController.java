@@ -31,7 +31,7 @@ public class QuizRestController {
         Object principal = auth.getPrincipal();
 
         if (principal instanceof CustomUserDetails cud) {
-            return cud.getUserId(); // ✅ CustomUserDetails에 있는 userId 사용
+            return cud.getUserId();
         }
 
         throw new BaseException(ErrorStatus._UNAUTHORIZED);

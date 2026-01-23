@@ -1,14 +1,15 @@
 package verbly.spring.domain.chat.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import verbly.spring.domain.user.entity.User;
 
 import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder(access = AccessLevel.PRIVATE)
 @Getter
 @Table(name = "chatroom_user")
 public class ChatroomUser {

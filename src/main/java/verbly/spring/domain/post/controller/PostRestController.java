@@ -8,7 +8,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import verbly.spring.domain.post.dto.response.CommentResponseDTO;
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
+import verbly.spring.domain.post.service.CommentQueryService;
 import verbly.spring.domain.post.service.PostCommandService;
 import verbly.spring.domain.post.service.PostQueryService;
 import verbly.spring.domain.user.entity.User;
@@ -24,6 +26,7 @@ public class PostRestController {
 
     private final PostQueryService postQueryService;
     private final PostCommandService postCommandService;
+    private final CommentQueryService commentQueryService;
 
     @GetMapping()
     @Operation(summary = "홈 화면 포스트 조회", description = "스크롤 페이지를 위한 slice 객체 반환")
@@ -64,5 +67,14 @@ public class PostRestController {
     ) {
         User viewer = userDetails != null ? userDetails.getUser() : null;
         return ApiResponse.onSuccess(postCommandService.deletePostLike(postId, viewer.getId()));
+    }
+
+    @GetMapping("{postId}/comments")
+    @Operation(summary = "특정 포스트의 댓글 조회", description = "스크롤 페이지를 위한 slice 객체 반환")
+    public ApiResponse<Slice<CommentResponseDTO.getComment>> getComments(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @PathVariable(name = "postId") Long postId
+    ) {
+        return ApiResponse.onSuccess(commentQueryService.getComments(pageable, postId));
     }
 }

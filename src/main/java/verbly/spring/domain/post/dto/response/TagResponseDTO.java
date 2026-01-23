@@ -14,5 +14,6 @@ public class TagResponseDTO {
         Long tagId;
         String tagName;
         Integer count;
+        Integer ranking;
     }
 }

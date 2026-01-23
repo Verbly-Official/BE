@@ -3,7 +3,10 @@ package verbly.spring.domain.post.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import verbly.spring.domain.post.converter.TrendingTagConverter;
 import verbly.spring.domain.post.dto.response.TagResponseDTO;
+import verbly.spring.domain.post.entity.TrendingTag;
+import verbly.spring.domain.post.repository.TrendingTagRepository;
 
 import java.util.List;
 
@@ -11,8 +14,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class TrendingTagQueryServiceImpl implements TrendingTagQueryService {
+    private final TrendingTagRepository trendingTagRepository;
+    private final TrendingTagConverter trendingTagConverter;
+
     @Override
     public List<TagResponseDTO.TrendingTags> getTrendingTags() {
-        return List.of();
+        List<TrendingTag> trendingTags = trendingTagRepository.findAll();
+        return trendingTagConverter.toTrendingTags(trendingTags);
     }
 }

@@ -47,8 +47,8 @@ public class AuthRestController {
     )
 //    public ApiResponse<AuthResponseDTO.ReissueTokenResponseDTO> reissueAccessToken(HttpServletRequest request) {
 //        String refreshToken = JwtTokenProvider.resolveToken(request); // Authorization 헤더에서 Bearer 토큰을 추출
-    public void reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
-//    public ApiResponse<AuthResponseDTO.ReissueTokenResponseDTO> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
+//    public void reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
+    public ApiResponse<AuthResponseDTO.ReissueTokenResponseDTO> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
 
         String refreshToken = jwtTokenProvider.resolveRefreshToken(request);
         if (!StringUtils.hasText(refreshToken) || !jwtTokenProvider.isRefreshToken(refreshToken)) { // refreshToken == null은 !StringUtils.hasText(refreshToken)로 체크 가능
@@ -61,11 +61,9 @@ public class AuthRestController {
         addCookie(response, "accessToken", tokens.getAccessToken(), true, 60 * 60 * 4); // 4시간
 
         // 응답 바디 없이 204 No Content
-        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+//        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 
-//        return ApiResponse.onSuccess(tokens); // 테스트용
-
-//        return ApiResponse.onSuccess(response);
+        return ApiResponse.onSuccess(tokens); // 테스트용
     }
 
     private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
@@ -73,7 +71,7 @@ public class AuthRestController {
                 .httpOnly(httpOnly)
                 .secure(true)
                 .path("/")
-                .domain("dnbn.site")
+                .domain("verbly.site")
                 .maxAge(maxAgeInSeconds)
                 .sameSite("Lax")
                 .build();

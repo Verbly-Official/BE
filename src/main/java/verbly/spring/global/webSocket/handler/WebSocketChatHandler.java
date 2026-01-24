@@ -9,15 +9,21 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import verbly.spring.domain.chat.entity.ChatMessage;
 import verbly.spring.domain.chat.entity.Chatroom;
+import verbly.spring.domain.chat.entity.ChatroomUser;
 import verbly.spring.domain.chat.exception.ChatHandler;
 import verbly.spring.domain.chat.repo.ChatMessageRepository;
 import verbly.spring.domain.chat.repo.ChatroomRepository;
+import verbly.spring.domain.chat.repo.ChatroomUserRepository;
+import verbly.spring.domain.chat.service.ChatMessageService;
+import verbly.spring.domain.chat.service.ChatroomService;
+import verbly.spring.domain.chat.service.ChatroomUserService;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.webSocket.exception.WebSocketExceptionHandler;
 import verbly.spring.global.webSocket.util.WebSocketUtil;
 
+import java.net.URI;
 import java.util.*;
 
 @Slf4j
@@ -25,74 +31,85 @@ import java.util.*;
 @RequiredArgsConstructor
 public class WebSocketChatHandler extends TextWebSocketHandler {
 
-    private final UserRepository userRepository;
-    private final ChatroomRepository chatroomRepository;
-    private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageService chatMessageService;
+    private final ChatroomUserService chatroomUserService;
     private final WebSocketUtil webSocketUtil;
     Map<Long, Set<WebSocketSession>> nowChatroom = new HashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception{
 
-        log.info("afterConnectionEstablished: {}", session.getId());
+        /*
+        1. get chatroomId from session
+        2. get userId from session
+        3. add session
+            - key=chatroomId : value=Set<session>
+        */
 
-        Long roomId = webSocketUtil.getRoomId(session);
-        log.info("eneteredRoomId: {}", roomId);
+        Long chatroomId = webSocketUtil.getChatroomIdBySession(session);
 
-        nowChatroom.put(roomId, new HashSet<>());
-        Set<WebSocketSession> nowChatroomUsers = nowChatroom.get(roomId);
-        if(session.isOpen())
-            nowChatroomUsers.add(session);
-        else
+        Long userId = webSocketUtil.getIdBySession(session);
+
+        // member check
+        if(!chatroomUserService.isChatroomMember(chatroomId, userId)) {
+            session.close();
+            return;
+        }
+
+        // key contains check
+        if(!nowChatroom.containsKey(chatroomId))
+            nowChatroom.put(chatroomId, new HashSet<>());
+
+        Set<WebSocketSession> nowChatroomSession = nowChatroom.get(chatroomId);
+        if(!session.isOpen())
             throw new WebSocketExceptionHandler(ErrorStatus.WEBSOCKET_SESSION_CLOSED);
-        nowChatroom.put(roomId, nowChatroomUsers);
+        nowChatroomSession.add(session);
+        nowChatroom.put(chatroomId, nowChatroomSession);
     }
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
-        //json message
+        /*
+        1. get message
+        2. save message
+        3. send
+         */
+
+        //message
         String text = message.getPayload();
 
         //sender
-        String senderId = webSocketUtil.getSocialId(session);
-        Optional<User> optionalSender = userRepository.findBySocialId(senderId);
-        if(optionalSender.isEmpty())
-            throw new WebSocketExceptionHandler(ErrorStatus.USER_NOT_FOUND);
-        User sender = optionalSender.get();
+        Long senderId = webSocketUtil.getIdBySession(session);
 
         // chatroom
-        Long  roomId = webSocketUtil.getRoomId(session);
-        Optional<Chatroom> optionalChatroom = chatroomRepository.findById(roomId);
-        if(optionalChatroom.isEmpty())
-            throw new ChatHandler(ErrorStatus.CHATROOM_NOT_FOUND);
-        Chatroom chatroom = optionalChatroom.get();
-
-        // chat
-        ChatMessage chatMessage = ChatMessage.of(sender, chatroom, text);
+        Long  chatroomId = webSocketUtil.getChatroomIdBySession(session);
 
         // save
-        chatMessageRepository.save(chatMessage);
+        chatMessageService.saveChatMessage(senderId, chatroomId, text);
 
         // send
-        Set<WebSocketSession> nowChatroomUser = nowChatroom.get(roomId);
+        Set<WebSocketSession> nowChatroomUser = nowChatroom.get(chatroomId);
         for(WebSocketSession webSocketSession : nowChatroomUser){
-            if(!webSocketSession.isOpen())
-                throw new WebSocketExceptionHandler(ErrorStatus.WEBSOCKET_SESSION_CLOSED);
-            webSocketSession.sendMessage(new TextMessage(text));
+            if(webSocketSession.isOpen())
+                webSocketSession.sendMessage(new TextMessage(text));
         }
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception{
 
-        Long  roomId =  webSocketUtil.getRoomId(session);
-        Set<WebSocketSession> nowChatroomUser = nowChatroom.get(roomId);
+        /*
+        1. get chatroomId
+        2. get Set<session> where {chatroomId} is the key
+        3. remove closed session
+        4. remove if empty
+         */
+        Long  chatroomId =  webSocketUtil.getChatroomIdBySession(session);
+        Set<WebSocketSession> nowChatroomUser = nowChatroom.get(chatroomId);
         nowChatroomUser.remove(session);
 
-        log.info("afterConnectionClosed: {}", session.getId());
+        if(nowChatroomUser.isEmpty())
+            nowChatroom.remove(chatroomId);
     }
-
-
-
 }

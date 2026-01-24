@@ -7,10 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
+import verbly.spring.domain.chat.service.ChatroomUserService;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.exception.UserHandler;
 import verbly.spring.domain.user.repository.UserRepository;
@@ -19,7 +21,9 @@ import verbly.spring.global.common.constants.Constants;
 import verbly.spring.global.security.auth.CustomUserDetails;
 import verbly.spring.global.security.jwt.JwtTokenProvider;
 import verbly.spring.global.webSocket.exception.WebSocketExceptionHandler;
+import verbly.spring.global.webSocket.util.WebSocketUtil;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -29,20 +33,39 @@ import java.util.Map;
 public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final WebSocketUtil webSocketUtil;
+    private final ChatroomUserService chatroomUserService;
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
 
-        //get token
-        String token = JwtTokenProvider.resolveToken((HttpServletRequest)request);
-        if (!StringUtils.hasText(token))
-            throw new WebSocketExceptionHandler(ErrorStatus.INVALID_JWT_ACCESS_TOKEN);
+        // Header deliver check - delete soon
+        log.info("Auth header: {}", request.getHeaders().getFirst(Constants.AUTH_HEADER));
 
-        // get socialId from token
-        String socialId = jwtTokenProvider.getSubjectFromToken(token);
+        //get token
+        String bearerToken = request.getHeaders().getFirst(Constants.AUTH_HEADER);
+        String token;
+        if(!StringUtils.hasText(bearerToken) || !bearerToken.startsWith(Constants.TOKEN_PREFIX))
+            throw new WebSocketExceptionHandler(ErrorStatus._UNAUTHORIZED);
+        token = bearerToken.substring(Constants.TOKEN_PREFIX.length());
+        if (!StringUtils.hasText(token) || !jwtTokenProvider.validateToken(token)) {
+            throw new WebSocketExceptionHandler(ErrorStatus.INVALID_JWT_ACCESS_TOKEN);
+        }
+
+        // get userId from socialId in JWT
+        Long userId = webSocketUtil.getUserIdBySocialId(jwtTokenProvider.getSubjectFromToken(token));
+
+        // get URI
+        URI uri = request.getURI();
+        Long chatroomId = webSocketUtil.getChatroomIdByURI(uri);
+
+        // member check
+        if(!chatroomUserService.isChatroomMember(chatroomId, userId))
+            throw new WebSocketExceptionHandler(ErrorStatus.NOT_CHATROOM_MEMBER);
 
         // save in websocketSession
-        attributes.put("socialId", socialId);
+        attributes.put("userId", userId);
+        attributes.put("chatroomId", chatroomId);
 
         return true;
     }

@@ -32,9 +32,10 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "PW4001", "잘못된 비밀번호입니다."),
 
     //채팅 토큰
-    URI_PATH_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT4001", "URI가 없습니다."),
+    URI_PATH_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT4001", "URI를 찾을 수 없습니다."),
     WEBSOCKET_SESSION_CLOSED(HttpStatus.BAD_REQUEST, "CHAT4002", "웹소켓 세션이 닫혔습니다."),
-    CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT4003", "채팅방이 없습니다.");
+    CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT4003", "채팅방이 없습니다."),
+    NOT_CHATROOM_MEMBER(HttpStatus.FORBIDDEN, "CHAT4004", "채팅방 입장 권한이 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

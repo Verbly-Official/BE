@@ -36,7 +36,7 @@ public class UserRestController {
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
     public ResponseEntity<ApiResponse<UserResponseDTO.OnboardingResultDTO>> onboard(
-            @RequestPart("request") @Valid UserRequestDTO.OnboardingDTO request
+            @RequestBody @Valid UserRequestDTO.OnboardingDTO request
     ) {
         Long userId = SecurityUtils.getCurrentUserId();
         User user = userCommandService.onboardingUser(userId, request);
@@ -75,8 +75,8 @@ public class UserRestController {
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     public ResponseEntity<ApiResponse<UserResponseDTO.ProfileUpdateResultDTO>> updateMyPage(
-            @RequestPart(value = "request") @Valid UserRequestDTO.ProfileUpdateDTO request,
             @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @RequestPart(value = "request") @Valid UserRequestDTO.ProfileUpdateDTO request,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         Long userId = SecurityUtils.getCurrentUserId();

@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import verbly.spring.domain.user.entity.NotificationSettings;
 import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.stats.entity.Stats;
 import verbly.spring.domain.user.entity.User;
@@ -104,6 +105,9 @@ public class CustomOidcUserService extends OidcUserService {
                 .lastActiveDate(null)
                 .build();
         user.setStats(stats);
+
+        NotificationSettings notificationSettings = NotificationSettings.defaultOf(user);
+        user.setNotificationSettings(notificationSettings);
 
         return userRepository.save(user);
     }

@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import verbly.spring.domain.user.entity.NotificationSettings;
 import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.stats.entity.Stats;
 import verbly.spring.domain.user.entity.User;
@@ -101,6 +102,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
                 .lastActiveDate(null)
                 .build();
         user.setStats(stats);
+
+        NotificationSettings notificationSettings = NotificationSettings.defaultOf(user);
+        user.setNotificationSettings(notificationSettings);
 
         return userRepository.save(user);
     }

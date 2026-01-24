@@ -1,6 +1,7 @@
 package verbly.spring.domain.post.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -8,8 +9,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import verbly.spring.domain.post.dto.request.CommentRequestDTO;
 import verbly.spring.domain.post.dto.response.CommentResponseDTO;
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
+import verbly.spring.domain.post.service.comment.CommentCommandService;
 import verbly.spring.domain.post.service.comment.CommentQueryService;
 import verbly.spring.domain.post.service.post.PostCommandService;
 import verbly.spring.domain.post.service.post.PostQueryService;
@@ -27,6 +30,7 @@ public class PostRestController {
     private final PostQueryService postQueryService;
     private final PostCommandService postCommandService;
     private final CommentQueryService commentQueryService;
+    private final CommentCommandService commentCommandService;
 
     @GetMapping()
     @Operation(summary = "홈 화면 포스트 조회", description = "스크롤 페이지를 위한 slice 객체 반환")
@@ -76,5 +80,16 @@ public class PostRestController {
             @PathVariable(name = "postId") Long postId
     ) {
         return ApiResponse.onSuccess(commentQueryService.getComments(pageable, postId));
+    }
+
+    @PostMapping("{postId}/comments")
+    @Operation(summary = "특정 포스트에 댓글 작성")
+    public ApiResponse<CommentResponseDTO.getMyComment> makeComment(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable(name = "postId") Long postId,
+            @RequestBody @Valid CommentRequestDTO.makeComment dto
+            ){
+        User viewer = userDetails != null ? userDetails.getUser() : null;
+        return ApiResponse.onSuccess(commentCommandService.getMyComment(viewer, postId, dto));
     }
 }

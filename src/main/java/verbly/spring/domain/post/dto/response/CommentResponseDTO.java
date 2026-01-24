@@ -23,4 +23,19 @@ public class CommentResponseDTO {
         String content;
         LocalDateTime createdAt;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class getMyComment{
+        UUID uuid;
+        String nickname;
+        String userImageUrl;
+
+        String content;
+        LocalDateTime createdAt;
+
+        Integer totalComments;
+    }
 }

@@ -22,7 +22,8 @@ public class Correction extends BaseEntity {
 
     // 즐겨찾기
     @Column(nullable = false)
-    private boolean bookmark;
+    @Builder.Default
+    private boolean bookmark = false;
 
     public void addBookmark() {
         this.bookmark = true;

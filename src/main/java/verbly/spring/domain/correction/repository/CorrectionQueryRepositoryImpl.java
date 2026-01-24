@@ -36,9 +36,13 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository{
 
         where.and(post.author.id.eq(authorId));
 
-//        if (Boolean.TRUE.equals(bookmark)) {
-//            where.and(post.bookmark.isTrue());
-//        }
+        if (bookmark != null) {
+            if (Boolean.TRUE.equals(bookmark)) {
+                where.and(correction.bookmark.isTrue());
+            } else {
+                where.and(correction.bookmark.isFalse());
+            }
+        }
 
         if (status != null) {
             where.and(post.status.eq(status));
@@ -52,21 +56,25 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository{
 
         var latestFeedback = new verbly.spring.domain.correction.entity.QCorrectionFeedback("latestFeedback");
 
+        var correctorNameExpr = new CaseBuilder()
+                .when(latestFeedback.correctorType.eq(CorrectorType.AI_ASSISTANT))
+                .then("AI Assistant")
+                .when(latestFeedback.correctorType.eq(CorrectorType.NATIVE_SPEAKER))
+                .then(user.nickname)
+                .otherwise((String) null);
+
         var baseQuery = queryFactory
-                .select(Projections.constructor(
+                .select(Projections.fields(
                         CorrectionResponseDTO.MyCorrectionDto.class,
-                        correction.id,
-                        post.id,
-                        post.title,
-                        post.status,
-                        latestFeedback.correctorType,
-                        new CaseBuilder()
-                                .when(latestFeedback.correctorType.eq(CorrectorType.AI_ASSISTANT))
-                                .then("AI Assistant")
-                                .when(latestFeedback.correctorType.eq(CorrectorType.NATIVE_SPEAKER))
-                                .then(user.nickname)
-                                .otherwise((String) null),
-                        correction.createdAt       // correctionCreatedAt
+                        correction.id.as("correctionId"),
+                        post.id.as("postId"),
+                        post.title.as("title"),
+                        post.status.as("status"),
+                        post.content.as("content"),
+                        correction.bookmark.as("bookmark"),
+                        latestFeedback.correctorType.as("correctorType"),
+                        correctorNameExpr.as("correctorName"),
+                        correction.createdAt.as("correctionCreatedAt")
                 ))
                 .from(correction)
                 .join(correction.post, post)

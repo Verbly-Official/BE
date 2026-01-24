@@ -25,6 +25,8 @@ public class CorrectionResponseDTO {
 
         private String title;
         private PostStatus status;
+        private Boolean bookmark;
+        private String content;
 
         private CorrectorType correctorType;
         private String correctorName;

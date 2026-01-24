@@ -43,4 +43,21 @@ public class UserConverter {
                 .status(user.getStatus().name())
                 .build();
     }
+
+    public static UserResponseDTO.ProfileUpdateResultDTO toProfileUpdateResultDTO(User user, String profileImageUrl) {
+        return UserResponseDTO.ProfileUpdateResultDTO.builder()
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .bio(user.getBio())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .profileImage(
+                        profileImageUrl != null
+                                ? profileImageUrl
+                                : user.getProfileImage() != null
+                                ? user.getProfileImage().getImageUrl()
+                                : null
+                )
+                .build();
+    }
 }

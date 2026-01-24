@@ -99,20 +99,7 @@ public class UserCommandServiceImpl implements UserCommandService {
             profileImageUrl = updateProfileImage(user, profileImage);
         }
 
-        return UserResponseDTO.ProfileUpdateResultDTO.builder()
-                .userId(user.getId())
-                .nickname(user.getNickname())
-                .bio(user.getBio())
-                .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
-                .profileImage(
-                        profileImageUrl != null
-                                ? profileImageUrl
-                                : user.getProfileImage() != null
-                                ? user.getProfileImage().getImageUrl()
-                                : null
-                )
-                .build();
+        return UserConverter.toProfileUpdateResultDTO(user, profileImageUrl);
     }
 
     private String updateProfileImage(User user, MultipartFile profileImage) {

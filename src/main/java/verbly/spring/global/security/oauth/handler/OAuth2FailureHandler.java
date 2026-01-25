@@ -18,13 +18,6 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         log.error("❌ OAuth2 로그인 실패: {}", exception.getMessage());
 
-        // 리다이렉트 방식 (쿼리 파라미터에 에러 메시지 포함)
-//        String targetUrl = UriComponentsBuilder.fromUriString("https://verbly.com/login-fail")
-//                .queryParam("error", exception.getMessage())
-//                .build().toUriString();
-//
-//        response.sendRedirect(targetUrl);
-
         // JSON 응답 방식
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

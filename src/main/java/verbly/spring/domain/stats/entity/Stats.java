@@ -1,9 +1,11 @@
-package verbly.spring.domain.user.entity;
+package verbly.spring.domain.stats.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import verbly.spring.domain.user.entity.User;
+import verbly.spring.domain.user.enums.Level;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -20,6 +22,7 @@ public class Stats {
     @Id
     private Long userId;
 
+    @MapsId
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -46,6 +49,7 @@ public class Stats {
 
     private LocalDate lastActiveDate;
 
+    // home 조회 api에서 통계 서비스의 markAttendance 호출하기
     public void markAttendance(String timezone) {
         LocalDate today = LocalDate.now(ZoneId.of(timezone));
 
@@ -60,5 +64,9 @@ public class Stats {
         }
 
         lastActiveDate = today;
+    }
+
+    public Level getLevel() {
+        return Level.fromPoint(this.point);
     }
 }

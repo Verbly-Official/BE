@@ -17,10 +17,12 @@ import java.util.Map;
 public class CustomOAuth2User implements OAuth2User, OidcUser {
     private final User user;
     private final Map<String, Object> attributes;
+    private final String provider; // kakao, google
 
-    public CustomOAuth2User(User user, Map<String, Object> attributes) {
+    public CustomOAuth2User(User user, Map<String, Object> attributes, String provider) {
         this.user = user;
         this.attributes = attributes;
+        this.provider = provider;
     }
 
     @Override

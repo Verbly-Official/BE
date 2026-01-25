@@ -1,7 +1,6 @@
-package verbly.spring.domain.review.dto;
+package verbly.spring.domain.review.dto.responeDTO;
 
 import lombok.*;
-import verbly.spring.domain.review.entity.Review;
 import verbly.spring.domain.user.entity.Stats;
 
 @Builder(access = AccessLevel.PRIVATE)

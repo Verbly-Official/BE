@@ -1,15 +1,14 @@
 package verbly.spring.domain.review.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import verbly.spring.domain.review.dto.ReviewMetaResponseDTO;
-import verbly.spring.domain.review.dto.ReviewRequestDTO;
-import verbly.spring.domain.review.dto.ReviewResponseDTO;
+import verbly.spring.domain.review.dto.responeDTO.ReviewMetaResponseDTO;
+import verbly.spring.domain.review.dto.requestDTO.ReviewRequestDTO;
+import verbly.spring.domain.review.dto.responeDTO.ReviewResponseDTO;
 import verbly.spring.domain.review.service.ReviewService;
 import verbly.spring.global.common.code.SuccessStatus;
 import verbly.spring.global.common.response.ApiResponse;

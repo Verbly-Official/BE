@@ -18,15 +18,18 @@ public class ChatroomUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "chatroom_id")
     private Chatroom chatroom;
 
-    @Column(name = "unread_chat_count")
+    @Column(name = "opponent_id")
+    private Long opponentId;
+
+    @Column(name = "unread_chat_count", columnDefinition = "integer default 0")
     private Integer unreadChatCount;
 
     @Column(name = "last_read_at")
@@ -35,8 +38,23 @@ public class ChatroomUser {
     @Column(name = "joined_at")
     private LocalDateTime joinedAt;
 
-    @Column(name = "quit_at")
-    private LocalDateTime quitAt;
+    public static ChatroomUser of(User user, Chatroom chatroom, Long opponentId) {
 
+        return ChatroomUser.builder()
+                .user(user)
+                .chatroom(chatroom)
+                .opponentId(opponentId)
+                .lastReadAt(LocalDateTime.now())
+                .joinedAt(LocalDateTime.now())
+                .build();
+    }
 
+    public void countUpUnreadChatCount() {
+        this.unreadChatCount = this.unreadChatCount + 1;
+    }
+
+    public void updateReadState() {
+        this.unreadChatCount = 0;
+        this.lastReadAt = LocalDateTime.now();
+    }
 }

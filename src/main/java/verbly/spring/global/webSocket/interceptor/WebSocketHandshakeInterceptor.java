@@ -42,15 +42,15 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
         // Header deliver check - delete soon
         log.info("Auth header: {}", request.getHeaders().getFirst(Constants.AUTH_HEADER));
 
-        //get token
-        String bearerToken = request.getHeaders().getFirst(Constants.AUTH_HEADER);
-        String token;
-        if(!StringUtils.hasText(bearerToken) || !bearerToken.startsWith(Constants.TOKEN_PREFIX))
+        List<String> auth = request.getHeaders().get(Constants.AUTH_HEADER);
+        if (auth == null || auth.isEmpty())
             throw new WebSocketExceptionHandler(ErrorStatus._UNAUTHORIZED);
-        token = bearerToken.substring(Constants.TOKEN_PREFIX.length());
-        if (!StringUtils.hasText(token) || !jwtTokenProvider.validateToken(token)) {
+        String bearerToken = auth.get(0);
+        if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith(Constants.TOKEN_PREFIX))
             throw new WebSocketExceptionHandler(ErrorStatus.INVALID_JWT_ACCESS_TOKEN);
-        }
+        String token = bearerToken.substring(Constants.TOKEN_PREFIX.length()).trim();
+        if (!StringUtils.hasText(token))
+            throw new WebSocketExceptionHandler(ErrorStatus.INVALID_JWT_ACCESS_TOKEN);
 
         // get userId from socialId in JWT
         Long userId = webSocketUtil.getUserIdBySocialId(jwtTokenProvider.getSubjectFromToken(token));

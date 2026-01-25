@@ -2,9 +2,9 @@ package verbly.spring.domain.review.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import verbly.spring.domain.review.dto.ReviewMetaResponseDTO;
-import verbly.spring.domain.review.dto.ReviewRequestDTO;
-import verbly.spring.domain.review.dto.ReviewResponseDTO;
+import verbly.spring.domain.review.dto.responeDTO.ReviewMetaResponseDTO;
+import verbly.spring.domain.review.dto.requestDTO.ReviewRequestDTO;
+import verbly.spring.domain.review.dto.responeDTO.ReviewResponseDTO;
 import verbly.spring.domain.review.entity.Review;
 import verbly.spring.domain.review.repo.ReviewRepository;
 import verbly.spring.domain.user.entity.Stats;
@@ -16,7 +16,6 @@ import verbly.spring.global.common.code.ErrorStatus;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service

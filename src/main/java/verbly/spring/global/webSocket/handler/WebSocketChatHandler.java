@@ -34,7 +34,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     private final ChatMessageService chatMessageService;
     private final ChatroomUserService chatroomUserService;
     private final WebSocketUtil webSocketUtil;
-    Map<Long, Set<WebSocketSession>> nowChatroom = new HashMap<>();
+    private final Map<Long, Set<WebSocketSession>> nowChatroom = new HashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception{

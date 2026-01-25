@@ -1,4 +1,4 @@
-package verbly.spring.domain.review.dto;
+package verbly.spring.domain.review.dto.requestDTO;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

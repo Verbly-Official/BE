@@ -29,7 +29,14 @@ public enum SuccessStatus implements BaseCode {
     // 팔로우 관련 답
     FOLLOW_CREATE_SUCCESS(HttpStatus.CREATED, "FOLLOW2001", "팔로우를 성공적으로 생성했습니다."),
     FOLLOW_RECOMMEND_SUCCESS(HttpStatus.OK, "FOLLOW2002", "추천 팔로우 리스트를 성공적으로 조회했습니다."),
-    FOLLOW_DELETE_SUCCESS(HttpStatus.OK, "FOLLOW2003", "팔로우를 성공적으로 삭제했습니다.");
+    FOLLOW_DELETE_SUCCESS(HttpStatus.OK, "FOLLOW2003", "팔로우를 성공적으로 삭제했습니다."),
+
+    // 채팅 관련 응답
+    CHATROOM_PARTICIPATE_SUCCESS(HttpStatus.CREATED, "CHAT2001", "채팅방에 성공적으로 참여했습니다."),
+    CHATROOM_READ_SUCCESS(HttpStatus.OK, "CHAT2002", "채팅방 목록을 성공적으로 조회했습니다."),
+    CHAT_MESSAGE_READ_SUCCESS(HttpStatus.OK, "CHAT2003", "채팅 내역을 성공적으로 조회했습니다."),
+    SEARCH_SUCCESS(HttpStatus.OK, "CHAT2004", "검색어에 따른 데이터를 성공적으로 조회했습니다."),
+    CHATROOM_QUIT_SUCCESS(HttpStatus.OK, "CHAT2005", "채팅방에서 성공적으로 퇴장했습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

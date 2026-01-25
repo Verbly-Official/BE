@@ -2,16 +2,19 @@ package verbly.spring.domain.chat.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import verbly.spring.domain.chat.dto.responseDTO.ChatMessageResponseDTO;
 import verbly.spring.domain.chat.entity.ChatMessage;
 import verbly.spring.domain.chat.entity.Chatroom;
 import verbly.spring.domain.chat.repo.ChatroomRepository;
 import verbly.spring.domain.chat.repo.ChatroomUserRepository;
 import verbly.spring.domain.chat.repo.ChatMessageRepository;
+import verbly.spring.domain.review.dto.responeDTO.ReviewResponseDTO;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.webSocket.exception.WebSocketExceptionHandler;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -22,9 +25,10 @@ public class ChatMessageService {
     private final UserRepository userRepository;
     private final ChatMessageRepository chatMessageRepository;
 
-    //채팅 저장
+    //save chatMessage
     public void saveChatMessage(Long senderId, Long chatroomId, String text) {
 
+        // sender
         Optional<User> optionalSender = userRepository.findById(senderId);
         if(optionalSender.isEmpty())
             throw new WebSocketExceptionHandler(ErrorStatus.USER_NOT_FOUND);
@@ -40,16 +44,16 @@ public class ChatMessageService {
         chatMessageRepository.save(chatMessage);
     }
 
-    // 채팅방 참여-ws
+    // get certain room messages
+    public List<ChatMessageResponseDTO> getChatMessageList(Long participantId, Long chatroomId) {
 
-    // 사용자의 전체 채팅방 조회
+        List<ChatMessage> chatMessageList = chatMessageRepository.findAllBySenderIdAndChatroomId(participantId, chatroomId);
 
-    // 전체 채팅 조회
+        return chatMessageList
+                .stream()
+                .map(ChatMessageResponseDTO::from)
+                .toList();
+    }
 
-    // 특정 채팅방 검색
-
-    // 특정 메세지 검색
-
-    // 채팅방 나가기
 
 }

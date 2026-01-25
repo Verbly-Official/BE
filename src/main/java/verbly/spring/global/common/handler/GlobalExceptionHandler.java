@@ -60,10 +60,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = BaseException.class)
-    public ResponseEntity onThrowException(BaseException generalException, HttpServletRequest request) {
-        ErrorReasonDTO errorReasonHttpStatus = generalException.getErrorReasonHttpStatus();
-        return handleExceptionInternal(generalException,generalException.getCode(),null,request);
+    public ResponseEntity<Object> onThrowException(BaseException generalException, HttpServletRequest request) {
+        return handleExceptionInternal(generalException, generalException.getCode(), HttpHeaders.EMPTY, request);
     }
+
 
     @Override
     protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
@@ -103,14 +103,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                            HttpHeaders headers, HttpServletRequest request) {
 
         ApiResponse<Object> body = ApiResponse.onFailure(errorCode);
-//        e.printStackTrace();
 
         WebRequest webRequest = new ServletWebRequest(request);
+
+        HttpHeaders safeHeaders = (headers == null) ? HttpHeaders.EMPTY : headers;
+
+        HttpStatus status = errorCode.getReasonHttpStatus().getHttpStatus();
+        if (status == null) { // 방어코드
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
         return super.handleExceptionInternal(
                 e,
                 body,
-                headers,
-                errorCode.getReason().getHttpStatus(),
+                safeHeaders,
+                status,
                 webRequest
         );
     }

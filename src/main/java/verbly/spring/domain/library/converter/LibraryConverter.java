@@ -9,7 +9,6 @@ import java.util.List;
 
 /**
  * 라이브러리 도메인 Entity -> DTO 변환 전용 클래스
- * - Controller/Service에서 매핑 로직이 흩어지지 않도록 한 곳으로 모읍니다.
  */
 public class LibraryConverter {
 

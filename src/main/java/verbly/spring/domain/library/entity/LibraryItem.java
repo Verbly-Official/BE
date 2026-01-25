@@ -69,7 +69,7 @@ public class LibraryItem {
     @Column(name = "updated_at", nullable = false, columnDefinition = "datetime(3)")
     private LocalDateTime updatedAt;
 
-    // ---------- relations (우리 테이블 내에서만) ----------
+
     @OneToMany(mappedBy = "libraryItem", fetch = FetchType.LAZY,
             cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LibraryItemSource> sources = new ArrayList<>();
@@ -78,7 +78,7 @@ public class LibraryItem {
             cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LibraryItemExample> examples = new ArrayList<>();
 
-    // ---------- factory / behavior ----------
+
     public static LibraryItem of(Long userId, String phrase, String phraseNorm, String meaningKo, String meaningEn) {
         LibraryItem item = new LibraryItem();
         item.userId = userId;

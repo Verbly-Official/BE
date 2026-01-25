@@ -27,7 +27,7 @@ public class LibraryCommandServiceImpl implements LibraryCommandService {
     public LibraryResponseDTO.CreateItemResponse createItem(Long userId, LibraryRequestDTO.CreateItemRequest req) {
         String phraseNorm = LibraryConverter.normalizePhrase(req.phrase());
 
-        // 중복 체크(서버 레벨) + DB unique constraint(최후의 방어)
+        // 중복 체크
         if (libraryItemRepository.findByUserIdAndPhraseNorm(userId, phraseNorm).isPresent()) {
             throw new LibraryHandler(LibraryErrorStatus.LIBRARY_ITEM_DUPLICATE);
         }
@@ -46,7 +46,7 @@ public class LibraryCommandServiceImpl implements LibraryCommandService {
             item.toggleStar(req.starred());
         }
 
-        // JPA dirty checking으로 flush되지만, 명시적으로 save 해도 무방
+
         libraryItemRepository.save(item);
     }
 

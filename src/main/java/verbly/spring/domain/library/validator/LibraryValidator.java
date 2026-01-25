@@ -16,10 +16,7 @@ public class LibraryValidator {
     private final LibraryItemRepository libraryItemRepository;
     private final LibraryItemExampleRepository libraryItemExampleRepository;
 
-    /**
-     * 내 아이템인지 + ACTIVE 상태인지 검증
-     * (soft delete 이후에도 수정/조회되는 걸 방지)
-     */
+    //아이템이 소프트 딜리트 상태인지 확인 함.
     public LibraryItem validateOwnedActiveItem(Long userId, Long itemId) {
         LibraryItem item = libraryItemRepository.findByIdAndUserId(itemId, userId)
                 .orElseThrow(() -> new LibraryHandler(LibraryErrorStatus.LIBRARY_ITEM_NOT_FOUND));

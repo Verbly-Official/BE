@@ -23,7 +23,7 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.UserInfoDTO toUserInfoDTO(User user) {
+    public static UserResponseDTO.UserInfoDTO toUserInfoDTO(User user, long totalPosts) {
         return UserResponseDTO.UserInfoDTO.builder()
                 .userId(user.getId())
                 .learningLang(user.getLearningLang())
@@ -37,7 +37,7 @@ public class UserConverter {
                 .point(user.getStats().getPoint())
                 .level(user.getStats().getLevel().getValue())
 //                .followCount(user.getFollowCount())
-//                .postCount(postCount)
+                .totalPosts(totalPosts)
 //                .correctionsGiven(correctionsGiven)
 //                .correctionsReceived(correctionsReceived)
                 .status(user.getStatus().name())

@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
+    List<Post> findAllByAuthorIdOrderByIdDesc(Long authorId);
+    long countByAuthor_Id(Long userId);
     List<Post> findAllByAuthorIdAndTempTrueOrderByUpdatedAtDesc(Long authorId);
     Optional<Post> findByIdAndAuthorIdAndTempTrue(Long postId, Long authorId);
 

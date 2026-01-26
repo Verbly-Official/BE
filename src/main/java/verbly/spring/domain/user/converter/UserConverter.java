@@ -4,6 +4,8 @@ import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.user.entity.User;
 
+import java.util.Optional;
+
 public class UserConverter {
     public static ProfileImage toProfileImage(String imageUrl, User user) {
         return ProfileImage.builder()
@@ -13,23 +15,31 @@ public class UserConverter {
     }
 
     public static UserResponseDTO.OnboardingResultDTO toOnboardingResponseDTO(User user) {
+        String profileImageUrl = Optional.ofNullable(user.getProfileImage())
+                .map(ProfileImage::getImageUrl)
+                .orElse("default_profile_url");
+
         return UserResponseDTO.OnboardingResultDTO.builder()
                 .userId(user.getId())
                 .nickname(user.getNickname())
-                .profileImage(user.getProfileImage().getImageUrl())
+                .profileImage(profileImageUrl)
                 .learningLang(user.getLearningLang())
                 .nativeLang(user.getNativeLang())
                 .status(user.getStatus().name())
                 .build();
     }
 
-    public static UserResponseDTO.UserInfoDTO toUserInfoDTO(User user) {
+    public static UserResponseDTO.UserInfoDTO toUserInfoDTO(User user, long totalPosts, long correctionsGiven, long correctionsReceived) {
+        String profileImageUrl = Optional.ofNullable(user.getProfileImage())
+                .map(ProfileImage::getImageUrl)
+                .orElse("default_profile_url");
+
         return UserResponseDTO.UserInfoDTO.builder()
                 .userId(user.getId())
                 .learningLang(user.getLearningLang())
                 .nativeLang(user.getNativeLang())
                 .nickname(user.getNickname())
-                .profileImage(user.getProfileImage().getImageUrl())
+                .profileImage(profileImageUrl)
                 .bio(user.getBio())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
@@ -37,9 +47,9 @@ public class UserConverter {
                 .point(user.getStats().getPoint())
                 .level(user.getStats().getLevel().getValue())
 //                .followCount(user.getFollowCount())
-//                .postCount(postCount)
-//                .correctionsGiven(correctionsGiven)
-//                .correctionsReceived(correctionsReceived)
+                .totalPosts(totalPosts)
+                .correctionsGiven(correctionsGiven)
+                .correctionsReceived(correctionsReceived)
                 .status(user.getStatus().name())
                 .build();
     }

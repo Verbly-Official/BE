@@ -25,11 +25,6 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping("/{revieweeId}")
-//    @Operation(
-//            summary = "회원 초기 정보 등록 (온보딩) API - JWT AccessToken 인증 필요",
-//            description = "JWT 인증된 유저가 nativeLang과 learningLang을 등록하는 API입니다.",
-//            security = @SecurityRequirement(name = "JWT TOKEN")
-//    )
     public ResponseEntity<ApiResponse<Null>> createReview(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long revieweeId, @RequestBody @Valid ReviewRequestDTO reviewRequestDTO) {
 
         Long reviewerId = customUserDetails.getUser().getId();

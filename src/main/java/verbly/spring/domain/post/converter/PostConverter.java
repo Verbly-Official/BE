@@ -1,13 +1,15 @@
 package verbly.spring.domain.post.converter;
 
 import org.springframework.stereotype.Component;
+import verbly.spring.domain.post.dto.request.PostRequestDTO;
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
 import verbly.spring.domain.post.entity.Post;
-import verbly.spring.domain.post.repository.PostLikeRepository;
+import verbly.spring.domain.user.entity.User;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static verbly.spring.domain.post.enums.Status.PENDING;
 
 @Component
 public class PostConverter {
@@ -59,6 +61,23 @@ public class PostConverter {
                 .isLiked(isLiked)
                 .likesCount(post.getLikesCount())
                 .postId(post.getId())
+                .build();
+    }
+
+    public Post toWritePost(PostRequestDTO.HomeWritePost dto, User user) {
+        return Post.builder()
+                .content(dto.getContent())
+                .status(PENDING)
+                .isTemp(false)
+                .publicSetting(dto.getPublicSetting())
+                .user(user)
+                .build();
+    }
+
+    public PostResponseDTO.HomeWritePost writeHomePost(Post post) {
+        return PostResponseDTO.HomeWritePost.builder()
+                .postId(post.getId())
+                .createdAt(post.getCreatedAt())
                 .build();
     }
 }

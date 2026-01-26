@@ -3,11 +3,14 @@ package verbly.spring.domain.post.dto.request;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public class CommentRequestDTO {
+import java.util.List;
 
+public class PostRequestDTO {
     @Getter
     @NoArgsConstructor
-    public static class makeComment {
+    public static class HomeWritePost {
         String content;
+        Boolean publicSetting;
+        List<String> tags;
     }
 }

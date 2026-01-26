@@ -37,16 +37,19 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private Boolean isTemp;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Integer likesCount;
+    private Integer likesCount = 0;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer commentsCount = 0;
 
     @Column(nullable = false)
-    private Integer commentsCount;
+    private Boolean publicSetting;
 
-    @Column(nullable = false)
-    private Boolean helpNeeded;
-
-    private Boolean isCorrected;
+    @Builder.Default
+    private Boolean isCorrected = false;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostTag> postTags = new ArrayList<>();

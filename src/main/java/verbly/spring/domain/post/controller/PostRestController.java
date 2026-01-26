@@ -10,6 +10,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.post.dto.request.CommentRequestDTO;
+import verbly.spring.domain.post.dto.request.PostRequestDTO;
 import verbly.spring.domain.post.dto.response.CommentResponseDTO;
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
 import verbly.spring.domain.post.service.comment.CommentCommandService;
@@ -91,5 +92,15 @@ public class PostRestController {
             ){
         User viewer = userDetails != null ? userDetails.getUser() : null;
         return ApiResponse.onSuccess(commentCommandService.getMyComment(viewer, postId, dto));
+    }
+
+    @PostMapping("/home")
+    @Operation(summary = "홈 화면의 포스트 등록")
+    public ApiResponse<PostResponseDTO.HomeWritePost> writeHomePost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody @Valid PostRequestDTO.HomeWritePost dto
+            ){
+        User viewer = userDetails != null ? userDetails.getUser() : null;
+        return ApiResponse.onSuccess(postCommandService.writeHomePost(dto, viewer));
     }
 }

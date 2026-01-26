@@ -65,4 +65,13 @@ public class PostResponseDTO {
         Boolean isLiked;
     }
 
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HomeWritePost{
+        Long postId;
+        LocalDateTime createdAt;
+    }
+
 }

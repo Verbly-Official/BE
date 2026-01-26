@@ -1,5 +1,6 @@
 package verbly.spring.domain.user.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,10 +11,12 @@ public class UserRequestDTO {
     public static class OnboardingDTO {
         @NotBlank(message = "학습 언어는 필수입니다.")
         @Size(max = 3, message = "학습 언어 코드를 선택해주세요.")
+        @Schema(example = "en")
         private String learningLang; // "en"
 
         @NotEmpty(message = "모국어는 필수입니다.")
         @Size(max = 3, message = "모국어 코드를 선택해주세요.")
+        @Schema(example = "kr")
         private String nativeLang; // "ko"
     }
 
@@ -21,7 +24,7 @@ public class UserRequestDTO {
     @Setter
     public static class ProfileUpdateDTO {
         @NotBlank(message = "필수 입력칸 미입력입니다. 다시 확인해주세요.")
-        @Size(max = 50, message = "닉네임은 최대 50자입니다.")
+        @Size(max = 20, message = "닉네임은 최대 50자입니다.")
         private String nickname;
 
 //        String profileImage;
@@ -37,6 +40,7 @@ public class UserRequestDTO {
                 regexp = "^[0-9+\\-]{7,20}$",
                 message = "전화번호 형식이 올바르지 않습니다."
         )
+        @Schema(example = "+8201012345678")
         private String phoneNumber;
     }
 }

@@ -2,7 +2,7 @@ spring:
   application:
     name: Verbly
   profiles:
-    active: local # dev, prod(배포 때 Amazon Config 같이 동작하도록 수정)
+    active: prod # local, dev, prod(배포 때 Amazon Config 같이 동작하도록 수정)
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -28,7 +28,7 @@ spring:
         format_sql: true
         use_sql_comments: true
         hbm2ddl:
-          auto: update # update #validate
+          auto: create #create #update #validate
         default_batch_fetch_size: 1000
   data:
     web:
@@ -49,12 +49,28 @@ spring:
               - profile_image
               - account_email
             client-name: Kakao
+          google:
+            client-authentication-method: client_secret_post
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_SECRET}
+            redirect-uri: ${GOOGLE_REDIRECT_URL}
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+              - profile
+              - email
+            client-name: Google
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
   servlet:
     multipart:
       maxFileSize: 10MB # 파일 하나의 최대 크기
@@ -63,9 +79,26 @@ spring:
       # false (기본값): 파일 파싱이 컨트롤러 진입 전에 이뤄짐
       # true: 파일 파싱을 컨트롤러 파라미터 바인딩 시점으로 미룸
       resolve-lazily: false
+server:
+  forward-headers-strategy: framework
+  tomcat:
+    max-swallow-size: 200MB
 jwt:
   token:
-    secretKey: ${JWT_SECRET_KEY}
+    secretKey: ${JWT_SECRETKEY}
     expiration: # (만료) 시간 설정은 ms단위
       access: 14400000 # 4시간(보통 1시간~4시간 단위를 많이 채택)
       refresh: 604800000 # 7일
+cloud:
+  aws:
+    s3:
+      bucket: verbly-bucket
+      path:
+        user: profile
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    credentials:
+      accessKey: ${AWS_ACCESS_KEY}
+      secretKey: ${AWS_SECRET_KEY}

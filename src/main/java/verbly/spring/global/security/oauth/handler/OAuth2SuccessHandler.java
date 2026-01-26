@@ -8,8 +8,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import verbly.spring.domain.auth.dto.response.AuthResponseDTO;
+import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.code.SuccessStatus;
@@ -21,6 +24,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -47,17 +52,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         log.info("🔑 AccessToken: {}, RefreshToken: {}", accessToken, refreshToken);
 
-        /*
-        // 리다이렉트 + 쿼리파라미터 방식: 프론트엔드가 토큰 읽을 수 있도록 전달 -> url에 토큰 노출
-        String redirectUri = (user.getStatus() == UserStatus.ONBOARDING)
-                ? "https://verbly.com/onboarding"
-                : "https://verbly.com/home";
-
-        redirectUri += "?accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8)
-                + "&refreshToken=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
-
-        response.sendRedirect(redirectUri);
-        */
+        String nickname = Optional.ofNullable(user.getNickname()).orElse("");
+        String profileImageUrl = Optional.ofNullable(user.getProfileImage())
+                .map(ProfileImage::getImageUrl)
+                .orElse("default_profile_url");
+        String email = Optional.ofNullable(user.getEmail()).orElse("");
 
         /**/
         // JSON 응답 방식 (SPA 등 API 호출용)
@@ -65,6 +64,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .userId(user.getId())
+                .provider(user.getProvider().toString())
+                .nickname(nickname)
+                .profileImage(profileImageUrl)
+                .email(email)
                 .status(user.getStatus().name())
                 .build();
 
@@ -91,6 +94,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         addCookie(response, "accessToken", accessToken, true, 60 * 60 * 4); // 4시간
         addCookie(response, "refreshToken", refreshToken, true, 60 * 60 * 24 * 7); // 7일
         addCookie(response, "userId", String.valueOf(user.getId()), true, 60 * 60 * 4);
+        addCookie(response, "provider", user.getProvider().toString(), false, 60 * 60 * 4);
+        addCookie(response, "nickname", nickname, false, 60 * 60 * 4);
+        addCookie(response, "profileImage", profileImageUrl, false, 60 * 60 * 4);
+        addCookie(response, "email", email, false, 60 * 60 * 4);
         addCookie(response, "userStatus", String.valueOf(user.getStatus()), false, 60 * 60 * 4);
 
         // 2. 상태 정보: HttpOnly = false (JS에서 읽게)

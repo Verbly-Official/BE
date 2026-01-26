@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface CorrectionRepository extends JpaRepository<Correction, Long> {
     Optional<Correction> findByPostId(Long postId);
     boolean existsByPostId(Long postId);
+    long countByPost_Author_Id(Long authorId);
 }

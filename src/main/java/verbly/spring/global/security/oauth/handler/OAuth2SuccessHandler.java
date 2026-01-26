@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -51,6 +52,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         log.info("🔑 AccessToken: {}, RefreshToken: {}", accessToken, refreshToken);
 
+        String nickname = Optional.ofNullable(user.getNickname()).orElse("");
+        String profileImageUrl = Optional.ofNullable(user.getProfileImage())
+                .map(ProfileImage::getImageUrl)
+                .orElse("default_profile_url");
+        String email = Optional.ofNullable(user.getEmail()).orElse("");
+
         /**/
         // JSON 응답 방식 (SPA 등 API 호출용)
         AuthResponseDTO.LoginResultDTO result = AuthResponseDTO.LoginResultDTO.builder()
@@ -58,9 +65,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .refreshToken(refreshToken)
                 .userId(user.getId())
                 .provider(user.getProvider().toString())
-                .nickname(user.getNickname())
-                .profileImage(user.getProfileImage().getImageUrl())
-                .email(user.getEmail())
+                .nickname(nickname)
+                .profileImage(profileImageUrl)
+                .email(email)
                 .status(user.getStatus().name())
                 .build();
 
@@ -88,9 +95,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         addCookie(response, "refreshToken", refreshToken, true, 60 * 60 * 24 * 7); // 7일
         addCookie(response, "userId", String.valueOf(user.getId()), true, 60 * 60 * 4);
         addCookie(response, "provider", user.getProvider().toString(), false, 60 * 60 * 4);
-        addCookie(response, "nickname", user.getNickname(), false, 60 * 60 * 4);
-        addCookie(response, "profileImage", user.getProfileImage().getImageUrl(), false, 60 * 60 * 4);
-        addCookie(response, "email", user.getEmail(), false, 60 * 60 * 4);
+        addCookie(response, "nickname", nickname, false, 60 * 60 * 4);
+        addCookie(response, "profileImage", profileImageUrl, false, 60 * 60 * 4);
+        addCookie(response, "email", email, false, 60 * 60 * 4);
         addCookie(response, "userStatus", String.valueOf(user.getStatus()), false, 60 * 60 * 4);
 
         // 2. 상태 정보: HttpOnly = false (JS에서 읽게)

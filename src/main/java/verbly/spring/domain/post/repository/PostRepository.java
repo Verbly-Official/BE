@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import verbly.spring.domain.post.entity.Post;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
@@ -15,6 +16,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("UPDATE Post p SET p.likesCount = p.likesCount + 1 WHERE p.id = :postId")
     void increaseLikeCount(@Param("postId") Long postId);
 
+    List<Post> findAllByAuthorIdOrderByIdDesc(Long authorId);
+    long countByAuthor_Id(Long userId);
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Post p SET p.likesCount = p.likesCount - 1 WHERE p.id = :postId")
     void decreaseLikeCount(@Param("postId") Long postId);

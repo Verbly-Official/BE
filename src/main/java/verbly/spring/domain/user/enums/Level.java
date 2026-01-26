@@ -1,7 +1,17 @@
 package verbly.spring.domain.user.enums;
 
 public enum Level {
-    LV1, LV2, LV3, LV4, LV5, LV6, LV7;
+    LV1(1), LV2(2), LV3(3), LV4(4), LV5(5), LV6(6), LV7(7);
+
+    private final int value;
+
+    Level(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
 
     public static Level fromPoint(long point) {
         if (point <= 100) return LV1;

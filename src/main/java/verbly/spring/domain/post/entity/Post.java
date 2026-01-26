@@ -1,41 +1,50 @@
 package verbly.spring.domain.post.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Check;
-import verbly.spring.domain.post.enums.Status;
+import lombok.*;
+import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.entity.BaseEntity;
+import org.hibernate.annotations.Check;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "posts")
+@Getter
+@Entity
+@Table(name = "post")
 @Check(constraints = "likes_count >= 0 AND comments_count >= 0")
 public class Post extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 작성자
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "author_id", nullable = false)
+    private User author;
+
+    // 상태 (PENDING, IN_PROGRESS, COMPLETED)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private PostStatus status;
+
+    // 제목
+    @Column(nullable = false)
     private String title;
 
+    // 내용
+    @Lob
     @Column(nullable = false)
     private String content;
 
+    // 임시저장 유무
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Status status;
-
-    @Column(nullable = false)
-    private Boolean isTemp;
+    private boolean temp;
 
     @Builder.Default
     @Column(nullable = false)
@@ -60,7 +69,14 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
+
+    public boolean isSameContent(String title, String content) {
+        return this.title.equals(title) && this.content.equals(content);
+    }
+
 }

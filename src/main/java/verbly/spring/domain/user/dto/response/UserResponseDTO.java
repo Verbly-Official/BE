@@ -24,13 +24,10 @@ public class UserResponseDTO {
         private Long userId;
         private String nickname;
         private String profileImage;
-        private String chatId;
 
         private String bio;
         private String email;
         private String phoneNumber;
-
-        private long followCount;
 
         private String learningLang; // 학습 언어
         private String nativeLang; // 모국어
@@ -40,9 +37,10 @@ public class UserResponseDTO {
         private long point;
         private int level;
 
-        private long postCount;
-        private Long correctionsGiven; // 외국인에게만 뜨는 도움 준 수
-        private Long correctionsReceived; // 한국인에게만 뜨는 도움 받은 글
+//        private long followCount;
+        private long totalPosts;
+        private long correctionsGiven; // 외국인에게만 뜨는 도움 준 수
+        private long correctionsReceived; // 한국인에게만 뜨는 도움 받은 글
 
         private String status;
     }
@@ -56,6 +54,7 @@ public class UserResponseDTO {
         private Long userId;
         private String profileImage;
         private String nickname;
+        private String bio;
         private String email;
         private String phoneNumber;
     }

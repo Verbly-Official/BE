@@ -13,7 +13,14 @@ public class AuthResponseDTO {
     public static class LoginResultDTO { // 소셜 로그인
         private String accessToken;
         private String refreshToken;
+
         private Long userId;
+
+        private String provider;
+        private String nickname;
+        private String profileImage;
+        private String email;
+
         private String status;
     }
 

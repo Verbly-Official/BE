@@ -108,7 +108,7 @@ public class ChatroomUserService {
     // member check
     public boolean isChatroomMember(Long roomId, Long userId) {
 
-        return chatroomUserRepository.existsByChatroomIdAndUserIdAndQuitAtIsNull(roomId, userId);
+        return chatroomUserRepository.existsByChatroomIdAndUserId(roomId, userId);
     }
 
     // entered chatroom exist check

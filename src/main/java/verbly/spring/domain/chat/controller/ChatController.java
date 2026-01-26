@@ -1,7 +1,7 @@
 package verbly.spring.domain.chat.controller;
 
 import com.amazonaws.Response;
-import jakarta.validation.constraints.Null;
+import java.lang.Void;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,7 +28,7 @@ public class ChatController {
 
     // 채팅방 참여
     @PostMapping("/{opponentId}")
-    public ResponseEntity<ApiResponse<Null>> enterChatroom(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long opponentId) {
+    public ResponseEntity<ApiResponse<Void>> enterChatroom(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long opponentId) {
 
         Long participantId = customUserDetails.getUserId();
         chatroomUserService.enterChatroom(participantId, opponentId);
@@ -74,21 +74,21 @@ public class ChatController {
                 .body(ApiResponse.of(SuccessStatus.CHAT_MESSAGE_READ_SUCCESS, chatMessageResponseDTOList));
     }
 
-    // 채팅방 검색 + 메세지 검색
-    @GetMapping()
-    public ResponseEntity<ApiResponse<SearchResponseDTO>> getSearchResult(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestParam String search) {
-
-        Long participantId = customUserDetails.getUserId();
-        SearchResponseDTO searchResponseDTO = chatIntegralService.getSearchResult(participantId, search);
-
-        return ResponseEntity
-                .status(SuccessStatus.SEARCH_SUCCESS.getHttpStatus())
-                .body(ApiResponse.of(SuccessStatus.SEARCH_SUCCESS, searchResponseDTO));
-    }
+//    // 채팅방 검색 + 메세지 검색
+//    @GetMapping()
+//    public ResponseEntity<ApiResponse<SearchResponseDTO>> getSearchResult(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestParam String search) {
+//
+//        Long participantId = customUserDetails.getUserId();
+//        SearchResponseDTO searchResponseDTO = chatIntegralService.getSearchResult(participantId, search);
+//
+//        return ResponseEntity
+//                .status(SuccessStatus.SEARCH_SUCCESS.getHttpStatus())
+//                .body(ApiResponse.of(SuccessStatus.SEARCH_SUCCESS, searchResponseDTO));
+//    }
 
     // 채팅방 나가기
     @DeleteMapping("/{opponentId}")
-    public ResponseEntity<ApiResponse<Null>> quitChatroom(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long opponentId) {
+    public ResponseEntity<ApiResponse<Void>> quitChatroom(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long opponentId) {
 
         Long participantId = customUserDetails.getUserId();
         chatroomUserService.quitChatroom(participantId);

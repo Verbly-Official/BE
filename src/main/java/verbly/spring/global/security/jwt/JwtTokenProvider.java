@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import verbly.spring.domain.user.entity.User;
@@ -113,7 +112,7 @@ public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인
         String socialId = claims.getSubject();
 
         User user = userRepository.findBySocialId(socialId)
-                .orElseThrow(() -> new UserHandler(ErrorStatus.SOCIALID_NOT_FOUND));
+                .orElseThrow(() -> new UserHandler(ErrorStatus.SOCIAL_ID_NOT_FOUND));
 
         CustomUserDetails userDetails = new CustomUserDetails(user);
 

@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface ChatroomUserRepository extends JpaRepository<ChatroomUser, Long> {
 
-    boolean existsByChatroomIdAndUserIdAndQuitAtIsNull(Long chatroomId, Long userId);
+    boolean existsByChatroomIdAndUserId(Long chatroomId, Long userId);
 
     Optional<ChatroomUser> findByUserIdAndOpponentId(Long participantId, Long opponentId);
 

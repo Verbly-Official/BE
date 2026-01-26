@@ -7,8 +7,8 @@ import verbly.spring.domain.chat.dto.responseDTO.SearchResponseDTO;
 @Service
 @RequiredArgsConstructor
 public class ChatIntegralService {
-
-    // search chat message
-    public SearchResponseDTO getSearchResult(Long participantId, String search) {
-    }
+//
+//    // search chat message
+//    public SearchResponseDTO getSearchResult(Long participantId, String search) {
+//    }
 }

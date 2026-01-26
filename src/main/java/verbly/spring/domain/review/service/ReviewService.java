@@ -7,16 +7,15 @@ import verbly.spring.domain.review.dto.ReviewRequestDTO;
 import verbly.spring.domain.review.dto.ReviewResponseDTO;
 import verbly.spring.domain.review.entity.Review;
 import verbly.spring.domain.review.repo.ReviewRepository;
-import verbly.spring.domain.user.entity.Stats;
+import verbly.spring.domain.stats.entity.Stats;
+import verbly.spring.domain.stats.repository.StatsRepository;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.exception.UserHandler;
-import verbly.spring.domain.user.repository.StatsRepository;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service

@@ -32,6 +32,11 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4003", "유효하지 않은 SocialToken입니다."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "PW4001", "잘못된 비밀번호입니다."),
 
+    // 팔로우
+    NOT_FOLLOWED_USER(HttpStatus.BAD_REQUEST, "FOLLOW4001", "팔로우하지 않은 사용자입니다."),
+    CANT_SELF_FOLLOW(HttpStatus.BAD_REQUEST, "FOLLOW4002", "스스로 팔로우 할 수 없습니다."),
+    ALREADY_FOLLOWED(HttpStatus.BAD_REQUEST, "FOLLOW4003", "이미 팔로우한 사용자입니다."),
+
     // Correction 관련 에러
     CORRECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "CORRECTION4001", "문서를 찾을 수 없습니다."),
     CORRECTION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "CORRECTION4002", "해당 문서에 대한 권한이 없습니다."),

@@ -21,7 +21,7 @@ public class FollowController {
     private final FollowService followService;
 
     @PostMapping("/{followeeId}")
-    public ResponseEntity<ApiResponse<Null>> createFollowing(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long followeeId) {
+    public ResponseEntity<ApiResponse<Void>> createFollowing(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long followeeId) {
 
         Long followerId = customUserDetails.getUser().getId();
         followService.createFollowing(followerId, followeeId);
@@ -42,7 +42,7 @@ public class FollowController {
     }
 
     @DeleteMapping("/{followeeId}")
-    public ResponseEntity<ApiResponse<Null>> unfollow(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long followeeId) {
+    public ResponseEntity<ApiResponse<Void>> unfollow(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long followeeId) {
 
         Long followerId = customUserDetails.getUser().getId();
         followService.unfollow(followerId, followeeId);

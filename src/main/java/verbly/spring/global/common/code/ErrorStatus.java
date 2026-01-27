@@ -32,7 +32,13 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "PW4001", "잘못된 비밀번호입니다."),
 
     // 통계 관련 에러
-    STATS_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATS4001", "사용자 통계 정보가 존재하지 않습니다.");
+    STATS_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATS4001", "사용자 통계 정보가 존재하지 않습니다."),
+
+    //라이브러리 관련 에러
+    LIBRARY_ITEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "LIB4001", "라이브러리 아이템을 찾을 수 없습니다."),
+    LIBRARY_ITEM_FORBIDDEN(HttpStatus.FORBIDDEN, "LIB4002", "해당 아이템에 대한 권한이 없습니다."),
+    LIBRARY_ITEM_DUPLICATE(HttpStatus.BAD_REQUEST, "LIB4003", "이미 라이브러리에 저장된 표현입니다."),
+    EXAMPLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "LIB4004", "예문을 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

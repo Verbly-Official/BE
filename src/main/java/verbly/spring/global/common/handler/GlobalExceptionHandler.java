@@ -109,7 +109,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpHeaders safeHeaders = (headers == null) ? HttpHeaders.EMPTY : headers;
 
         HttpStatus status = errorCode.getReasonHttpStatus().getHttpStatus();
-        if (status == null) { // 방어코드
+        if (status == null) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
 

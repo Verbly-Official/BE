@@ -8,11 +8,11 @@ import verbly.spring.domain.library.dto.request.LibraryRequestDTO;
 import verbly.spring.domain.library.dto.response.LibraryResponseDTO;
 import verbly.spring.domain.library.entity.LibraryItem;
 import verbly.spring.domain.library.entity.LibraryItemExample;
-import verbly.spring.domain.library.exception.LibraryErrorStatus;
 import verbly.spring.domain.library.exception.LibraryHandler;
 import verbly.spring.domain.library.repository.LibraryItemExampleRepository;
 import verbly.spring.domain.library.repository.LibraryItemRepository;
 import verbly.spring.domain.library.validator.LibraryValidator;
+import verbly.spring.global.common.code.ErrorStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class LibraryCommandServiceImpl implements LibraryCommandService {
 
         // 중복 체크
         if (libraryItemRepository.findByUserIdAndPhraseNorm(userId, phraseNorm).isPresent()) {
-            throw new LibraryHandler(LibraryErrorStatus.LIBRARY_ITEM_DUPLICATE);
+            throw new LibraryHandler(ErrorStatus.LIBRARY_ITEM_DUPLICATE);
         }
 
         LibraryItem item = LibraryItem.of(userId, req.phrase(), phraseNorm, req.meaningKo(), req.meaningEn());

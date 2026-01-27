@@ -32,7 +32,7 @@ public class CorrectionService {
     private final CorrectionFeedbackRepository correctionFeedbackRepository;
 
     /**
-     * 내 문서 조회
+     * 내 문서 목록 조회
      */
     public List<CorrectionResponseDTO.MyCorrectionDto> getMyCorrections(
             Boolean bookmark,

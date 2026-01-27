@@ -3,14 +3,14 @@ package verbly.spring.domain.correction.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import verbly.spring.domain.correction.dto.request.CorrectionRequestDTO;
+import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.correction.service.TempPostService;
+import verbly.spring.domain.post.dto.request.PostRequestDTO;
+import verbly.spring.domain.post.dto.response.PostResponseDTO;
 import verbly.spring.global.common.code.SuccessStatus;
 import verbly.spring.global.common.response.ApiResponse;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/temp-posts")
@@ -23,10 +23,51 @@ public class TempPostController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<Long>> createTempPost(
-            @RequestBody @Valid CorrectionRequestDTO.CreateDTO request
+            @RequestBody @Valid PostRequestDTO request
     ) {
         Long postId = tempPostService.createTempPost(request);
         return ResponseEntity.status(SuccessStatus.CORRECTION_TEMP_CREATE_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.CORRECTION_TEMP_CREATE_SUCCESS, postId));
+    }
+
+    /**
+     * Correction - 임시저장된 글 수정
+     */
+    @PatchMapping("/{postId}")
+    public ResponseEntity<ApiResponse<PostResponseDTO.Summary>> updateTempPost(
+            @PathVariable Long postId,
+            @RequestBody @Valid PostRequestDTO request
+    ){
+        PostResponseDTO.Summary result = tempPostService.updateTempPost(postId, request);
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_TEMP_UPDATE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_TEMP_UPDATE_SUCCESS, result));
+    }
+
+    /**
+     * Correction - 임시저장된 글 목록 조회
+     */
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<PostResponseDTO.Summary>>> getAllTempPosts() {
+        List<PostResponseDTO.Summary> result =
+                tempPostService.getAllTempPosts();
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_TEMP_READ_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_TEMP_READ_SUCCESS, result));
+    }
+
+    /**
+     * Correction - 임시저장된 글 상세 조회
+     */
+    @GetMapping("/{postId}")
+    public ResponseEntity<ApiResponse<PostResponseDTO.Detail>> getMyTempPost(
+            @PathVariable Long postId
+    ) {
+        PostResponseDTO.Detail result = tempPostService.getMyTempPost(postId);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_TEMP_READ_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_TEMP_READ_SUCCESS, result));
     }
 }

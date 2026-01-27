@@ -10,7 +10,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findAllByAuthorIdOrderByIdDesc(Long authorId);
     long countByAuthor_Id(Long userId);
-    List<Post> findAllByAuthorIdAndTempTrueOrderByUpdatedAtDesc(Long authorId);
+    List<Post> findAllByAuthorIdAndTempTrueOrderByCreatedAtDesc(Long authorId);
     Optional<Post> findByIdAndAuthorIdAndTempTrue(Long postId, Long authorId);
 
 }

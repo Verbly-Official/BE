@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class PostRequestDTO {
-    @NotBlank
+    @NotBlank(message = "글 제목은 필수입니다.")
     private String title;
 
-    @NotBlank
+    @NotBlank(message = "글 내용은 필수입니다.")
     private String content;
 }

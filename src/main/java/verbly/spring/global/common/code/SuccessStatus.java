@@ -28,8 +28,8 @@ public enum SuccessStatus implements BaseCode {
     CORRECTION_BOOKMARK_ADD_SUCCESS(HttpStatus.OK, "CORRECTION2005", "Correction - 글을 성공적으로 즐겨찾기에 추가했습니다."),
     CORRECTION_BOOKMARK_REMOVE_SUCCESS(HttpStatus.OK, "CORRECTION2006", "Correction - 글을 즐겨찾기에서 성공적으로 삭제했습니다"),
     CORRECTION_TEMP_CREATE_SUCCESS(HttpStatus.CREATED, "CORRECTION2007", "Correction - 글을 성공적으로 임시저장했습니다."),
-
-
+    CORRECTION_TEMP_UPDATE_SUCCESS(HttpStatus.OK, "CORRECTION2008", "Correction - 임시저장 글을 성공적으로 수정했습니다."),
+    CORRECTION_TEMP_READ_SUCCESS(HttpStatus.OK, "CORRECTION2009", "Correction - 임시저장 글을 성공적으로 조회했습니다."),
 
     ;
 

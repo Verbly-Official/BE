@@ -5,6 +5,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -68,20 +72,46 @@ public class UserRestController {
                 .body(ApiResponse.of(SuccessStatus.USER_DELETE_SUCCESS, null));
     }
 
-    @PatchMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @Operation(
-            summary = "마이페이지 회원 정보 수정 API - JWT AccessToken 인증 필요",
-            description = "JWT 인증된 유저가 프로필 이미지, 닉네임, bio, 이메일, 전화번호를 수정하는 API입니다.",
-            security = { @SecurityRequirement(name = "JWT TOKEN") }
-    )
-    public ResponseEntity<ApiResponse<UserResponseDTO.ProfileUpdateResultDTO>> updateMyPage(
-            @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @RequestPart(value = "request") @Valid UserRequestDTO.ProfileUpdateDTO request,
-            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
-    ) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        UserResponseDTO.ProfileUpdateResultDTO result = userCommandService.updateUser(userId, request, profileImage);
-        return ResponseEntity.status(SuccessStatus.USER_PROFILE_UPDATE_SUCCESS.getHttpStatus())
-                .body(ApiResponse.of(SuccessStatus.USER_PROFILE_UPDATE_SUCCESS, result));
+//    @PatchMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+//    @Operation(
+//            summary = "마이페이지 회원 정보 수정 API - JWT AccessToken 인증 필요",
+//            description = "JWT 인증된 유저가 프로필 이미지, 닉네임, bio, 이메일, 전화번호를 수정하는 API입니다.",
+//            security = { @SecurityRequirement(name = "JWT TOKEN") }
+//    )
+//    public ResponseEntity<ApiResponse<UserResponseDTO.ProfileUpdateResultDTO>> updateMyPage(
+//            @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+//            @RequestPart(value = "request") @Valid UserRequestDTO.ProfileUpdateDTO request,
+//            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+//    ) {
+//        Long userId = SecurityUtils.getCurrentUserId();
+//        UserResponseDTO.ProfileUpdateResultDTO result = userCommandService.updateUser(userId, request, profileImage);
+//        return ResponseEntity.status(SuccessStatus.USER_PROFILE_UPDATE_SUCCESS.getHttpStatus())
+//                .body(ApiResponse.of(SuccessStatus.USER_PROFILE_UPDATE_SUCCESS, result));
+//    }
+@PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+@Operation(
+        summary = "마이페이지 회원 정보 수정 API - JWT AccessToken 인증 필요",
+        description = "JWT 인증된 유저가 프로필 이미지, 닉네임, bio, 이메일, 전화번호를 수정하는 API입니다.",
+        security = { @SecurityRequirement(name = "JWT TOKEN") }
+)
+public ResponseEntity<ApiResponse<UserResponseDTO.ProfileUpdateResultDTO>> updateMyPage(
+        @RequestParam("nickname") @NotBlank @Size(max = 20) String nickname,
+        @RequestParam(value = "bio", required = false) @Size(max = 150) String bio,
+        @RequestParam(value = "email", required = false) @Email @Size(max = 30) String email,
+        @RequestParam(value = "phoneNumber", required = false) @Pattern(regexp = "^[0-9+\\-]{7,20}$") String phoneNumber,
+        @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+) {
+    Long userId = SecurityUtils.getCurrentUserId();
+
+    // DTO 수동 생성
+    UserRequestDTO.ProfileUpdateDTO request = new UserRequestDTO.ProfileUpdateDTO();
+    request.setNickname(nickname);
+    request.setBio(bio);
+    request.setEmail(email);
+    request.setPhoneNumber(phoneNumber);
+
+    UserResponseDTO.ProfileUpdateResultDTO result = userCommandService.updateUser(userId, request, profileImage);
+    return ResponseEntity.status(SuccessStatus.USER_PROFILE_UPDATE_SUCCESS.getHttpStatus())
+            .body(ApiResponse.of(SuccessStatus.USER_PROFILE_UPDATE_SUCCESS, result));
     }
 }

@@ -26,5 +26,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("UPDATE Post p SET p.commentsCount = p.commentsCount + 1 WHERE p.id = :postId")
     void increaseCommentCount(@Param("postId") Long postId);
 
-    Slice<Post> findAllByUser_Uuid(UUID uuid, Pageable pageable);
+    Slice<Post> findAllByAuthor_Uuid(UUID uuid, Pageable pageable);
 }

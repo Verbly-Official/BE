@@ -37,7 +37,7 @@ public class PostQueryServiceImpl implements PostQueryService {
 
     @Override
     public Slice<PostResponseDTO.UserPosts> getUserPosts(Pageable pageable, UUID uuid, User viewer) {
-        Slice<Post> postSlice = postRepository.findAllByUser_Uuid(uuid, pageable);
+        Slice<Post> postSlice = postRepository.findAllByAuthor_Uuid(uuid, pageable);
         return postSlice.map(post -> {
             boolean isLiked = false;
             if (viewer != null) {

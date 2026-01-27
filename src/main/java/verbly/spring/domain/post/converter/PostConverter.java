@@ -4,12 +4,11 @@ import org.springframework.stereotype.Component;
 import verbly.spring.domain.post.dto.request.PostRequestDTO;
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
 import verbly.spring.domain.post.entity.Post;
+import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.user.entity.User;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static verbly.spring.domain.post.enums.Status.PENDING;
 
 @Component
 public class PostConverter {
@@ -26,9 +25,9 @@ public class PostConverter {
                 .likesCount(post.getLikesCount())
                 .createdAt(post.getCreatedAt())
                 .tags(tags)
-                .userImageUrl(post.getUser().getProfileImage().getImageUrl().toString())
-                .uuid(post.getUser().getUuid())
-                .nickname(post.getUser().getNickname())
+                .userImageUrl(post.getAuthor().getProfileImage().getImageUrl().toString())
+                .uuid(post.getAuthor().getUuid())
+                .nickname(post.getAuthor().getNickname())
                 .isFollowing(false)
                 //Follow 구현 후 수정 예정
                 .isLiked(isLiked)
@@ -47,9 +46,9 @@ public class PostConverter {
                 .likesCount(post.getLikesCount())
                 .createdAt(post.getCreatedAt())
                 .tags(tags)
-                .userImageUrl(post.getUser().getProfileImage().getImageUrl().toString())
-                .uuid(post.getUser().getUuid())
-                .nickname(post.getUser().getNickname())
+                .userImageUrl(post.getAuthor().getProfileImage().getImageUrl().toString())
+                .uuid(post.getAuthor().getUuid())
+                .nickname(post.getAuthor().getNickname())
                 .isFollowing(false)
                 //Follow 구현 후 수정 예정
                 .isLiked(isLiked)
@@ -66,11 +65,12 @@ public class PostConverter {
 
     public Post toWritePost(PostRequestDTO.HomeWritePost dto, User user) {
         return Post.builder()
+                .title("temp")
                 .content(dto.getContent())
-                .status(PENDING)
-                .isTemp(false)
+                .status(PostStatus.PENDING)
+                .temp(false)
                 .publicSetting(dto.getPublicSetting())
-                .user(user)
+                .author(user)
                 .build();
     }
 

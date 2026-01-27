@@ -110,7 +110,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 e,
                 body,
                 headers,
-                errorCode.getReason().getHttpStatus(),
+                errorCode.getReasonHttpStatus().getHttpStatus(),
                 webRequest
         );
     }

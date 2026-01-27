@@ -3,6 +3,7 @@ package verbly.spring.domain.user.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import verbly.spring.domain.user.converter.UserConverter;
@@ -26,6 +28,7 @@ import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.auth.CustomUserDetails;
 import verbly.spring.global.security.utils.SecurityUtils;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/user")
@@ -79,10 +82,10 @@ public class UserRestController {
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     public ResponseEntity<ApiResponse<UserResponseDTO.ProfileUpdateResultDTO>> updateMyPage(
-            @RequestParam("nickname") @NotBlank @Size(max = 20) String nickname,
-            @RequestParam(value = "bio", required = false) @Size(max = 150) String bio,
-            @RequestParam(value = "email", required = false) @Email @Size(max = 30) String email,
-            @RequestParam(value = "phoneNumber", required = false) @Pattern(regexp = "^[0-9+\\-]{7,20}$") String phoneNumber,
+            @RequestParam("nickname") @NotBlank(message = "필수 입력칸 미입력입니다. 다시 확인해주세요.") @Size(max = 20, message = "닉네임은 최대 20자입니다.") String nickname,
+            @RequestParam(value = "bio", required = false) @Size(max = 150, message = "자기소개는 최대 150자입니다.") String bio,
+            @RequestParam(value = "email", required = false) @Email(message = "이메일 형식이 올바르지 않습니다.") @Size(max = 30, message = "이메일은 최대 30자입니다.") String email,
+            @RequestParam(value = "phoneNumber", required = false) @Pattern(regexp = "^[0-9+\\-]{7,20}$", message = "전화번호 형식이 올바르지 않습니다.") @Schema(example = "+8201012345678") String phoneNumber,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         Long userId = SecurityUtils.getCurrentUserId();

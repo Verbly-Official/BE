@@ -9,8 +9,10 @@ import verbly.spring.domain.post.converter.CommentConverter;
 import verbly.spring.domain.post.dto.response.CommentResponseDTO;
 import verbly.spring.domain.post.entity.Comment;
 import verbly.spring.domain.post.entity.Post;
+import verbly.spring.domain.post.exception.PostHandler;
 import verbly.spring.domain.post.repository.CommentRepository;
 import verbly.spring.domain.post.repository.PostRepository;
+import verbly.spring.global.common.code.ErrorStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class CommentQueryServiceImpl implements CommentQueryService {
 
     @Override
     public Slice<CommentResponseDTO.getComment> getComments(Pageable pageable, Long postId) {
-        Post post = postRepository.findById(postId).orElse(null);
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
         Slice<Comment> comments = commentRepository.findByPost(pageable, post);
         return comments.map( comment -> commentConverter.toGetCommnet(comment));
     }

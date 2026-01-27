@@ -36,6 +36,12 @@ public enum ErrorStatus implements BaseErrorCode {
     CORRECTION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "CORRECTION4002", "해당 문서에 대한 권한이 없습니다."),
     CORRECTION_NOT_VALIDATE(HttpStatus.BAD_REQUEST, "CORRECTION4003", "제목과 내용은 필수 입력 항목입니다."),
 
+    // Post 관련 에러
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "해당 포스트가 존재하지 않습니다"),
+    POST_NOT_LIKED(HttpStatus.BAD_REQUEST, "POST4002", "좋아요를 누르지 않은 상태라 취소할 수 없습니다."),
+    POST_ALREADY_LIKED(HttpStatus.CONFLICT, "POST4091", "이미 좋아요를 누른 포스트입니다"),
+
+
     // 통계 관련 에러
     STATS_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATS4001", "사용자 통계 정보가 존재하지 않습니다.");
 

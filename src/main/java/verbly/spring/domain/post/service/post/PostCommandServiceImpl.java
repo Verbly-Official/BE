@@ -10,12 +10,15 @@ import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.post.entity.PostLike;
 import verbly.spring.domain.post.entity.PostTag;
 import verbly.spring.domain.post.entity.Tag;
+import verbly.spring.domain.post.exception.PostHandler;
 import verbly.spring.domain.post.repository.PostLikeRepository;
 import verbly.spring.domain.post.repository.PostRepository;
 import verbly.spring.domain.post.repository.PostTagRepository;
 import verbly.spring.domain.post.repository.TagRepository;
 import verbly.spring.domain.user.entity.User;
+import verbly.spring.domain.user.exception.UserHandler;
 import verbly.spring.domain.user.repository.UserRepository;
+import verbly.spring.global.common.code.ErrorStatus;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,27 +39,27 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     @Override
     public PostResponseDTO.AddPostLike addPostLike(Long postId, Long userId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("유저가 없습니다."));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
         if (postLikeRepository.existsByUserAndPost(user, post)) {
-            throw new IllegalStateException("이미 좋아요를 눌렀습니다.");
+            throw new PostHandler(ErrorStatus.POST_ALREADY_LIKED);
         }
         postLikeRepository.save(new PostLike(user, post));
         postRepository.increaseLikeCount(postId);
-        Post updatedPost = postRepository.findById(postId).orElseThrow();
+        Post updatedPost = postRepository.findById(postId).orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
         Boolean isLiked = postLikeRepository.existsByUserAndPost(user, updatedPost);
         return postConverter.addPostLike(updatedPost, isLiked);
     }
 
     @Override
     public PostResponseDTO.AddPostLike deletePostLike(Long postId, Long userId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("유저가 없습니다."));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
         PostLike postLike = postLikeRepository.findByUserAndPost(user, post)
-                .orElseThrow(() -> new IllegalStateException("이미 좋아요를 취소했거나, 누른 적이 없습니다."));
+                .orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_LIKED));
         postLikeRepository.delete(postLike);
         postRepository.decreaseLikeCount(postId);
-        Post updatedPost = postRepository.findById(postId).orElseThrow();
+        Post updatedPost = postRepository.findById(postId).orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
         Boolean isLiked = postLikeRepository.existsByUserAndPost(user, updatedPost);
         return postConverter.addPostLike(updatedPost, isLiked);
     }

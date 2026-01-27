@@ -27,11 +27,11 @@ public class Stats {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // total_posts(전체 글 개수), correction_received(도움받은 글 개수), correction_given(도움 준 글 개수)는 단순 숫자만 사용하게 될 예정
+    // total_posts(전체 글 개수), correction_given(도움 준 글 개수), correction_received(도움받은 글 개수)는 단순 숫자만 사용하게 될 예정
     // -> 조회 시에만 서비스에서 계산되는 방식
     // total_posts -> post 테이블의 로그인한 user_id 수
-    // correction_received -> feedback 테이블의 user_id 수
     // correction_given -> correction테이블의 user_id 수
+    // correction_received -> feedback 테이블의 user_id 수
 
     // 아래는 행동 시 계산
     private long point; // 레벨 시스템 기준 (7레벨까지)

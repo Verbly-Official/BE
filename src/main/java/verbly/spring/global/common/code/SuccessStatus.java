@@ -21,22 +21,13 @@ public enum SuccessStatus implements BaseCode {
     USER_PROFILE_UPDATE_SUCCESS(HttpStatus.OK, "USER2007", "프로필이 성공적으로 변경되었습니다."),
     USER_ALREADY_ONBOARDING_COMPLETED(HttpStatus.OK, "USER2011", "온보딩이 이미 완료된 유저입니다."),
 
-    // 라이브러리 관련 응답
-    LIBRARY_ITEM_CREATE_SUCCESS(HttpStatus.CREATED, "LIB2001", "라이브러리 아이템이 생성되었습니다."),
-    LIBRARY_ITEM_LIST_SUCCESS(HttpStatus.OK, "LIB2002", "라이브러리 목록을 성공적으로 조회했습니다."),
-    LIBRARY_ITEM_DETAIL_SUCCESS(HttpStatus.OK, "LIB2003", "라이브러리 상세를 성공적으로 조회했습니다."),
-    LIBRARY_ITEM_UPDATE_SUCCESS(HttpStatus.OK, "LIB2004", "라이브러리 아이템이 수정되었습니다."),
-    LIBRARY_ITEM_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "LIB2005", "라이브러리 아이템이 삭제되었습니다."),
-    LIBRARY_ITEM_EXAMPLE_ADD_SUCCESS(HttpStatus.CREATED, "LIB2006", "예문이 추가되었습니다."),
-    LIBRARY_ITEM_EXAMPLE_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "LIB2007", "예문이 삭제되었습니다."),
-
-    // 퀴즈(리뷰) 관련 응답
-    QUIZ_SESSION_START_SUCCESS(HttpStatus.CREATED, "QUIZ2001", "퀴즈 세션이 시작되었습니다."),
-    QUIZ_HINT_SUCCESS(HttpStatus.OK, "QUIZ2002", "힌트를 사용했습니다."),
-    QUIZ_ANSWER_SUBMIT_SUCCESS(HttpStatus.OK, "QUIZ2003", "답안을 제출했습니다."),
-    QUIZ_QUIT_SUCCESS(HttpStatus.OK, "QUIZ2004", "퀴즈를 중단했습니다."),
-    QUIZ_RESULT_SUCCESS(HttpStatus.OK, "QUIZ2005", "퀴즈 결과를 조회했습니다."),
-    QUIZ_RETRY_SUCCESS(HttpStatus.CREATED, "QUIZ2006", "오답 재도전을 시작했습니다.");
+    CORRECTION_CREATE_SUCCESS(HttpStatus.CREATED, "CORRECTION2001", "Correction - 글을 성공적으로 저장했습니다."),
+    CORRECTION_READ_SUCCESS(HttpStatus.OK, "CORRECTION2002", "Correction - 글을 성공적으로 조회했습니다."),
+    CORRECTION_UPDATE_SUCCESS(HttpStatus.OK, "CORRECTION2003", "Correction - 글을 성공적으로 수정했습니다."),
+    CORRECTION_DELETE_SUCCESS(HttpStatus.OK, "CORRECTION2004", "Correction - 글을 성공적으로 삭제했습니다."),
+    CORRECTION_BOOKMARK_ADD_SUCCESS(HttpStatus.OK, "CORRECTION2005", "Correction - 글을 성공적으로 즐겨찾기에 추가했습니다."),
+    CORRECTION_BOOKMARK_REMOVE_SUCCESS(HttpStatus.OK, "CORRECTION2006", "Correction - 글을 즐겨찾기에서 성공적으로 삭제했습니다"),
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;

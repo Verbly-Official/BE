@@ -116,8 +116,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return super.handleExceptionInternal(
                 e,
                 body,
-                safeHeaders,
-                status,
+                headers,
+                errorCode.getReasonHttpStatus().getHttpStatus(),
                 webRequest
         );
     }

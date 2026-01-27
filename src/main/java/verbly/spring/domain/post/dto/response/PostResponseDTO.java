@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import verbly.spring.domain.post.enums.PostStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +24,7 @@ public class PostResponseDTO {
 
         Long postId;
         String content;
-        Boolean isCorrected;
+        PostStatus status;
         Integer likesCount;
         Integer commentsCount;
         LocalDateTime createdAt;
@@ -55,7 +56,7 @@ public class PostResponseDTO {
 
         Long postId;
         String content;
-        Boolean isCorrected;
+        PostStatus status;
         Integer likesCount;
         Integer commentsCount;
         LocalDateTime createdAt;

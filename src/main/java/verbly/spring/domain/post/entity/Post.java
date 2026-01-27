@@ -7,6 +7,7 @@ import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.entity.BaseEntity;
 import org.hibernate.annotations.Check;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,8 +58,10 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private Boolean publicSetting;
 
+    private LocalDateTime correctedAt;
+
     @Builder.Default
-    private Boolean isCorrected = false;
+    private Boolean hotPosted = false;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostTag> postTags = new ArrayList<>();

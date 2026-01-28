@@ -1,5 +1,6 @@
 package verbly.spring.domain.review.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import verbly.spring.domain.review.dto.responeDTO.ReviewMetaResponseDTO;
@@ -26,6 +27,7 @@ public class ReviewService {
     private final StatsRepository statsRepository;
 
     // review only once? or not?
+    @Transactional
     public void createReview(Long reviewerId, Long revieweeId, ReviewRequestDTO reviewRequestDTO) {
 
         //reviewer
@@ -52,6 +54,7 @@ public class ReviewService {
         statsRepository.save(stats);
     }
 
+    @Transactional
     public List<ReviewResponseDTO> getReviewList(Long revieweeId) {
 
         Optional<User> optionalReviewee =  userRepository.findById(revieweeId);
@@ -67,6 +70,7 @@ public class ReviewService {
                 .toList();
     }
 
+    @Transactional
     public ReviewMetaResponseDTO getReviewMeta(Long revieweeId) {
 
         Optional<Stats> optionalStats = statsRepository.findById(revieweeId);

@@ -18,7 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String socialId) throws UsernameNotFoundException {
         User user = userRepository.findBySocialId(socialId)
-                .orElseThrow(() -> new UserHandler(ErrorStatus.SOCIAL_ID_NOT_FOUND));
+                .orElseThrow(() -> new UserHandler(ErrorStatus.SOCIALID_NOT_FOUND));
 
 //        return org.springframework.security.core.userdetails.User
 //                .withUsername(user.getSocialId())

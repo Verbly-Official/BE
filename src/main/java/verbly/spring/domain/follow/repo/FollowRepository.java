@@ -27,4 +27,6 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     List<User> findRandomUser(@Param("followerId") Long followerId, Pageable pageable);
 
     void deleteByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
+
+    boolean existsFollowByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
 }

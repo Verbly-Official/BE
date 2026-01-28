@@ -72,12 +72,12 @@ public class Stats {
         lastActiveDate = today;
     }
 
+    public Level getLevel() {
+        return Level.fromPoint(this.point);
+    }
+
     public void updateReviewMeta(Long reviewCount, Double averageByRevieweeId) {
         this.reviewCount = reviewCount + 1;
         this.reviewAverage = averageByRevieweeId;
-    }
-
-    public Level getLevel() {
-        return Level.fromPoint(this.point);
     }
 }

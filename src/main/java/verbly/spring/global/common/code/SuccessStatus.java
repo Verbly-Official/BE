@@ -27,7 +27,16 @@ public enum SuccessStatus implements BaseCode {
     CORRECTION_DELETE_SUCCESS(HttpStatus.OK, "CORRECTION2004", "Correction - 글을 성공적으로 삭제했습니다."),
     CORRECTION_BOOKMARK_ADD_SUCCESS(HttpStatus.OK, "CORRECTION2005", "Correction - 글을 성공적으로 즐겨찾기에 추가했습니다."),
     CORRECTION_BOOKMARK_REMOVE_SUCCESS(HttpStatus.OK, "CORRECTION2006", "Correction - 글을 즐겨찾기에서 성공적으로 삭제했습니다"),
-    ;
+
+    // 리뷰 관련 응답
+    REVIEW_CREATE_SUCCESS(HttpStatus.CREATED, "REVIEW2001", "리뷰를 성공적으로 저장했습니다."),
+    REVIEW__READ_SUCCESS(HttpStatus.OK, "REVIEW2002", "리뷰를 성공적으로 조회했습니다."),
+    REVIEW_META_READ_SUCCESS(HttpStatus.OK, "REVIEW2003", "리뷰 메타 정보를 성공적으로 조회했습니다."),
+
+    // 팔로우 관련 답
+    FOLLOW_CREATE_SUCCESS(HttpStatus.CREATED, "FOLLOW2001", "팔로우를 성공적으로 생성했습니다."),
+    FOLLOW_RECOMMEND_SUCCESS(HttpStatus.OK, "FOLLOW2002", "추천 팔로우 리스트를 성공적으로 조회했습니다."),
+    FOLLOW_DELETE_SUCCESS(HttpStatus.OK, "FOLLOW2003", "팔로우를 성공적으로 삭제했습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

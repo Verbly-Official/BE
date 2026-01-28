@@ -24,16 +24,16 @@ public class UserRequestDTO {
     @Setter
     public static class ProfileUpdateDTO {
         @NotBlank(message = "필수 입력칸 미입력입니다. 다시 확인해주세요.")
-        @Size(max = 20, message = "닉네임은 최대 50자입니다.")
+        @Size(max = 20, message = "닉네임은 최대 20자입니다.")
         private String nickname;
 
 //        String profileImage;
 
-        @Size(max = 255, message = "자기소개는 최대 255자입니다.")
+        @Size(max = 150, message = "자기소개는 최대 150자입니다.")
         private String bio;
 
         @Email(message = "이메일 형식이 올바르지 않습니다.")
-        @Size(max = 50, message = "이메일은 최대 50자입니다.")
+        @Size(max = 30, message = "이메일은 최대 30자입니다.")
         private String email;
 
         @Pattern(

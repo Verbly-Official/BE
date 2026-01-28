@@ -71,10 +71,6 @@ public class UserCommandServiceImpl implements UserCommandService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
 
-        if (user.getStatus() != UserStatus.NEED_ONBOARDING) {
-            throw new UserHandler(ErrorStatus.ONBOARDING_ALREADY_COMPLETED);
-        }
-
         if (request.getNickname() == null || request.getNickname().trim().isEmpty()) {
             throw new UserHandler(ErrorStatus.NICKNAME_NOT_EXIST);
         }

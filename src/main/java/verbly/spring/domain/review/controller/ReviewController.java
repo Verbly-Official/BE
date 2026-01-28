@@ -60,6 +60,7 @@ public class ReviewController {
     )
     @PostMapping("/{revieweeId}")
     public ResponseEntity<ApiResponse<Void>> createReview(
+            @Parameter
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(required = true, name = "revieweeId", description = "리뷰를 할(리뷰 받을) 대상 사용자 ID", example = "1")
             @PathVariable Long revieweeId, @RequestBody @Valid ReviewRequestDTO reviewRequestDTO) {

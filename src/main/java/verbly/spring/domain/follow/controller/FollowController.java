@@ -35,8 +35,9 @@ public class FollowController {
     )
     @PostMapping("/{followeeId}")
     public ResponseEntity<ApiResponse<Void>> createFollowing(
+            @Parameter
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(name = "followeeId", description = "팔로우 대상 사용자 ID", example = "1")
+            @Parameter(required = true, name = "followeeId", description = "팔로우 대상 사용자 ID", example = "1")
             @PathVariable Long followeeId) {
 
         Long followerId = customUserDetails.getUser().getId();
@@ -55,7 +56,9 @@ public class FollowController {
                     "- 랜덤 추천 사용자 리스트 (3명)\n"
     )
     @GetMapping("/recommend")
-    public ResponseEntity<ApiResponse<List<UserResponseDTO.FollowRecommendUserResponseDTO>>> getRecommendFollowList(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    public ResponseEntity<ApiResponse<List<UserResponseDTO.FollowRecommendUserResponseDTO>>> getRecommendFollowList(
+            @Parameter
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Long followerId = customUserDetails.getUser().getId();
         List<UserResponseDTO.FollowRecommendUserResponseDTO> followRecommendUserResponseDTOList = followService.getRecommendFollowList(followerId);
 
@@ -71,8 +74,9 @@ public class FollowController {
     )
     @DeleteMapping("/{followeeId}")
     public ResponseEntity<ApiResponse<Void>> unfollow(
+            @Parameter
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(name = "followeeId", description = "언팔로우 대상 사용자 ID", example = "1")
+            @Parameter(required = true, name = "followeeId", description = "언팔로우 대상 사용자 ID", example = "1")
             @PathVariable Long followeeId) {
 
         Long followerId = customUserDetails.getUser().getId();

@@ -15,9 +15,4 @@ public interface CorrectionQueryRepository {
             PostStatus status,
             CorrectorType correctorType
     );
-
-    Optional<CorrectionResponseDTO.MyCorrectionDto> findCorrectionDetail(
-            Long authorId,
-            Long correctionId
-    );
 }

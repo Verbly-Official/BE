@@ -23,7 +23,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CorrectionService {
 
     private final PostRepository postRepository;
@@ -34,6 +33,7 @@ public class CorrectionService {
     /**
      * 내 문서 목록 조회
      */
+    @Transactional(readOnly = true)
     public List<CorrectionResponseDTO.MyCorrectionDto> getMyCorrections(
             Boolean bookmark,
             Boolean sort,

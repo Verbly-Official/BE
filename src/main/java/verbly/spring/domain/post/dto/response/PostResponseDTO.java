@@ -19,7 +19,7 @@ public class PostResponseDTO {
         private Long postId;
         private Long authorId;
         private String authorNickname;
-        private String content;
+        private String title;
         private LocalDateTime createdAt;
     }
 
@@ -29,6 +29,7 @@ public class PostResponseDTO {
         private Long postId;
         private Long authorId;
         private String authorNickname;
+        private String title;
         private String content;
         private PostStatus status;
         private LocalDateTime createdAt;

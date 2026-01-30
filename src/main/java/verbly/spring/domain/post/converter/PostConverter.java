@@ -11,7 +11,7 @@ public class PostConverter {
                 .postId(post.getId())
                 .authorId(post.getAuthor().getId())
                 .authorNickname(post.getAuthor().getNickname())
-                .content(post.getContent())
+                .title(post.getTitle())
                 .createdAt(post.getCreatedAt())
                 .build();
     }
@@ -21,6 +21,7 @@ public class PostConverter {
                 .postId(post.getId())
                 .authorId(post.getAuthor().getId())
                 .authorNickname(post.getAuthor().getNickname())
+                .title(post.getTitle())
                 .content(post.getContent())
                 .status(post.getStatus())
                 .createdAt(post.getCreatedAt())

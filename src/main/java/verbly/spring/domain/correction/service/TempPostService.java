@@ -10,6 +10,7 @@ import verbly.spring.domain.post.converter.PostConverter;
 import verbly.spring.domain.post.dto.request.PostRequestDTO;
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
 import verbly.spring.domain.post.entity.Post;
+import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.post.repository.PostRepository;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.code.ErrorStatus;
@@ -19,7 +20,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class TempPostService {
     private final PostRepository postRepository;
 
@@ -31,7 +31,7 @@ public class TempPostService {
         User user = SecurityUtils.getCurrentUser();
         Post post = Post.builder()
                 .author(user)
-                .status(null)
+                .status(PostStatus.TEMP)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .temp(true)
@@ -44,7 +44,7 @@ public class TempPostService {
      * Correction 임시저장된 글 수정
      */
     @Transactional
-    public PostResponseDTO.Summary updateTempPost(Long postId, PostRequestDTO requestDTO) {
+    public PostResponseDTO.Detail updateTempPost(Long postId, PostRequestDTO requestDTO) {
         Long userId = SecurityUtils.getCurrentUserId();
         Post post = findOwnedPostOrThrow(userId, postId);
 
@@ -54,18 +54,18 @@ public class TempPostService {
         validateRequiredFields(newTitle, newContent);
 
         if (post.isSameContent(newTitle, newContent)) {
-            return PostConverter.toResponseSummaryDTO(post);
+            return PostConverter.toResponseDetailDTO(post);
         }
 
         post.update(newTitle, newContent);
 
-        return PostConverter.toResponseSummaryDTO(post);
+        return PostConverter.toResponseDetailDTO(post);
     }
 
     /**
      * Correction 임시저장된 글 목록 조회
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PostResponseDTO.Summary> getAllTempPosts() {
         Long userId = SecurityUtils.getCurrentUserId();
         return postRepository.findAllByAuthorIdAndTempTrueOrderByCreatedAtDesc(userId)
@@ -77,7 +77,7 @@ public class TempPostService {
     /**
      * Correction 임시저장된 글 상세 조회
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public PostResponseDTO.Detail getMyTempPost(Long postId) {
         Long userId = SecurityUtils.getCurrentUserId();
         Post post = findOwnedPostOrThrow(userId, postId);
@@ -88,11 +88,12 @@ public class TempPostService {
     /**
      * Correction 임시저장된 글 삭제
      */
-//    @Transactional
-//    public Long deleteMyTempPost(Long postId){
-//        Long userId = SecurityUtils.getCurrentUserId();
-//        Post post = findOwnedPostOrThrow(userId, postId);
-//    }
+    @Transactional
+    public void deleteMyTempPost(Long postId){
+        Long userId = SecurityUtils.getCurrentUserId();
+        Post post = findOwnedPostOrThrow(userId, postId);
+        postRepository.delete(post);
+    }
 
     private Post findOwnedPostOrThrow(Long userId,Long postId) {
         return postRepository.findByIdAndAuthorIdAndTempTrue(postId, userId)

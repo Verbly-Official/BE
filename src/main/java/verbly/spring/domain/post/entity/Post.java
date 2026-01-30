@@ -24,10 +24,10 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
-    // 상태 (null, PENDING, IN_PROGRESS, COMPLETED)
-    // null 인 경우: 임시저장
+    // 상태 (TEMP, PENDING, IN_PROGRESS, COMPLETED)
+    // TEMP 인 경우: 임시저장
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true, length = 30)
+    @Column(nullable = false, length = 30)
     private PostStatus status;
 
     // 제목

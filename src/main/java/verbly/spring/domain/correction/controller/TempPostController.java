@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import verbly.spring.domain.correction.service.CorrectionService;
 import verbly.spring.domain.correction.service.TempPostService;
 import verbly.spring.domain.post.dto.request.PostRequestDTO;
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TempPostController {
     private final TempPostService tempPostService;
+    private final CorrectionService correctionService;
 
     /**
      * Correction - 글 임시저장
@@ -34,11 +36,11 @@ public class TempPostController {
      * Correction - 임시저장된 글 수정
      */
     @PatchMapping("/{postId}")
-    public ResponseEntity<ApiResponse<PostResponseDTO.Summary>> updateTempPost(
+    public ResponseEntity<ApiResponse<PostResponseDTO.Detail>> updateTempPost(
             @PathVariable Long postId,
             @RequestBody @Valid PostRequestDTO request
     ){
-        PostResponseDTO.Summary result = tempPostService.updateTempPost(postId, request);
+        PostResponseDTO.Detail result = tempPostService.updateTempPost(postId, request);
         return ResponseEntity
                 .status(SuccessStatus.CORRECTION_TEMP_UPDATE_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.CORRECTION_TEMP_UPDATE_SUCCESS, result));
@@ -69,5 +71,18 @@ public class TempPostController {
         return ResponseEntity
                 .status(SuccessStatus.CORRECTION_TEMP_READ_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.CORRECTION_TEMP_READ_SUCCESS, result));
+    }
+
+    /**
+     * Correction - 임시저장된 글 삭제
+     */
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> deleteTempPost(
+            @PathVariable Long postId
+    ){
+        tempPostService.deleteMyTempPost(postId);
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_TEMP_DELETE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_TEMP_DELETE_SUCCESS, null));
     }
 }

@@ -10,16 +10,23 @@ import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.library.entity.LibraryItem;
 import verbly.spring.domain.library.enums.LibraryItemStatus;
 import verbly.spring.domain.library.repository.LibraryItemRepository;
-import verbly.spring.domain.review.dto.request.ReviewResquestDto;
-import verbly.spring.domain.review.dto.response.*;
-import verbly.spring.domain.review.entity.*;
+import verbly.spring.domain.review.converter.ReviewConverter;
+import verbly.spring.domain.review.dto.request.ReviewRequestDTO;
+import verbly.spring.domain.review.dto.response.ReviewResponseDTO;
+import verbly.spring.domain.review.entity.ReviewAnswer;
+import verbly.spring.domain.review.entity.ReviewQuestion;
+import verbly.spring.domain.review.entity.ReviewSession;
+import verbly.spring.domain.review.entity.ReviewTask;
+import verbly.spring.domain.review.enums.ReviewQuestionType;
 import verbly.spring.domain.review.enums.ReviewSessionStatus;
 import verbly.spring.domain.review.enums.ReviewTaskStatus;
-import verbly.spring.domain.review.enums.ReviewQuestionType;
-import verbly.spring.domain.review.exception.ReviewErrorStatus;
-import verbly.spring.domain.review.repository.*;
+import verbly.spring.domain.review.exception.ReviewHandler;
+import verbly.spring.domain.review.repository.ReviewAnswerRepository;
+import verbly.spring.domain.review.repository.ReviewQuestionRepository;
+import verbly.spring.domain.review.repository.ReviewSessionRepository;
+import verbly.spring.domain.review.repository.ReviewTaskRepository;
+import verbly.spring.domain.review.validator.ReviewValidator;
 import verbly.spring.global.common.code.ErrorStatus;
-import verbly.spring.global.common.exception.BaseException;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -28,7 +35,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class QuizServiceImpl implements QuizService {
+public class ReviewCommandServiceImpl implements ReviewCommandService {
 
     private final ReviewSessionRepository reviewSessionRepository;
     private final ReviewTaskRepository reviewTaskRepository;
@@ -37,10 +44,11 @@ public class QuizServiceImpl implements QuizService {
 
     private final LibraryItemRepository libraryItemRepository;
     private final ObjectMapper objectMapper;
+    private final ReviewValidator reviewValidator;
 
     @Override
-    public ReviewResponseDto.QuizStartResponse startSession(Long userId) {
-        // 1) 진행중 세션이 있으면 “재진입 불가 정책” → 자동 quit + 롤백
+    public ReviewResponseDTO.QuizStartResponse startSession(Long userId) {
+        // 1) 진행중 세션이 있으면 “재진입 불가” 정책: 자동 quit + 롤백
         reviewSessionRepository.findTopByUserIdAndStatusOrderByCreatedAtDesc(userId, ReviewSessionStatus.IN_PROGRESS)
                 .ifPresent(s -> quitInternal(userId, s.getId()));
 
@@ -52,7 +60,7 @@ public class QuizServiceImpl implements QuizService {
                 .findAllByUserIdAndStatusOrderByCreatedAtAscIdAsc(userId, ReviewTaskStatus.PENDING);
 
         if (pendingTasks.isEmpty()) {
-            throw new BaseException(ReviewErrorStatus.QUIZ_NO_PENDING_ITEMS);
+            throw new ReviewHandler(ErrorStatus.QUIZ_NO_PENDING_ITEMS);
         }
 
         // 4) 세션 생성
@@ -67,44 +75,37 @@ public class QuizServiceImpl implements QuizService {
         }
         reviewTaskRepository.saveAll(pendingTasks);
 
-        // 6) 문제 생성(여기서는 “기본 생성기”로 단순 생성)
+        // 6) 문제 생성(현재는 최소 구현: 의미(ko) 맞히는 MCQ)
         List<ReviewQuestion> questions = generateQuestions(userId, pendingTasks);
         reviewQuestionRepository.saveAll(questions);
 
         // 7) 첫 문제 반환
         ReviewQuestion first = findFirstQuestionOrThrow(session.getId(), 1);
-        ReviewResponseDto.QuizQuestionResponse firstDto = toQuestionResponse(first);
 
-        return new ReviewResponseDto.QuizStartResponse(
+        return new ReviewResponseDTO.QuizStartResponse(
                 session.getId(),
                 session.getTotalTasks(),
                 session.getCurrentIndex(),
-                firstDto,
+                ReviewConverter.toQuestionResponse(first),
                 session.getCreatedAt()
         );
     }
 
     @Override
-    public ReviewResponseDto.QuizHintResponse useHint(Long userId, Long sessionId, Long questionId) {
-        ReviewSession session = reviewSessionRepository.findByIdAndUserIdForUpdate(sessionId, userId)
-                .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_FOUND));
+    public ReviewResponseDTO.QuizHintResponse useHint(Long userId, Long sessionId, Long questionId) {
+        ReviewSession session = reviewValidator.validateOwnedSessionForUpdate(userId, sessionId);
+        reviewValidator.validateSessionInProgress(session);
 
-        if (session.getStatus() != ReviewSessionStatus.IN_PROGRESS) {
-            throw new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_IN_PROGRESS);
-        }
-
-        ReviewQuestion q = reviewQuestionRepository.findWithTaskAndItemById(questionId)
-                .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_QUESTION_NOT_FOUND));
-
-        validateQuestionOwnership(userId, sessionId, q);
+        ReviewQuestion q = reviewValidator.validateQuestionWithTaskAndItem(questionId);
+        reviewValidator.validateQuestionOwnership(userId, sessionId, q);
 
         if (q.getHintUsed() >= q.getHintTotal()) {
-            throw new BaseException(ReviewErrorStatus.QUIZ_NO_HINTS_REMAINING);
+            throw new ReviewHandler(ErrorStatus.QUIZ_NO_HINTS_REMAINING);
         }
 
         q.useHint();
 
-        return new ReviewResponseDto.QuizHintResponse(
+        return new ReviewResponseDTO.QuizHintResponse(
                 q.getId(),
                 q.getHintUsed(),
                 q.getHintTotal(),
@@ -113,23 +114,22 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public ReviewResponseDto.QuizAnswerSubmitResponse submitAnswer(Long userId, Long sessionId, Long questionId, ReviewResquestDto.QuizAnswerSubmitRequest request) {
-        ReviewSession session = reviewSessionRepository.findByIdAndUserIdForUpdate(sessionId, userId)
-                .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_FOUND));
+    public ReviewResponseDTO.QuizAnswerSubmitResponse submitAnswer(
+            Long userId,
+            Long sessionId,
+            Long questionId,
+            ReviewRequestDTO.QuizAnswerSubmitRequest request
+    ) {
+        ReviewSession session = reviewValidator.validateOwnedSessionForUpdate(userId, sessionId);
+        reviewValidator.validateSessionInProgress(session);
 
-        if (session.getStatus() != ReviewSessionStatus.IN_PROGRESS) {
-            throw new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_IN_PROGRESS);
-        }
-
-        ReviewQuestion q = reviewQuestionRepository.findWithTaskAndItemById(questionId)
-                .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_QUESTION_NOT_FOUND));
-
-        validateQuestionOwnership(userId, sessionId, q);
+        ReviewQuestion q = reviewValidator.validateQuestionWithTaskAndItem(questionId);
+        reviewValidator.validateQuestionOwnership(userId, sessionId, q);
 
         // “순서대로만 풀기” 정책 (스킵 방지)
         Integer taskOrder = q.getReviewTask().getTaskOrder();
         if (taskOrder == null || taskOrder != session.getCurrentIndex()) {
-            throw new BaseException(ReviewErrorStatus.QUIZ_OUT_OF_ORDER);
+            throw new ReviewHandler(ErrorStatus.QUIZ_OUT_OF_ORDER);
         }
 
         // attempt_no 계산
@@ -148,14 +148,13 @@ public class QuizServiceImpl implements QuizService {
         );
         reviewAnswerRepository.save(answer);
 
-        // 마지막 문제면 = “제출 완료”로 간주 (부분 제출 없음)
         boolean isLast = (session.getCurrentIndex() >= session.getTotalTasks());
         LocalDateTime now = LocalDateTime.now();
 
         if (isLast) {
             completeSessionAndTasks(sessionId, userId, now);
 
-            return new ReviewResponseDto.QuizAnswerSubmitResponse(
+            return new ReviewResponseDTO.QuizAnswerSubmitResponse(
                     q.getId(),
                     correct,
                     q.getAnswerKeyJson(),
@@ -171,9 +170,8 @@ public class QuizServiceImpl implements QuizService {
         session.advance();
 
         ReviewQuestion nextQ = findFirstQuestionOrThrow(sessionId, session.getCurrentIndex());
-        ReviewResponseDto.QuizQuestionResponse nextDto = toQuestionResponse(nextQ);
 
-        return new ReviewResponseDto.QuizAnswerSubmitResponse(
+        return new ReviewResponseDTO.QuizAnswerSubmitResponse(
                 q.getId(),
                 correct,
                 q.getAnswerKeyJson(),
@@ -181,95 +179,22 @@ public class QuizServiceImpl implements QuizService {
                 session.getCurrentIndex(),
                 session.getTotalTasks(),
                 false,
-                nextDto
+                ReviewConverter.toQuestionResponse(nextQ)
         );
     }
 
     @Override
-    public ReviewResponseDto.QuizQuitResponse quit(Long userId, Long sessionId) {
+    public ReviewResponseDTO.QuizQuitResponse quit(Long userId, Long sessionId) {
         quitInternal(userId, sessionId);
-        return new ReviewResponseDto.QuizQuitResponse(sessionId, "QUIT");
+        return new ReviewResponseDTO.QuizQuitResponse(sessionId, "QUIT");
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public ReviewResponseDto.QuizResultResponse getResult(Long userId, Long sessionId) {
-        ReviewSession session = reviewSessionRepository.findByIdAndUserId(sessionId, userId)
-                .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_FOUND));
-
-        // 결과는 완료/중단 세션 모두 조회 가능하게 할 수도 있지만,
-        // 화면상 보통 "완료 후 결과"가 자연스러움
-        if (session.getStatus() == ReviewSessionStatus.IN_PROGRESS) {
-            throw new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_IN_PROGRESS);
-        }
-
-        List<ReviewTask> tasks = reviewTaskRepository.findAllBySessionIdOrderByTaskOrderAsc(sessionId);
-        List<Long> taskIds = tasks.stream().map(ReviewTask::getId).toList();
-
-        List<ReviewQuestion> questions = reviewQuestionRepository.findAllByReviewTask_IdIn(taskIds);
-        if (questions.isEmpty()) {
-            // quit 후 문제를 삭제해버린 케이스면 결과가 없을 수 있음
-            return new ReviewResponseDto.QuizResultResponse(sessionId, 0, 0, 0, 0, List.of());
-        }
-
-        List<Long> questionIds = questions.stream().map(ReviewQuestion::getId).toList();
-
-        // 각 question의 마지막 답만 뽑기 (쿼리 최소화: 전체 answers 한번에 가져와서 메모리에서 그룹)
-        List<ReviewAnswer> answers = reviewAnswerRepository
-                .findAllByReviewQuestion_IdInOrderByReviewQuestion_IdAscAttemptNoDesc(questionIds);
-
-        Map<Long, ReviewAnswer> lastAnswerByQuestion = new LinkedHashMap<>();
-        for (ReviewAnswer a : answers) {
-            Long qid = a.getReviewQuestion().getId();
-            lastAnswerByQuestion.putIfAbsent(qid, a);
-        }
-
-        int total = questions.size();
-        int correctCount = 0;
-
-        Map<Long, ReviewQuestion> questionMap = questions.stream()
-                .collect(Collectors.toMap(ReviewQuestion::getId, q -> q));
-
-        List<ReviewResponseDto.QuizMistakeResponse> mistakes = new ArrayList<>();
-
-        for (ReviewQuestion q : questions) {
-            ReviewAnswer last = lastAnswerByQuestion.get(q.getId());
-            if (last != null && last.isCorrect()) {
-                correctCount++;
-            } else {
-                JsonNode userAnswer = (last == null) ? null : last.getUserAnswerJson();
-                mistakes.add(new ReviewResponseDto.QuizMistakeResponse(
-                        q.getId(),
-                        q.getLibraryItem().getId(),
-                        q.getLibraryItem().getPhrase(),
-                        q.getPrompt(),
-                        userAnswer,
-                        q.getAnswerKeyJson(),
-                        q.getExplanation()
-                ));
-            }
-        }
-
-        int wrongCount = total - correctCount;
-        int accuracy = (total == 0) ? 0 : (int) Math.round((correctCount * 100.0) / total);
-
-        return new ReviewResponseDto.QuizResultResponse(
-                sessionId,
-                total,
-                correctCount,
-                wrongCount,
-                accuracy,
-                mistakes
-        );
-    }
-
-    @Override
-    public ReviewResponseDto.QuizStartResponse retryMistakes(Long userId, Long sessionId) {
-        ReviewSession session = reviewSessionRepository.findByIdAndUserId(sessionId, userId)
-                .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_FOUND));
+    public ReviewResponseDTO.QuizStartResponse retryMistakes(Long userId, Long sessionId) {
+        ReviewSession session = reviewValidator.validateOwnedSession(userId, sessionId);
 
         if (session.getStatus() == ReviewSessionStatus.IN_PROGRESS) {
-            throw new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_IN_PROGRESS);
+            throw new ReviewHandler(ErrorStatus.QUIZ_SESSION_NOT_IN_PROGRESS);
         }
 
         // 기존 세션에서 오답만 추출
@@ -297,7 +222,7 @@ public class QuizServiceImpl implements QuizService {
         }
 
         if (wrongTaskIds.isEmpty()) {
-            throw new BaseException(ReviewErrorStatus.QUIZ_NO_MISTAKES);
+            throw new ReviewHandler(ErrorStatus.QUIZ_NO_MISTAKES);
         }
 
         // 오답 task들만 PENDING으로 되돌리고, 기존 문제는 삭제(재출제)
@@ -321,11 +246,10 @@ public class QuizServiceImpl implements QuizService {
     // =========================
 
     private void quitInternal(Long userId, Long sessionId) {
-        ReviewSession session = reviewSessionRepository.findByIdAndUserIdForUpdate(sessionId, userId)
-                .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_FOUND));
+        ReviewSession session = reviewValidator.validateOwnedSessionForUpdate(userId, sessionId);
 
         if (session.getStatus() != ReviewSessionStatus.IN_PROGRESS) {
-            // 이미 끝났으면 그냥 종료 처리만
+            // 이미 끝났으면 종료 처리만
             return;
         }
 
@@ -346,8 +270,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     private void completeSessionAndTasks(Long sessionId, Long userId, LocalDateTime now) {
-        ReviewSession session = reviewSessionRepository.findByIdAndUserIdForUpdate(sessionId, userId)
-                .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_FOUND));
+        ReviewSession session = reviewValidator.validateOwnedSessionForUpdate(userId, sessionId);
 
         List<ReviewTask> tasks = reviewTaskRepository.findAllBySessionIdOrderByTaskOrderAsc(sessionId);
 
@@ -360,38 +283,11 @@ public class QuizServiceImpl implements QuizService {
         session.complete(now);
     }
 
-    private void validateQuestionOwnership(Long userId, Long sessionId, ReviewQuestion q) {
-        ReviewTask task = q.getReviewTask();
-        if (!Objects.equals(task.getUserId(), userId) || !Objects.equals(task.getSessionId(), sessionId)) {
-            throw new BaseException(ReviewErrorStatus.QUIZ_FORBIDDEN);
-        }
-    }
-
     private ReviewQuestion findFirstQuestionOrThrow(Long sessionId, int taskOrder) {
-        ReviewTask task = reviewTaskRepository.findBySessionIdAndTaskOrder(sessionId, taskOrder)
-                .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_FOUND));
+        ReviewTask task = reviewValidator.validateTaskByOrder(sessionId, taskOrder);
 
         return reviewQuestionRepository.findTopByReviewTask_IdOrderByQuestionOrderAsc(task.getId())
-                .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_QUESTION_NOT_FOUND));
-    }
-
-    private ReviewResponseDto.QuizQuestionResponse toQuestionResponse(ReviewQuestion q) {
-        List<String> options = new ArrayList<>();
-        if (q.getOptionsJson() != null && q.getOptionsJson().isArray()) {
-            for (JsonNode node : q.getOptionsJson()) {
-                options.add(node.asText());
-            }
-        }
-        return new ReviewResponseDto.QuizQuestionResponse(
-                q.getId(),
-                q.getLibraryItem().getId(),
-                q.getLibraryItem().getPhrase(),
-                q.getQuestionType().name(),
-                q.getPrompt(),
-                options,
-                q.getHintTotal(),
-                q.getHintUsed()
-        );
+                .orElseThrow(() -> new ReviewHandler(ErrorStatus.QUIZ_QUESTION_NOT_FOUND));
     }
 
     private boolean grade(ReviewQuestion q, JsonNode userAnswerJson) {
@@ -440,7 +336,7 @@ public class QuizServiceImpl implements QuizService {
 
         for (ReviewTask t : tasks) {
             LibraryItem item = libraryItemRepository.findById(t.getLibraryItemId())
-                    .orElseThrow(() -> new BaseException(ErrorStatus._BAD_REQUEST));
+                    .orElseThrow(() -> new ReviewHandler(ErrorStatus._BAD_REQUEST));
 
             // 단순 MCQ: "의미(ko)"를 맞히게 함
             String correct = (item.getMeaningKo() != null && !item.getMeaningKo().isBlank())
@@ -473,9 +369,9 @@ public class QuizServiceImpl implements QuizService {
         return result;
     }
 
-    private ReviewResponseDto.QuizStartResponse startSessionOnlyWithGivenPendingTasks(Long userId, List<ReviewTask> pendingTasks) {
+    private ReviewResponseDTO.QuizStartResponse startSessionOnlyWithGivenPendingTasks(Long userId, List<ReviewTask> pendingTasks) {
         if (pendingTasks == null || pendingTasks.isEmpty()) {
-            throw new BaseException(ReviewErrorStatus.QUIZ_NO_MISTAKES);
+            throw new ReviewHandler(ErrorStatus.QUIZ_NO_MISTAKES);
         }
 
         ReviewSession session = ReviewSession.start(userId, pendingTasks.size());
@@ -493,11 +389,11 @@ public class QuizServiceImpl implements QuizService {
 
         ReviewQuestion first = findFirstQuestionOrThrow(session.getId(), 1);
 
-        return new ReviewResponseDto.QuizStartResponse(
+        return new ReviewResponseDTO.QuizStartResponse(
                 session.getId(),
                 session.getTotalTasks(),
                 session.getCurrentIndex(),
-                toQuestionResponse(first),
+                ReviewConverter.toQuestionResponse(first),
                 session.getCreatedAt()
         );
     }

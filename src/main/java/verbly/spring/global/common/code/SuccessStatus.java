@@ -27,6 +27,7 @@ public enum SuccessStatus implements BaseCode {
     CORRECTION_DELETE_SUCCESS(HttpStatus.OK, "CORRECTION2004", "Correction - 글을 성공적으로 삭제했습니다."),
     CORRECTION_BOOKMARK_ADD_SUCCESS(HttpStatus.OK, "CORRECTION2005", "Correction - 글을 성공적으로 즐겨찾기에 추가했습니다."),
     CORRECTION_BOOKMARK_REMOVE_SUCCESS(HttpStatus.OK, "CORRECTION2006", "Correction - 글을 즐겨찾기에서 성공적으로 삭제했습니다"),
+
     // 라이브러리 관련 응답
     LIBRARY_ITEM_CREATE_SUCCESS(HttpStatus.CREATED, "LIB2001", "라이브러리 아이템이 생성되었습니다."),
     LIBRARY_ITEM_LIST_SUCCESS(HttpStatus.OK, "LIB2002", "라이브러리 목록을 성공적으로 조회했습니다."),
@@ -34,8 +35,15 @@ public enum SuccessStatus implements BaseCode {
     LIBRARY_ITEM_UPDATE_SUCCESS(HttpStatus.OK, "LIB2004", "라이브러리 아이템이 수정되었습니다."),
     LIBRARY_ITEM_DELETE_SUCCESS(HttpStatus.OK, "LIB2005", "라이브러리 아이템이 삭제되었습니다."),
     LIBRARY_ITEM_EXAMPLE_ADD_SUCCESS(HttpStatus.CREATED, "LIB2006", "예문이 추가되었습니다."),
-    LIBRARY_ITEM_EXAMPLE_DELETE_SUCCESS(HttpStatus.OK, "LIB2007", "예문이 삭제되었습니다.");
+    LIBRARY_ITEM_EXAMPLE_DELETE_SUCCESS(HttpStatus.OK, "LIB2007", "예문이 삭제되었습니다."),
 
+    // 리뷰(퀴즈) 관련 응답
+    REVIEW_SESSION_START_SUCCESS(HttpStatus.CREATED, "REVIEW2001", "퀴즈 세션이 시작되었습니다."),
+    REVIEW_HINT_USE_SUCCESS(HttpStatus.OK, "REVIEW2002", "힌트를 사용했습니다."),
+    REVIEW_ANSWER_SUBMIT_SUCCESS(HttpStatus.OK, "REVIEW2003", "답안을 제출했습니다."),
+    REVIEW_SESSION_QUIT_SUCCESS(HttpStatus.OK, "REVIEW2004", "퀴즈 세션을 중단했습니다."),
+    REVIEW_RESULT_READ_SUCCESS(HttpStatus.OK, "REVIEW2005", "퀴즈 결과를 조회했습니다."),
+    REVIEW_MISTAKES_RETRY_SUCCESS(HttpStatus.CREATED, "REVIEW2006", "오답 재도전 세션을 시작했습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

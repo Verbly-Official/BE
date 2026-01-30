@@ -43,7 +43,17 @@ public enum ErrorStatus implements BaseErrorCode {
     LIBRARY_ITEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "LIB4001", "라이브러리 아이템을 찾을 수 없습니다."),
     LIBRARY_ITEM_FORBIDDEN(HttpStatus.FORBIDDEN, "LIB4002", "해당 아이템에 대한 권한이 없습니다."),
     LIBRARY_ITEM_DUPLICATE(HttpStatus.BAD_REQUEST, "LIB4003", "이미 라이브러리에 저장된 표현입니다."),
-    EXAMPLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "LIB4004", "예문을 찾을 수 없습니다.");
+    EXAMPLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "LIB4004", "예문을 찾을 수 없습니다."),
+
+    //리뷰(퀴즈) 관련 에러
+    QUIZ_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ4001", "퀴즈 세션을 찾을 수 없습니다."),
+    QUIZ_SESSION_NOT_IN_PROGRESS(HttpStatus.BAD_REQUEST, "QUIZ4002", "진행 중인 퀴즈 세션이 아닙니다."),
+    QUIZ_QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ4003", "퀴즈 문항을 찾을 수 없습니다."),
+    QUIZ_FORBIDDEN(HttpStatus.FORBIDDEN, "QUIZ4004", "해당 퀴즈에 접근 권한이 없습니다."),
+    QUIZ_OUT_OF_ORDER(HttpStatus.BAD_REQUEST, "QUIZ4005", "현재 순서의 문제만 풀 수 있습니다."),
+    QUIZ_NO_PENDING_ITEMS(HttpStatus.BAD_REQUEST, "QUIZ4006", "리뷰할 항목이 없습니다."),
+    QUIZ_NO_MISTAKES(HttpStatus.BAD_REQUEST, "QUIZ4007", "오답이 없어 재도전할 수 없습니다."),
+    QUIZ_NO_HINTS_REMAINING(HttpStatus.BAD_REQUEST, "QUIZ4008", "남은 힌트가 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
@@ -67,4 +77,7 @@ public enum ErrorStatus implements BaseErrorCode {
                 .httpStatus(httpStatus)
                 .build();
     }
+
+
+
 }

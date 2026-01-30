@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class ReviewResponseDto {
+public class ReviewResponseDTO {
     public record QuizAnswerSubmitResponse(
             Long questionId,
             boolean isCorrect,

@@ -18,7 +18,7 @@ import verbly.spring.global.common.response.ApiResponse;
 
 import java.util.List;
 
-@Tag(name = "Temp Post", description = "Correction 탭 임시저장 API")
+@Tag(name = "Correction - Temp Post", description = "Correction 탭 임시저장 API")
 @RestController
 @RequestMapping("/api/temp-posts")
 @RequiredArgsConstructor

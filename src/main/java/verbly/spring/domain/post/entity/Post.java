@@ -53,4 +53,12 @@ public class Post extends BaseEntity {
         return this.title.equals(title) && this.content.equals(content);
     }
 
+    public void changeStatus(PostStatus status) {
+        this.status = status;
+    }
+
+    public void changeTemp(boolean temp) {
+        this.temp = temp;
+    }
+
 }

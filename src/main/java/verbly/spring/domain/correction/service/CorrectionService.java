@@ -62,6 +62,8 @@ public class CorrectionService {
 
     /**
      * 새 글 작성 (첨삭 요청)
+     * - tempPostId 없으면: 새 Post, Correction 생성
+     * - tempPostId 있으면: TEMP Post 제출(PENDING) + Correction 생성
      */
     @Transactional
     public CorrectionResponseDTO.CreateCorrectionResponseDTO createCorrection(CorrectionRequestDTO.CreateDTO requestDTO) {
@@ -72,6 +74,27 @@ public class CorrectionService {
 
         validateRequiredFields(title, content);
 
+        // 임시저장 글 커렉션 요청할 경우
+        if (requestDTO.getTempPostId() != null) {
+            Long tempPostId = requestDTO.getTempPostId();
+
+            Post post = findTempPostOrThrow(tempPostId, user);
+
+            post.update(title, content);
+            post.changeStatus(PostStatus.PENDING);
+            post.changeTemp(false);
+
+            Post savedPost = postRepository.save(post);
+
+            Correction correction = Correction.builder()
+                    .post(savedPost)
+                    .build();
+
+            Correction savedCorrection = correctionRepository.save(correction);
+            return CorrectionConverter.toCreateCorrectionResponse(savedCorrection);
+        }
+
+        // 새 글 및 커렉션 생성
         Post post = Post.builder()
                 .author(user)
                 .status(PostStatus.PENDING)
@@ -176,5 +199,36 @@ public class CorrectionService {
         return correctionRepository.findById(correctionId)
                 .filter(c -> c.getPost().getAuthor().getId().equals(userId))
                 .orElseThrow(() -> new CorrectionHandler(ErrorStatus.CORRECTION_ACCESS_DENIED));
+    }
+
+    private Post findTempPostOrThrow(Long tempPostId, User user) {
+        Post post = findPostOrThrow(tempPostId);
+        validatePostOwner(post, user);
+        validateTempPostStatus(post);
+        validateNotAlreadySubmitted(post.getId());
+        return post;
+    }
+
+    private Post findPostOrThrow(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new CorrectionHandler(ErrorStatus.CORRECTION_TEMP_POST_NOT_FOUND));
+    }
+
+    private void validatePostOwner(Post post, User user) {
+        if (!post.getAuthor().getId().equals(user.getId())) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_ACCESS_DENIED);
+        }
+    }
+
+    private void validateTempPostStatus(Post post) {
+        if (post.getStatus() != PostStatus.TEMP) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_TEMP_POST_NOT_FOUND);
+        }
+    }
+
+    private void validateNotAlreadySubmitted(Long postId) {
+        if (correctionRepository.existsByPostId(postId)) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_TEMP_POST_ALREADY_SUBMITTED);
+        }
     }
 }

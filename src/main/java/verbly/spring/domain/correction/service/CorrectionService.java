@@ -51,6 +51,14 @@ public class CorrectionService {
         );
     }
 
+    public CorrectionResponseDTO.MyCorrectionDto getCorrectionDetail(Long correctionId){
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
+
+        return CorrectionConverter.toMyCorrectionDTO(correction, null, null);
+    }
+
 
     /**
      * 새 글 작성 (첨삭 요청)
@@ -169,5 +177,4 @@ public class CorrectionService {
                 .filter(c -> c.getPost().getAuthor().getId().equals(userId))
                 .orElseThrow(() -> new CorrectionHandler(ErrorStatus.CORRECTION_ACCESS_DENIED));
     }
-
 }

@@ -72,7 +72,7 @@ public class CorrectionController {
      * Correction - 내 문서 조회
      */
     @Operation(
-            summary = "커렉션 - 내 문서 조회",
+            summary = "커렉션 - 내 문서 목록 조회",
             description = "자신이 작성한 커렉션 글 목록을 조회합니다.\n\n" +
                     "### QueryString\n" +
                     "모든 쿼리 파라미터는 **선택(Optional)**입니다.\n\n" +
@@ -105,6 +105,26 @@ public class CorrectionController {
                 .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.CORRECTION_READ_SUCCESS, result));
     }
+
+    /**
+     * Correction - 내 문서 상세 조회
+     */
+    @Operation(
+            summary = "커렉션 내 문서 상세 조회",
+            security = @SecurityRequirement(name = "JWT TOKEN"),
+            description = "자신이 작성한 커렉션 상세 정보를 조회합니다."
+    )
+    @GetMapping("/{correctionId}")
+    public ResponseEntity<ApiResponse<CorrectionResponseDTO.MyCorrectionDto>> getCorrectionDetail(
+            @PathVariable Long correctionId
+    ){
+        CorrectionResponseDTO.MyCorrectionDto result = correctionService.getCorrectionDetail(correctionId);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_READ_SUCCESS, result));
+    }
+
 
     /**
      * Correction - 문서 수정

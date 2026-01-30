@@ -32,6 +32,7 @@ public class CorrectionResponseDTO {
         private String correctorName;
 
         private LocalDateTime correctionCreatedAt;
+        private LocalDateTime correctionUpdatedAt;
 
     }
 

@@ -12,6 +12,7 @@ import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.post.enums.PostStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 import static verbly.spring.domain.correction.entity.QCorrection.correction;
 import static verbly.spring.domain.correction.entity.QCorrectionFeedback.correctionFeedback;
@@ -74,7 +75,8 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository{
                         correction.bookmark.as("bookmark"),
                         latestFeedback.correctorType.as("correctorType"),
                         correctorNameExpr.as("correctorName"),
-                        correction.createdAt.as("correctionCreatedAt")
+                        correction.createdAt.as("correctionCreatedAt"),
+                        correction.updatedAt.as("correctionUpdatedAt")
                 ))
                 .from(correction)
                 .join(correction.post, post)
@@ -99,4 +101,54 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository{
         return baseQuery.fetch();
     }
 
+    @Override
+    public Optional<CorrectionResponseDTO.MyCorrectionDto> findCorrectionDetail(Long authorId, Long correctionId) {
+        BooleanBuilder where = new BooleanBuilder();
+        where.and(post.author.id.eq(authorId));
+        where.and(correction.id.eq(correctionId));
+
+        var latestCreatedAtSubQuery =
+                JPAExpressions.select(correctionFeedback.createdAt.max())
+                        .from(correctionFeedback)
+                        .where(correctionFeedback.correction.eq(correction));
+
+        var latestFeedback = new verbly.spring.domain.correction.entity.QCorrectionFeedback("latestFeedback");
+
+        var correctorNameExpr = new CaseBuilder()
+                .when(latestFeedback.correctorType.eq(CorrectorType.AI_ASSISTANT))
+                .then("AI Assistant")
+                .when(latestFeedback.correctorType.eq(CorrectorType.NATIVE_SPEAKER))
+                .then(user.nickname)
+                .otherwise((String) null);
+
+        var result = queryFactory
+                .select(Projections.fields(
+                        CorrectionResponseDTO.MyCorrectionDto.class,
+                        correction.id.as("correctionId"),
+                        post.id.as("postId"),
+                        post.title.as("title"),
+                        post.content.as("content"),
+                        post.status.as("status"),
+                        correction.bookmark.as("bookmark"),
+
+                        latestFeedback.correctorType.as("correctorType"),
+                        correctorNameExpr.as("correctorName"),
+                        latestFeedback.createdAt.as("latestFeedbackCreatedAt"),
+
+                        correction.createdAt.as("correctionCreatedAt"),
+                        correction.updatedAt.as("correctionUpdatedAt")
+                ))
+                .from(correction)
+                .join(correction.post, post)
+                .leftJoin(latestFeedback)
+                .on(
+                        latestFeedback.correction.eq(correction)
+                                .and(latestFeedback.createdAt.eq(latestCreatedAtSubQuery))
+                )
+                .leftJoin(latestFeedback.corrector, user)
+                .where(where)
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
 }

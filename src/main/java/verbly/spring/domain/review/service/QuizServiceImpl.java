@@ -39,7 +39,7 @@ public class QuizServiceImpl implements QuizService {
     private final ObjectMapper objectMapper;
 
     @Override
-    public QuizStartResponse startSession(Long userId) {
+    public ReviewResponseDto.QuizStartResponse startSession(Long userId) {
         // 1) 진행중 세션이 있으면 “재진입 불가 정책” → 자동 quit + 롤백
         reviewSessionRepository.findTopByUserIdAndStatusOrderByCreatedAtDesc(userId, ReviewSessionStatus.IN_PROGRESS)
                 .ifPresent(s -> quitInternal(userId, s.getId()));
@@ -73,9 +73,9 @@ public class QuizServiceImpl implements QuizService {
 
         // 7) 첫 문제 반환
         ReviewQuestion first = findFirstQuestionOrThrow(session.getId(), 1);
-        QuizQuestionResponse firstDto = toQuestionResponse(first);
+        ReviewResponseDto.QuizQuestionResponse firstDto = toQuestionResponse(first);
 
-        return new QuizStartResponse(
+        return new ReviewResponseDto.QuizStartResponse(
                 session.getId(),
                 session.getTotalTasks(),
                 session.getCurrentIndex(),
@@ -85,7 +85,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public QuizHintResponse useHint(Long userId, Long sessionId, Long questionId) {
+    public ReviewResponseDto.QuizHintResponse useHint(Long userId, Long sessionId, Long questionId) {
         ReviewSession session = reviewSessionRepository.findByIdAndUserIdForUpdate(sessionId, userId)
                 .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_FOUND));
 
@@ -104,7 +104,7 @@ public class QuizServiceImpl implements QuizService {
 
         q.useHint();
 
-        return new QuizHintResponse(
+        return new ReviewResponseDto.QuizHintResponse(
                 q.getId(),
                 q.getHintUsed(),
                 q.getHintTotal(),
@@ -113,7 +113,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public QuizAnswerSubmitResponse submitAnswer(Long userId, Long sessionId, Long questionId, ReviewResquestDto.QuizAnswerSubmitRequest request) {
+    public ReviewResponseDto.QuizAnswerSubmitResponse submitAnswer(Long userId, Long sessionId, Long questionId, ReviewResquestDto.QuizAnswerSubmitRequest request) {
         ReviewSession session = reviewSessionRepository.findByIdAndUserIdForUpdate(sessionId, userId)
                 .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_FOUND));
 
@@ -155,7 +155,7 @@ public class QuizServiceImpl implements QuizService {
         if (isLast) {
             completeSessionAndTasks(sessionId, userId, now);
 
-            return new QuizAnswerSubmitResponse(
+            return new ReviewResponseDto.QuizAnswerSubmitResponse(
                     q.getId(),
                     correct,
                     q.getAnswerKeyJson(),
@@ -171,9 +171,9 @@ public class QuizServiceImpl implements QuizService {
         session.advance();
 
         ReviewQuestion nextQ = findFirstQuestionOrThrow(sessionId, session.getCurrentIndex());
-        QuizQuestionResponse nextDto = toQuestionResponse(nextQ);
+        ReviewResponseDto.QuizQuestionResponse nextDto = toQuestionResponse(nextQ);
 
-        return new QuizAnswerSubmitResponse(
+        return new ReviewResponseDto.QuizAnswerSubmitResponse(
                 q.getId(),
                 correct,
                 q.getAnswerKeyJson(),
@@ -186,14 +186,14 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public QuizQuitResponse quit(Long userId, Long sessionId) {
+    public ReviewResponseDto.QuizQuitResponse quit(Long userId, Long sessionId) {
         quitInternal(userId, sessionId);
-        return new QuizQuitResponse(sessionId, "QUIT");
+        return new ReviewResponseDto.QuizQuitResponse(sessionId, "QUIT");
     }
 
     @Override
     @Transactional(readOnly = true)
-    public QuizResultResponse getResult(Long userId, Long sessionId) {
+    public ReviewResponseDto.QuizResultResponse getResult(Long userId, Long sessionId) {
         ReviewSession session = reviewSessionRepository.findByIdAndUserId(sessionId, userId)
                 .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_FOUND));
 
@@ -209,7 +209,7 @@ public class QuizServiceImpl implements QuizService {
         List<ReviewQuestion> questions = reviewQuestionRepository.findAllByReviewTask_IdIn(taskIds);
         if (questions.isEmpty()) {
             // quit 후 문제를 삭제해버린 케이스면 결과가 없을 수 있음
-            return new QuizResultResponse(sessionId, 0, 0, 0, 0, List.of());
+            return new ReviewResponseDto.QuizResultResponse(sessionId, 0, 0, 0, 0, List.of());
         }
 
         List<Long> questionIds = questions.stream().map(ReviewQuestion::getId).toList();
@@ -230,7 +230,7 @@ public class QuizServiceImpl implements QuizService {
         Map<Long, ReviewQuestion> questionMap = questions.stream()
                 .collect(Collectors.toMap(ReviewQuestion::getId, q -> q));
 
-        List<QuizMistakeResponse> mistakes = new ArrayList<>();
+        List<ReviewResponseDto.QuizMistakeResponse> mistakes = new ArrayList<>();
 
         for (ReviewQuestion q : questions) {
             ReviewAnswer last = lastAnswerByQuestion.get(q.getId());
@@ -238,7 +238,7 @@ public class QuizServiceImpl implements QuizService {
                 correctCount++;
             } else {
                 JsonNode userAnswer = (last == null) ? null : last.getUserAnswerJson();
-                mistakes.add(new QuizMistakeResponse(
+                mistakes.add(new ReviewResponseDto.QuizMistakeResponse(
                         q.getId(),
                         q.getLibraryItem().getId(),
                         q.getLibraryItem().getPhrase(),
@@ -253,7 +253,7 @@ public class QuizServiceImpl implements QuizService {
         int wrongCount = total - correctCount;
         int accuracy = (total == 0) ? 0 : (int) Math.round((correctCount * 100.0) / total);
 
-        return new QuizResultResponse(
+        return new ReviewResponseDto.QuizResultResponse(
                 sessionId,
                 total,
                 correctCount,
@@ -264,7 +264,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public QuizStartResponse retryMistakes(Long userId, Long sessionId) {
+    public ReviewResponseDto.QuizStartResponse retryMistakes(Long userId, Long sessionId) {
         ReviewSession session = reviewSessionRepository.findByIdAndUserId(sessionId, userId)
                 .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_FOUND));
 
@@ -375,14 +375,14 @@ public class QuizServiceImpl implements QuizService {
                 .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_QUESTION_NOT_FOUND));
     }
 
-    private QuizQuestionResponse toQuestionResponse(ReviewQuestion q) {
+    private ReviewResponseDto.QuizQuestionResponse toQuestionResponse(ReviewQuestion q) {
         List<String> options = new ArrayList<>();
         if (q.getOptionsJson() != null && q.getOptionsJson().isArray()) {
             for (JsonNode node : q.getOptionsJson()) {
                 options.add(node.asText());
             }
         }
-        return new QuizQuestionResponse(
+        return new ReviewResponseDto.QuizQuestionResponse(
                 q.getId(),
                 q.getLibraryItem().getId(),
                 q.getLibraryItem().getPhrase(),
@@ -473,7 +473,7 @@ public class QuizServiceImpl implements QuizService {
         return result;
     }
 
-    private QuizStartResponse startSessionOnlyWithGivenPendingTasks(Long userId, List<ReviewTask> pendingTasks) {
+    private ReviewResponseDto.QuizStartResponse startSessionOnlyWithGivenPendingTasks(Long userId, List<ReviewTask> pendingTasks) {
         if (pendingTasks == null || pendingTasks.isEmpty()) {
             throw new BaseException(ReviewErrorStatus.QUIZ_NO_MISTAKES);
         }
@@ -493,7 +493,7 @@ public class QuizServiceImpl implements QuizService {
 
         ReviewQuestion first = findFirstQuestionOrThrow(session.getId(), 1);
 
-        return new QuizStartResponse(
+        return new ReviewResponseDto.QuizStartResponse(
                 session.getId(),
                 session.getTotalTasks(),
                 session.getCurrentIndex(),

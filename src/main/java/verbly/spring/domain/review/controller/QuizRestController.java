@@ -39,65 +39,65 @@ public class QuizRestController {
 
     // 리뷰(퀴즈) 시작
     @PostMapping("/sessions")
-    public ApiResponse<QuizStartResponse> start(
+    public ApiResponse<ReviewResponseDto.QuizStartResponse> start(
             @RequestBody(required = false) ReviewResquestDto.QuizStartRequest request
     ) {
         Long userId = currentUserId();
-        QuizStartResponse res = quizService.startSession(userId);
+        ReviewResponseDto.QuizStartResponse res = quizService.startSession(userId);
         return ApiResponse.onSuccess(res);
     }
 
     // 퀴즈 힌트
     @PostMapping("/sessions/{sessionId}/questions/{questionId}/hint")
-    public ApiResponse<QuizHintResponse> hint(
+    public ApiResponse<ReviewResponseDto.QuizHintResponse> hint(
             @PathVariable Long sessionId,
             @PathVariable Long questionId,
             @RequestBody(required = false) ReviewResquestDto.QuizHintRequest request
     ) {
         Long userId = currentUserId();
-        QuizHintResponse res = quizService.useHint(userId, sessionId, questionId);
+        ReviewResponseDto.QuizHintResponse res = quizService.useHint(userId, sessionId, questionId);
         return ApiResponse.onSuccess(res);
     }
 
     // 답 제출(문항 단위)
     @PostMapping("/sessions/{sessionId}/questions/{questionId}/answer")
-    public ApiResponse<QuizAnswerSubmitResponse> submitAnswer(
+    public ApiResponse<ReviewResponseDto.QuizAnswerSubmitResponse> submitAnswer(
             @PathVariable Long sessionId,
             @PathVariable Long questionId,
             @Valid @RequestBody ReviewResquestDto.QuizAnswerSubmitRequest request
     ) {
         Long userId = currentUserId();
-        QuizAnswerSubmitResponse res = quizService.submitAnswer(userId, sessionId, questionId, request);
+        ReviewResponseDto.QuizAnswerSubmitResponse res = quizService.submitAnswer(userId, sessionId, questionId, request);
         return ApiResponse.onSuccess(res);
     }
 
     // 퀴즈 중단(처음부터 다시)
     @PostMapping("/sessions/{sessionId}/quit")
-    public ApiResponse<QuizQuitResponse> quit(
+    public ApiResponse<ReviewResponseDto.QuizQuitResponse> quit(
             @PathVariable Long sessionId
     ) {
         Long userId = currentUserId();
-        QuizQuitResponse res = quizService.quit(userId, sessionId);
+        ReviewResponseDto.QuizQuitResponse res = quizService.quit(userId, sessionId);
         return ApiResponse.onSuccess(res);
     }
 
     // 퀴즈 결과 조회
     @GetMapping("/sessions/{sessionId}/result")
-    public ApiResponse<QuizResultResponse> result(
+    public ApiResponse<ReviewResponseDto.QuizResultResponse> result(
             @PathVariable Long sessionId
     ) {
         Long userId = currentUserId();
-        QuizResultResponse res = quizService.getResult(userId, sessionId);
+        ReviewResponseDto.QuizResultResponse res = quizService.getResult(userId, sessionId);
         return ApiResponse.onSuccess(res);
     }
 
     // 오답만 재도전
     @PostMapping("/sessions/{sessionId}/mistakes/retry")
-    public ApiResponse<QuizStartResponse> retryMistakes(
+    public ApiResponse<ReviewResponseDto.QuizStartResponse> retryMistakes(
             @PathVariable Long sessionId
     ) {
         Long userId = currentUserId();
-        QuizStartResponse res = quizService.retryMistakes(userId, sessionId);
+        ReviewResponseDto.QuizStartResponse res = quizService.retryMistakes(userId, sessionId);
         return ApiResponse.onSuccess(res);
     }
 }

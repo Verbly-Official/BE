@@ -5,15 +5,15 @@ import verbly.spring.domain.review.dto.response.*;
 
 public interface QuizService {
 
-    QuizStartResponse startSession(Long userId);
+    ReviewResponseDto.QuizStartResponse startSession(Long userId);
 
-    QuizHintResponse useHint(Long userId, Long sessionId, Long questionId);
+    ReviewResponseDto.QuizHintResponse useHint(Long userId, Long sessionId, Long questionId);
 
-    QuizAnswerSubmitResponse submitAnswer(Long userId, Long sessionId, Long questionId, ReviewResquestDto.QuizAnswerSubmitRequest request);
+    ReviewResponseDto.QuizAnswerSubmitResponse submitAnswer(Long userId, Long sessionId, Long questionId, ReviewResquestDto.QuizAnswerSubmitRequest request);
 
-    QuizQuitResponse quit(Long userId, Long sessionId);
+    ReviewResponseDto.QuizQuitResponse quit(Long userId, Long sessionId);
 
-    QuizResultResponse getResult(Long userId, Long sessionId);
+    ReviewResponseDto.QuizResultResponse getResult(Long userId, Long sessionId);
 
-    QuizStartResponse retryMistakes(Long userId, Long sessionId);
+    ReviewResponseDto.QuizStartResponse retryMistakes(Long userId, Long sessionId);
 }

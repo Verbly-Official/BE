@@ -33,6 +33,30 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
             PostStatus status,
             CorrectorType correctorType
     ) {
+        // TEMP일 경우
+        if (status == PostStatus.TEMP) {
+            return queryFactory
+                    .select(Projections.fields(
+                            CorrectionResponseDTO.MyCorrectionDto.class,
+                            post.id.as("postId"),
+                            post.title.as("title"),
+                            post.content.as("content"),
+                            post.status.as("status"),
+                            post.createdAt.as("correctionCreatedAt"),
+                            post.updatedAt.as("correctionUpdatedAt")
+                    ))
+                    .from(post)
+                    .where(
+                            post.author.id.eq(authorId),
+                            post.status.eq(PostStatus.TEMP)
+                    )
+                    .orderBy(
+                            Boolean.TRUE.equals(sort)
+                                    ? post.createdAt.desc()
+                                    : post.id.desc()
+                    )
+                    .fetch();
+        }
         BooleanBuilder where = new BooleanBuilder();
 
         where.and(post.author.id.eq(authorId));

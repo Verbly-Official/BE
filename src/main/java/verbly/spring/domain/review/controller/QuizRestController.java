@@ -40,7 +40,7 @@ public class QuizRestController {
     // 리뷰(퀴즈) 시작
     @PostMapping("/sessions")
     public ApiResponse<QuizStartResponse> start(
-            @RequestBody(required = false) QuizStartRequest request
+            @RequestBody(required = false) ReviewResquestDto.QuizStartRequest request
     ) {
         Long userId = currentUserId();
         QuizStartResponse res = quizService.startSession(userId);
@@ -52,7 +52,7 @@ public class QuizRestController {
     public ApiResponse<QuizHintResponse> hint(
             @PathVariable Long sessionId,
             @PathVariable Long questionId,
-            @RequestBody(required = false) QuizHintRequest request
+            @RequestBody(required = false) ReviewResquestDto.QuizHintRequest request
     ) {
         Long userId = currentUserId();
         QuizHintResponse res = quizService.useHint(userId, sessionId, questionId);
@@ -64,7 +64,7 @@ public class QuizRestController {
     public ApiResponse<QuizAnswerSubmitResponse> submitAnswer(
             @PathVariable Long sessionId,
             @PathVariable Long questionId,
-            @Valid @RequestBody QuizAnswerSubmitRequest request
+            @Valid @RequestBody ReviewResquestDto.QuizAnswerSubmitRequest request
     ) {
         Long userId = currentUserId();
         QuizAnswerSubmitResponse res = quizService.submitAnswer(userId, sessionId, questionId, request);

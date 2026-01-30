@@ -1,6 +1,6 @@
 package verbly.spring.domain.review.service;
 
-import verbly.spring.domain.review.dto.request.QuizAnswerSubmitRequest;
+import verbly.spring.domain.review.dto.request.ReviewResquestDto;
 import verbly.spring.domain.review.dto.response.*;
 
 public interface QuizService {
@@ -9,7 +9,7 @@ public interface QuizService {
 
     QuizHintResponse useHint(Long userId, Long sessionId, Long questionId);
 
-    QuizAnswerSubmitResponse submitAnswer(Long userId, Long sessionId, Long questionId, QuizAnswerSubmitRequest request);
+    QuizAnswerSubmitResponse submitAnswer(Long userId, Long sessionId, Long questionId, ReviewResquestDto.QuizAnswerSubmitRequest request);
 
     QuizQuitResponse quit(Long userId, Long sessionId);
 

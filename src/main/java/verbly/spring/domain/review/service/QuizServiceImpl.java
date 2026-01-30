@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.library.entity.LibraryItem;
 import verbly.spring.domain.library.enums.LibraryItemStatus;
 import verbly.spring.domain.library.repository.LibraryItemRepository;
-import verbly.spring.domain.review.dto.request.QuizAnswerSubmitRequest;
+import verbly.spring.domain.review.dto.request.ReviewResquestDto;
 import verbly.spring.domain.review.dto.response.*;
 import verbly.spring.domain.review.entity.*;
 import verbly.spring.domain.review.enums.ReviewSessionStatus;
@@ -113,7 +113,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public QuizAnswerSubmitResponse submitAnswer(Long userId, Long sessionId, Long questionId, QuizAnswerSubmitRequest request) {
+    public QuizAnswerSubmitResponse submitAnswer(Long userId, Long sessionId, Long questionId, ReviewResquestDto.QuizAnswerSubmitRequest request) {
         ReviewSession session = reviewSessionRepository.findByIdAndUserIdForUpdate(sessionId, userId)
                 .orElseThrow(() -> new BaseException(ReviewErrorStatus.QUIZ_SESSION_NOT_FOUND));
 

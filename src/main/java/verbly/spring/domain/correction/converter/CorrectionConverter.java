@@ -30,6 +30,7 @@ public class CorrectionConverter {
                 .correctorType(latestCorrectorType)
                 .correctorName(latestCorrectorName)
                 .correctionCreatedAt(correction.getCreatedAt())
+                .correctionUpdatedAt(correction.getUpdatedAt())
                 .status(post.getStatus())
                 .build();
     }

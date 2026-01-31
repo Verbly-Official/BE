@@ -78,10 +78,10 @@ public ResponseEntity<Object> validation(ConstraintViolationException e, WebRequ
     }
 
     @ExceptionHandler(value = BaseException.class)
-    public ResponseEntity onThrowException(BaseException generalException, HttpServletRequest request) {
-        ErrorReasonDTO errorReasonHttpStatus = generalException.getErrorReasonHttpStatus();
-        return handleExceptionInternal(generalException,generalException.getCode(),null,request);
+    public ResponseEntity<Object> onThrowException(BaseException generalException, HttpServletRequest request) {
+        return handleExceptionInternal(generalException, generalException.getCode(), HttpHeaders.EMPTY, request);
     }
+
 
     @Override
     protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
@@ -121,9 +121,16 @@ public ResponseEntity<Object> validation(ConstraintViolationException e, WebRequ
                                                            HttpHeaders headers, HttpServletRequest request) {
 
         ApiResponse<Object> body = ApiResponse.onFailure(errorCode);
-//        e.printStackTrace();
 
         WebRequest webRequest = new ServletWebRequest(request);
+
+        HttpHeaders safeHeaders = (headers == null) ? HttpHeaders.EMPTY : headers;
+
+        HttpStatus status = errorCode.getReasonHttpStatus().getHttpStatus();
+        if (status == null) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
         return super.handleExceptionInternal(
                 e,
                 body,

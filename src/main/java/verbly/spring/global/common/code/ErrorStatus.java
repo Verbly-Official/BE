@@ -23,6 +23,7 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "IMAGE4006", "이미지 형식의 파일만 업로드할 수 있습니다."),
     IMAGE_FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "IMAGE4007", "이미지 파일은 10MB 이하로 업로드해주세요."),
     NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST, "USER4008", "이미 사용 중인 닉네임입니다."),
+    USER_STATS_NOT_FOUND(HttpStatus.NOT_FOUND, "USER4009", "사용자의 상태 정보를 찾을 수 없습니."),
     ONBOARDING_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "USER4009", "이미 온보딩이 완료된 유저입니다."),
 
     //jwt 토큰
@@ -31,10 +32,17 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4003", "유효하지 않은 SocialToken입니다."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "PW4001", "잘못된 비밀번호입니다."),
 
+    // 팔로우
+    NOT_FOLLOWED_USER(HttpStatus.BAD_REQUEST, "FOLLOW4001", "팔로우하지 않은 사용자입니다."),
+    CANT_SELF_FOLLOW(HttpStatus.BAD_REQUEST, "FOLLOW4002", "스스로 팔로우 할 수 없습니다."),
+    ALREADY_FOLLOWED(HttpStatus.BAD_REQUEST, "FOLLOW4003", "이미 팔로우한 사용자입니다."),
+
     // Correction 관련 에러
     CORRECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "CORRECTION4001", "문서를 찾을 수 없습니다."),
     CORRECTION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "CORRECTION4002", "해당 문서에 대한 권한이 없습니다."),
     CORRECTION_NOT_VALIDATE(HttpStatus.BAD_REQUEST, "CORRECTION4003", "제목과 내용은 필수 입력 항목입니다."),
+    CORRECTION_TEMP_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "CORRECTION4004", "임시저장 문서를 찾을 수 없습니다."),
+    CORRECTION_TEMP_POST_ALREADY_SUBMITTED(HttpStatus.BAD_REQUEST, "CORRECTION4005", "이미 Correction 요청한 문서입니다."),
 
     // 통계 관련 에러
     STATS_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATS4001", "사용자 통계 정보가 존재하지 않습니다."),

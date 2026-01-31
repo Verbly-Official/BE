@@ -1,6 +1,8 @@
 package verbly.spring.domain.user.dto.response;
 
 import lombok.*;
+import verbly.spring.domain.user.entity.ProfileImage;
+import verbly.spring.domain.user.entity.User;
 
 public class UserResponseDTO {
     @Getter
@@ -57,5 +59,25 @@ public class UserResponseDTO {
         private String bio;
         private String email;
         private String phoneNumber;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @Builder(access = AccessLevel.PRIVATE)
+    public static class FollowRecommendUserResponseDTO {
+        private Long userId;
+        private String nickname;
+        private String profileImage;
+        private String nativeLang;
+
+        public static FollowRecommendUserResponseDTO from(User user){
+
+            return FollowRecommendUserResponseDTO.builder()
+                    .userId(user.getId())
+                    .nickname(user.getNickname())
+                    .profileImage(user.getProfileImage().getImageUrl())
+                    .nativeLang(user.getNativeLang())
+                    .build();
+        }
     }
 }

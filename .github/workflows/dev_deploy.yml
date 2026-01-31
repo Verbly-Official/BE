@@ -60,8 +60,9 @@ jobs:
           jar_file=$(find build/libs -name '*.jar' ! -name '*plain.jar' | head -n 1)
           scp -i verbly-key.pem -o StrictHostKeyChecking=no "$jar_file" $EC2_USERNAME@$EC2_HOST:/home/$EC2_USERNAME/verblyServer.jar
           ssh -i verbly-key.pem -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_HOST "
-            pgrep java | xargs -r kill -15 # 기존에 실행 중인 Java 프로세스 종료
-            sleep 10
-            nohup java -jar /home/$EC2_USERNAME/verblyServer.jar > app.log 2>&1 & # 새 버전 애플리케이션 실행
+            sudo systemctl stop verbly # verbly.service에 정의된 서비스만 종료
+            sudo cp /home/$EC2_USERNAME/verblyServer.jar /opt/verbly/verblyServer.jar # 운영 표준 위치로 수정
+            sudo systemctl start verbly # systemd가 Java 프로세스 실행
+            sudo systemctl status verbly --no-pager # 배포 검증용 서비스 상태 확인
           "
           rm -f verbly-key.pem # 민감한 정보 삭제

@@ -39,3 +39,6 @@ out/
 .idea/
 
 .env
+
+verbly-key.pem
+*.pem

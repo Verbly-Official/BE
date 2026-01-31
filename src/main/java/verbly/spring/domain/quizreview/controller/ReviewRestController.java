@@ -23,7 +23,7 @@ import verbly.spring.global.security.utils.SecurityUtils;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/quizzes")
-public class ReviewController {
+public class ReviewRestController {
 
     private final ReviewCommandService reviewCommandService;
     private final ReviewQueryService reviewQueryService;

@@ -98,6 +98,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
                 webSocketSession.sendMessage(new TextMessage(text));
                 ChatroomUser chatroomUser = webSocketUtil.getChatroomUser(webSocketSession);
                 chatroomUser.updateLastReadAt(LocalDateTime.now());
+                chatroomUserRepository.save(chatroomUser);
             }
         }
     }

@@ -34,7 +34,7 @@ public class ChatIntegralService {
     public SearchResponseDTO getSearchResult(Long userId, String search) {
 
         // get profile by search
-        List<ChatroomUser> chatroomUserList = chatroomUserRepository.findBySearch(userId, search);
+        List<ChatroomUser> chatroomUserList = chatroomUserRepository.findProfileBySearch(userId, search);
         List<ChatProfileResponseDTO> chatProfileResponseDTOList = new ArrayList<>();
         for(ChatroomUser chatroomUser : chatroomUserList){
             Optional<User> optionalOpponent = userRepository.findById(chatroomUser.getOpponentId());
@@ -44,7 +44,7 @@ public class ChatIntegralService {
         }
 
         // get chatroom by search
-        List<ChatMessage> chatMessageList = chatMessageRepository.findBySearch(userId, search);
+        List<ChatMessage> chatMessageList = chatMessageRepository.findMessageBySearch(userId, search);
         List<OuterChatroomInfoResponseDTO> outerChatroomInfoResponseDTOList = new ArrayList<>();
         for(ChatMessage chatMessage : chatMessageList){
             Chatroom chatroom = chatMessage.getChatroom();

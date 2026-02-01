@@ -19,10 +19,10 @@ public class SearchResponseDTO {
     // 채팅방
     private List<OuterChatroomInfoResponseDTO> outerChatroomInfoResponseDTOList;
 
-    public static SearchResponseDTO from(List<ChatProfileResponseDTO> chatMessageSearchResponseDTOList, List<OuterChatroomInfoResponseDTO> outerChatroomInfoResponseDTOList) {
+    public static SearchResponseDTO from(List<ChatProfileResponseDTO> chatProfileResponseDTOList, List<OuterChatroomInfoResponseDTO> outerChatroomInfoResponseDTOList) {
 
         return SearchResponseDTO.builder()
-                .chatProfileResponseDTOList(chatMessageSearchResponseDTOList)
+                .chatProfileResponseDTOList(chatProfileResponseDTOList)
                 .outerChatroomInfoResponseDTOList(outerChatroomInfoResponseDTOList)
                 .build();
     }

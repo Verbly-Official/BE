@@ -5,8 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import verbly.spring.domain.chat.entity.ChatMessage;
-import verbly.spring.domain.chat.entity.Chatroom;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -33,16 +31,15 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     @Query("""
         SELECT message
         FROM ChatMessage message
-        WHERE EXISTS (
-            SELECT 1
+        WHERE message.chatroom.id IN (
+            SELECT chatroomUser.chatroom.id
             FROM ChatroomUser chatroomUser
-            WHERE chatroomUser.chatroom.id = message.chatroom.id
-                AND chatroomUser.user.id = :userId
+            WHERE chatroomUser.user.id = :userId
         )
-            AND LOWER(message.chatContent) LIKE CONCAT('%', LOWER(:search),'%')
+        AND LOWER(message.chatContent) LIKE CONCAT('%', LOWER(:search), '%')
         ORDER BY message.createdAt DESC
-    """)
-    List<ChatMessage> findBySearch(@Param("userId") Long userId, @Param("search") String search);
+""")
+    List<ChatMessage> findMessageBySearch(@Param("userId") Long userId, @Param("search") String search);
 
     @Query("""
         SELECT COUNT(message)

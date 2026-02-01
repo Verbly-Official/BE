@@ -25,11 +25,12 @@ public interface ChatroomUserRepository extends JpaRepository<ChatroomUser, Long
 
     @Query("""
         SELECT chatroomUser
-        FROM ChatroomUser chatroomUser, User opponent
+        FROM ChatroomUser chatroomUser
+        JOIN User opponent
+            ON opponent.id = chatroomUser.opponentId
         WHERE chatroomUser.user.id = :userId
-            AND opponent.id = chatroomUser.opponentId
-            AND LOWER(opponent.nickname) LIKE CONCAT('%', LOWER(:search),'%')
+            AND LOWER(opponent.nickname) LIKE CONCAT('%', LOWER(:search), '%')
         ORDER BY LOWER(opponent.nickname) ASC
     """)
-    List<ChatroomUser> findBySearch(@Param("userId") Long userId, @Param("search") String search);
+    List<ChatroomUser> findProfileBySearch(@Param("userId") Long userId, @Param("search") String search);
 }

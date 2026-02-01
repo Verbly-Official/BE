@@ -27,15 +27,33 @@ import java.util.Optional;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler
-    public ResponseEntity<Object> validation(ConstraintViolationException e, WebRequest request) {
-        String errorMessage = e.getConstraintViolations().stream()
-                .map(constraintViolation -> constraintViolation.getMessage())
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("ConstraintViolationException 추출 도중 에러 발생"));
+//    @ExceptionHandler
+//    public ResponseEntity<Object> validation(ConstraintViolationException e, WebRequest request) {
+//        String errorMessage = e.getConstraintViolations().stream()
+//                .map(constraintViolation -> constraintViolation.getMessage())
+//                .findFirst()
+//                .orElseThrow(() -> new RuntimeException("ConstraintViolationException 추출 도중 에러 발생"));
+//
+//        return handleExceptionInternalConstraint(e, ErrorStatus.valueOf(errorMessage), HttpHeaders.EMPTY,request);
+//    }
+@ExceptionHandler(ConstraintViolationException.class)
+public ResponseEntity<Object> validation(ConstraintViolationException e, WebRequest request) {
+    Map<String, String> errors = new LinkedHashMap<>();
 
-        return handleExceptionInternalConstraint(e, ErrorStatus.valueOf(errorMessage), HttpHeaders.EMPTY,request);
-    }
+    e.getConstraintViolations().forEach(violation -> {
+        String fieldName = violation.getPropertyPath().toString();
+        if (fieldName.contains(".")) {
+            fieldName = fieldName.substring(fieldName.lastIndexOf('.') + 1);
+        }
+        String errorMessage = violation.getMessage();
+        errors.put(fieldName, errorMessage);
+    });
+
+    // 로그로 상세 에러 출력
+    log.warn("Validation 실패: {}", errors);
+
+    return handleExceptionInternalConstraint(e, ErrorStatus._BAD_REQUEST, HttpHeaders.EMPTY, request);
+}
 
     @Override
     public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
@@ -60,10 +78,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = BaseException.class)
-    public ResponseEntity onThrowException(BaseException generalException, HttpServletRequest request) {
-        ErrorReasonDTO errorReasonHttpStatus = generalException.getErrorReasonHttpStatus();
-        return handleExceptionInternal(generalException,generalException.getCode(),null,request);
+    public ResponseEntity<Object> onThrowException(BaseException generalException, HttpServletRequest request) {
+        return handleExceptionInternal(generalException, generalException.getCode(), HttpHeaders.EMPTY, request);
     }
+
 
     @Override
     protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
@@ -103,9 +121,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                            HttpHeaders headers, HttpServletRequest request) {
 
         ApiResponse<Object> body = ApiResponse.onFailure(errorCode);
-//        e.printStackTrace();
 
         WebRequest webRequest = new ServletWebRequest(request);
+
+        HttpHeaders safeHeaders = (headers == null) ? HttpHeaders.EMPTY : headers;
+
+        HttpStatus status = errorCode.getReasonHttpStatus().getHttpStatus();
+        if (status == null) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
         return super.handleExceptionInternal(
                 e,
                 body,

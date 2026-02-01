@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class PostConverter {
+    private PostConverter() {}
 
     public PostResponseDTO.HomePosts toHomePosts(Post post, Boolean isLiked) {
         List<String> tags = post.getPostTags().stream()
@@ -78,6 +79,29 @@ public class PostConverter {
         return PostResponseDTO.HomeWritePost.builder()
                 .postId(post.getId())
                 .createdAt(post.getCreatedAt())
+                .build();
+    }
+
+    public static PostResponseDTO.Summary toResponseSummaryDTO(Post post) {
+        return PostResponseDTO.Summary.builder()
+                .postId(post.getId())
+                .authorId(post.getAuthor().getId())
+                .authorNickname(post.getAuthor().getNickname())
+                .title(post.getTitle())
+                .createdAt(post.getCreatedAt())
+                .build();
+    }
+
+    public static PostResponseDTO.Detail toResponseDetailDTO(Post post) {
+        return PostResponseDTO.Detail.builder()
+                .postId(post.getId())
+                .authorId(post.getAuthor().getId())
+                .authorNickname(post.getAuthor().getNickname())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .status(post.getStatus())
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
                 .build();
     }
 }

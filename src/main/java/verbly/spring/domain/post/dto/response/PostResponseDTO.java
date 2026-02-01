@@ -75,4 +75,26 @@ public class PostResponseDTO {
         LocalDateTime createdAt;
     }
 
+    @Getter
+    @Builder
+    public static class Detail {
+        private Long postId;
+        private Long authorId;
+        private String authorNickname;
+        private String title;
+        private String content;
+        private PostStatus status;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+    }
+
+    @Getter
+    @Builder
+    public static class Summary {
+        private Long postId;
+        private Long authorId;
+        private String authorNickname;
+        private String title;
+        private LocalDateTime createdAt;
+    }
 }

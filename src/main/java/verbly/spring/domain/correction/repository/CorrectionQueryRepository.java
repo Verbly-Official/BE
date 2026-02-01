@@ -5,6 +5,7 @@ import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.post.enums.PostStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CorrectionQueryRepository {
     List<CorrectionResponseDTO.MyCorrectionDto> findMyCorrections(

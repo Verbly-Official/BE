@@ -100,6 +100,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
                 .point(100) // 가입 보너스 100P
                 .streakDays(0)
                 .lastActiveDate(null)
+                .reviewCount(0L)
+                .reviewAverage(0.0)
                 .build();
         user.setStats(stats);
 

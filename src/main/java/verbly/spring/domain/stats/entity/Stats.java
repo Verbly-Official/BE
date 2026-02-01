@@ -49,6 +49,12 @@ public class Stats {
 
     private LocalDate lastActiveDate;
 
+    @Column(name = "review_count")
+    private Long reviewCount;
+
+    @Column(name = "review_average")
+    private Double reviewAverage;
+
     // home 조회 api에서 통계 서비스의 markAttendance 호출하기
     public void markAttendance(String timezone) {
         LocalDate today = LocalDate.now(ZoneId.of(timezone));
@@ -68,5 +74,10 @@ public class Stats {
 
     public Level getLevel() {
         return Level.fromPoint(this.point);
+    }
+
+    public void updateReviewMeta(Long reviewCount, Double averageByRevieweeId) {
+        this.reviewCount = reviewCount + 1;
+        this.reviewAverage = averageByRevieweeId;
     }
 }

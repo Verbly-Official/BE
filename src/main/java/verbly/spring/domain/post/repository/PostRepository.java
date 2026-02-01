@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying(clearAutomatically = true)
@@ -27,4 +28,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     void increaseCommentCount(@Param("postId") Long postId);
 
     Slice<Post> findAllByAuthor_Uuid(UUID uuid, Pageable pageable);
+
+    List<Post> findAllByAuthorIdAndTempTrueOrderByCreatedAtDesc(Long authorId);
+    Optional<Post> findByIdAndAuthorIdAndTempTrue(Long postId, Long authorId);
+
 }

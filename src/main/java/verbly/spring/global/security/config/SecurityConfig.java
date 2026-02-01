@@ -46,7 +46,8 @@ public class SecurityConfig {
                 "http://3.36.90.173:3000",
                 "http://3.36.90.173:8080",
                 "http://localhost:3000", // 로컬 프론트
-                "http://localhost:8080" // 로컬 백엔드
+                "http://localhost:8080", // 로컬 백엔드
+                "http://localhost:5173" // 로컬 프론트
         ));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));  // JWT 토큰 읽기 허용

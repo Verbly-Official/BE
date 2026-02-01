@@ -1,0 +1,33 @@
+package verbly.spring.domain.follow.repo;
+
+import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+import verbly.spring.domain.follow.entity.Follow;
+import verbly.spring.domain.user.entity.User;
+import java.util.List;
+
+@Repository
+public interface FollowRepository extends JpaRepository<Follow, Long> {
+
+    @Query("""
+        SELECT user
+        FROM User user
+        WHERE user.id <> :followerId
+             AND user.nativeLang = 'en'
+            AND NOT EXISTS (
+                SELECT 1
+                FROM Follow follow
+                WHERE follow.follower.id = :followerId
+                    AND follow.followee.id = user.id
+            )
+        ORDER BY FUNCTION('rand')
+     """)
+    List<User> findRandomUser(@Param("followerId") Long followerId, Pageable pageable);
+
+    void deleteByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
+
+    boolean existsFollowByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
+}

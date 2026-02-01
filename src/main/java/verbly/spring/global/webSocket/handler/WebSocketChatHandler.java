@@ -94,8 +94,11 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         // send
         Set<WebSocketSession> nowChatroomUser = nowChatroom.get(chatroomId);
         for(WebSocketSession webSocketSession : nowChatroomUser){
-            if(webSocketSession.isOpen())
+            if(webSocketSession.isOpen()) {
                 webSocketSession.sendMessage(new TextMessage(text));
+                ChatroomUser chatroomUser = webSocketUtil.getChatroomUser(webSocketSession);
+                chatroomUser.updateLastReadAt(LocalDateTime.now());
+            }
         }
     }
 
@@ -108,10 +111,6 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         3. remove closed session
         4. remove if empty
          */
-
-        ChatroomUser chatroomUser = webSocketUtil.getChatroomUser(session);
-        chatroomUser.updateLastReadAt(LocalDateTime.now());
-
         Long  chatroomId =  webSocketUtil.getChatroomIdBySession(session);
         Set<WebSocketSession> nowChatroomUser = nowChatroom.get(chatroomId);
         nowChatroomUser.remove(session);

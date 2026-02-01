@@ -48,9 +48,27 @@ public enum ErrorStatus implements BaseErrorCode {
     CORRECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "CORRECTION4001", "문서를 찾을 수 없습니다."),
     CORRECTION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "CORRECTION4002", "해당 문서에 대한 권한이 없습니다."),
     CORRECTION_NOT_VALIDATE(HttpStatus.BAD_REQUEST, "CORRECTION4003", "제목과 내용은 필수 입력 항목입니다."),
+    CORRECTION_TEMP_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "CORRECTION4004", "임시저장 문서를 찾을 수 없습니다."),
+    CORRECTION_TEMP_POST_ALREADY_SUBMITTED(HttpStatus.BAD_REQUEST, "CORRECTION4005", "이미 Correction 요청한 문서입니다."),
 
     // 통계 관련 에러
-    STATS_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATS4001", "사용자 통계 정보가 존재하지 않습니다.");
+    STATS_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATS4001", "사용자 통계 정보가 존재하지 않습니다."),
+
+    //라이브러리 관련 에러
+    LIBRARY_ITEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "LIB4001", "라이브러리 아이템을 찾을 수 없습니다."),
+    LIBRARY_ITEM_FORBIDDEN(HttpStatus.FORBIDDEN, "LIB4002", "해당 아이템에 대한 권한이 없습니다."),
+    LIBRARY_ITEM_DUPLICATE(HttpStatus.BAD_REQUEST, "LIB4003", "이미 라이브러리에 저장된 표현입니다."),
+    EXAMPLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "LIB4004", "예문을 찾을 수 없습니다."),
+
+    //리뷰(퀴즈) 관련 에러
+    QUIZ_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ4001", "퀴즈 세션을 찾을 수 없습니다."),
+    QUIZ_SESSION_NOT_IN_PROGRESS(HttpStatus.BAD_REQUEST, "QUIZ4002", "진행 중인 퀴즈 세션이 아닙니다."),
+    QUIZ_QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ4003", "퀴즈 문항을 찾을 수 없습니다."),
+    QUIZ_FORBIDDEN(HttpStatus.FORBIDDEN, "QUIZ4004", "해당 퀴즈에 접근 권한이 없습니다."),
+    QUIZ_OUT_OF_ORDER(HttpStatus.BAD_REQUEST, "QUIZ4005", "현재 순서의 문제만 풀 수 있습니다."),
+    QUIZ_NO_PENDING_ITEMS(HttpStatus.BAD_REQUEST, "QUIZ4006", "리뷰할 항목이 없습니다."),
+    QUIZ_NO_MISTAKES(HttpStatus.BAD_REQUEST, "QUIZ4007", "오답이 없어 재도전할 수 없습니다."),
+    QUIZ_NO_HINTS_REMAINING(HttpStatus.BAD_REQUEST, "QUIZ4008", "남은 힌트가 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
@@ -74,4 +92,7 @@ public enum ErrorStatus implements BaseErrorCode {
                 .httpStatus(httpStatus)
                 .build();
     }
+
+
+
 }

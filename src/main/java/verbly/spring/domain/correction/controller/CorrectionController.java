@@ -36,8 +36,12 @@ public class CorrectionController {
             security = @SecurityRequirement(name = "JWT TOKEN"),
             description = "새로운 글을 작성합니다.\n\n" +
                     "✅ 요청 본문에 포함할 수 있는 값:\n" +
+                    "- tempPostId: 임시저장 글 ID (Long, 선택)\n" +
                     "- title: 제목 (String, 필수)\n" +
-                    "- content: 내용 (String, 필수)\n"
+                    "- content: 내용 (String, 필수)\n\n" +
+                    "✅ 동작 방식:\n" +
+                    "- tempPostId가 없으면: 새 Post 및 Correction 생성\n" +
+                    "- tempPostId가 있으면: 임시저장 Post를 Correction 생성(요청)"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Correction Write 요청 예시",
@@ -46,13 +50,23 @@ public class CorrectionController {
                     mediaType = "application/json",
                     examples = {
                             @ExampleObject(
-                                    name = "Correction Write 요청 예시",
+                                    name = "새 글 제출",
                                     value = """
-                                            {
-                                                "title" : "제목",
-                                                "content" : "내용"
-                                            }
-                                            """
+                                        {
+                                          "title": "제목",
+                                          "content": "내용"
+                                        }
+                                        """
+                            ),
+                            @ExampleObject(
+                                    name = "임시저장 글 제출",
+                                    value = """
+                                        {
+                                          "tempPostId": 123,
+                                          "title": "임시저장했던 제목(수정 가능)",
+                                          "content": "임시저장했던 내용(수정 가능)"
+                                        }
+                                        """
                             )
                     }
             )
@@ -72,7 +86,7 @@ public class CorrectionController {
      * Correction - 내 문서 조회
      */
     @Operation(
-            summary = "커렉션 - 내 문서 조회",
+            summary = "커렉션 - 내 문서 목록 조회",
             description = "자신이 작성한 커렉션 글 목록을 조회합니다.\n\n" +
                     "### QueryString\n" +
                     "모든 쿼리 파라미터는 **선택(Optional)**입니다.\n\n" +
@@ -105,6 +119,26 @@ public class CorrectionController {
                 .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.CORRECTION_READ_SUCCESS, result));
     }
+
+    /**
+     * Correction - 내 문서 상세 조회
+     */
+    @Operation(
+            summary = "커렉션 내 문서 상세 조회",
+            security = @SecurityRequirement(name = "JWT TOKEN"),
+            description = "자신이 작성한 커렉션 상세 정보를 조회합니다."
+    )
+    @GetMapping("/{correctionId}")
+    public ResponseEntity<ApiResponse<CorrectionResponseDTO.MyCorrectionDto>> getCorrectionDetail(
+            @PathVariable Long correctionId
+    ){
+        CorrectionResponseDTO.MyCorrectionDto result = correctionService.getCorrectionDetail(correctionId);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_READ_SUCCESS, result));
+    }
+
 
     /**
      * Correction - 문서 수정

@@ -16,6 +16,7 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
         SELECT user
         FROM User user
         WHERE user.id <> :followerId
+             AND user.nativeLang = 'en'
             AND NOT EXISTS (
                 SELECT 1
                 FROM Follow follow

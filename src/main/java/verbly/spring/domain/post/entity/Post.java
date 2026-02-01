@@ -24,7 +24,8 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
-    // 상태 (PENDING, IN_PROGRESS, COMPLETED)
+    // 상태 (TEMP, PENDING, IN_PROGRESS, COMPLETED)
+    // TEMP 인 경우: 임시저장
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private PostStatus status;
@@ -50,6 +51,14 @@ public class Post extends BaseEntity {
 
     public boolean isSameContent(String title, String content) {
         return this.title.equals(title) && this.content.equals(content);
+    }
+
+    public void changeStatus(PostStatus status) {
+        this.status = status;
+    }
+
+    public void changeTemp(boolean temp) {
+        this.temp = temp;
     }
 
 }

@@ -19,7 +19,7 @@ import verbly.spring.global.common.code.SuccessStatus;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.utils.SecurityUtils;
 
-@Tag(name = "Review", description = "Review(Quiz) 탭 API")
+@Tag(name = "Review(Quiz)", description = "Review(Quiz) 탭 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/quizzes")

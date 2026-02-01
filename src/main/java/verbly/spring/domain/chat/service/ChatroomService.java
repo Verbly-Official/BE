@@ -1,5 +1,6 @@
 package verbly.spring.domain.chat.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import verbly.spring.domain.chat.entity.Chatroom;
@@ -15,6 +16,7 @@ public class ChatroomService {
 
     private final ChatroomRepository chatroomRepository;
 
+    @Transactional
     public Chatroom getChatroom(Long roomId) {
 
         Optional<Chatroom> optionalChatroom = chatroomRepository.findById(roomId);

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
+import verbly.spring.domain.chat.service.ChatUtilService;
 import verbly.spring.domain.chat.service.ChatroomUserService;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.exception.UserHandler;
@@ -34,7 +35,7 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final WebSocketUtil webSocketUtil;
-    private final ChatroomUserService chatroomUserService;
+    private final ChatUtilService chatUtilService;
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
@@ -42,6 +43,7 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
         // Header deliver check - delete soon
         log.info("Auth header: {}", request.getHeaders().getFirst(Constants.AUTH_HEADER));
 
+        // token validation check
         List<String> auth = request.getHeaders().get(Constants.AUTH_HEADER);
         if (auth == null || auth.isEmpty())
             throw new WebSocketExceptionHandler(ErrorStatus._UNAUTHORIZED);
@@ -60,7 +62,7 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
         Long chatroomId = webSocketUtil.getChatroomIdByURI(uri);
 
         // member check
-        if(!chatroomUserService.isChatroomMember(chatroomId, userId))
+        if(!chatUtilService.isChatroomMember(chatroomId, userId))
             throw new WebSocketExceptionHandler(ErrorStatus.NOT_CHATROOM_MEMBER);
 
         // save in websocketSession

@@ -1,14 +1,18 @@
 package verbly.spring.domain.chat.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import verbly.spring.domain.chat.dto.responseDTO.ChatroomInfoResponseDTO;
+import verbly.spring.domain.chat.dto.responseDTO.ChatroomEnterResponseDTO;
+import verbly.spring.domain.chat.dto.responseDTO.InnerChatroomInfoResponseDTO;
+import verbly.spring.domain.chat.dto.responseDTO.OuterChatroomInfoResponseDTO;
+import verbly.spring.domain.chat.entity.ChatMessage;
 import verbly.spring.domain.chat.entity.Chatroom;
 import verbly.spring.domain.chat.entity.ChatroomUser;
 import verbly.spring.domain.chat.exception.ChatHandler;
+import verbly.spring.domain.chat.repo.ChatMessageRepository;
 import verbly.spring.domain.chat.repo.ChatroomRepository;
 import verbly.spring.domain.chat.repo.ChatroomUserRepository;
-import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
@@ -24,105 +28,114 @@ public class ChatroomUserService {
     private final UserRepository userRepository;
     private final ChatroomUserRepository chatroomUserRepository;
     private final ChatroomRepository chatroomRepository;
+    private final ChatUtilService chatUtilService;
+    private final ChatMessageRepository chatMessageRepository;
 
     // enter chatroom
-    public void enterChatroom(Long participantId, Long opponentId) {
+    @Transactional
+    public ChatroomEnterResponseDTO enterChatroom(Long participantId, Long opponentId) {
+
+        if(participantId.equals(opponentId))
+            throw new ChatHandler(ErrorStatus.CANT_SELF_CHAT);
 
         // chatroom exist check - create new
-        Chatroom chatroom = isEnteredChatroomExist(participantId, opponentId);
+        Chatroom chatroom = chatUtilService.isEnteredChatroomExist(participantId, opponentId);
         if(chatroom == null) {
             chatroom = Chatroom.of();
             chatroomRepository.save(chatroom);
         }
 
         // memberCheck - create new
-        if(!isChatroomMember(chatroom.getId(), participantId)) {
-            Optional<User> optionalParticipant = userRepository.findById(participantId);
-            if(optionalParticipant.isEmpty())
-                throw new ChatHandler(ErrorStatus.USER_NOT_FOUND);
-            User participant = optionalParticipant.get();
-
-            ChatroomUser chatroomParticipant = ChatroomUser.of(participant, chatroom, opponentId);
-            chatroomUserRepository.save(chatroomParticipant);
-        }
+        notMemberThenRegister(chatroom, participantId, opponentId);
 
         // opposite memberCheck  - create new
-        if(!isChatroomMember(chatroom.getId(), opponentId)) {
-            Optional<User> optionalOpponent = userRepository.findById(opponentId);
-            if(optionalOpponent.isEmpty())
-                throw new ChatHandler(ErrorStatus.USER_NOT_FOUND);
-            User opponent = optionalOpponent.get();
+        notMemberThenRegister(chatroom, opponentId, participantId);
 
-            ChatroomUser chatroomOpponent = ChatroomUser.of(opponent, chatroom, participantId);
-            chatroomUserRepository.save(chatroomOpponent);
-        }
+        return ChatroomEnterResponseDTO.from(chatroom);
     }
 
-    // get entered chatroomList
+    // no search => order By latest chatted chatroom
     // chatroom name= opponent name, thumbnail = opponent image url
-    public List<ChatroomInfoResponseDTO> getChatroomInfoList(Long participantId) {
+    @Transactional
+    public List<OuterChatroomInfoResponseDTO> getChatroomInfoList(Long participantId) {
 
-        List<ChatroomInfoResponseDTO> chatroomInfoResponseDTOList = new ArrayList<>();
+        List<OuterChatroomInfoResponseDTO> outerChatroomInfoResponseDTOList = new ArrayList<>();
 
         List<ChatroomUser> chatroomUserList = chatroomUserRepository.findAllByUserId(participantId);
 
         for (ChatroomUser chatroomUser : chatroomUserList) {
-            Optional<User> optionalOpponent = userRepository.findById(chatroomUser.getOpponentId());
-            if (optionalOpponent.isEmpty())
-                throw new ChatHandler(ErrorStatus.USER_NOT_FOUND);
-            User opponent = optionalOpponent.get();
+            // get recent message
+            Long chatroomId = chatroomUser.getChatroom().getId();
+            Optional<ChatMessage> optionalChatMessage = chatMessageRepository.findTopByChatroomIdOrderByCreatedAtDesc(chatroomId);
+            ChatMessage chatMessage;
 
-            chatroomInfoResponseDTOList.add(ChatroomInfoResponseDTO.from(chatroomUser, opponent));
+            // only get message exists chatroom
+            if(optionalChatMessage.isPresent()) {
+                chatMessage = optionalChatMessage.get();
+
+                // get chatroom info
+                Optional<User> optionalOpponent = userRepository.findById(chatroomUser.getOpponentId());
+                User opponent = null;
+                if (optionalOpponent.isPresent()) {
+                    opponent = optionalOpponent.get();
+                }
+
+                Integer unreadChatCount = chatMessageRepository.countUnreadChatMessage(participantId, chatroomUser.getChatroom().getId(), chatroomUser.getLastReadAt());
+
+                outerChatroomInfoResponseDTOList.add(OuterChatroomInfoResponseDTO.from(chatroomUser, opponent, chatMessage, unreadChatCount));
+            }
         }
 
-        return chatroomInfoResponseDTOList;
+        return outerChatroomInfoResponseDTOList;
     }
 
-    // get entered chatroom
-    public ChatroomInfoResponseDTO getChatroomInfo(Long participantId, Long opponentId) {
+    // when entered, get entered chatroom info
+    @Transactional
+    public InnerChatroomInfoResponseDTO getChatroomInfo(Long participantId, Long opponentId) {
 
-        Optional<ChatroomUser> optionalChatroomUser = chatroomUserRepository.findByUserId(participantId);
+        //participant
+        Optional<ChatroomUser> optionalChatroomUser = chatroomUserRepository.findByUserIdAndOpponentId(participantId, opponentId);
         if(optionalChatroomUser.isEmpty())
-            throw new ChatHandler(ErrorStatus.USER_NOT_FOUND);
+            throw new ChatHandler(ErrorStatus.NOT_CHATROOM_MEMBER);
         ChatroomUser chatroomUser = optionalChatroomUser.get();
 
-        Optional<User> optionalOpponent = userRepository.findById(chatroomUser.getOpponentId());
+        //opponent
+        Optional<User> optionalOpponent = userRepository.findById(opponentId);
         if (optionalOpponent.isEmpty())
             throw new ChatHandler(ErrorStatus.USER_NOT_FOUND);
         User opponent = optionalOpponent.get();
 
-        return  ChatroomInfoResponseDTO.from(chatroomUser, opponent);
+        return  InnerChatroomInfoResponseDTO.from(chatroomUser, opponent);
     }
 
     // quit chatroom
-    public void quitChatroom(Long participantId) {
+    @Transactional
+    public void quitChatroom(Long participantId, Long opponentId) {
 
-        Optional<ChatroomUser> optionalChatroomUser = chatroomUserRepository.findByUserId(participantId);
+        Optional<ChatroomUser> optionalChatroomUser = chatroomUserRepository.findByUserIdAndOpponentId(participantId, opponentId);
         if(optionalChatroomUser.isEmpty())
-            throw new ChatHandler(ErrorStatus.USER_NOT_FOUND);
+            throw new ChatHandler(ErrorStatus.NOT_CHATROOM_MEMBER);
         ChatroomUser chatroomUser = optionalChatroomUser.get();
 
         chatroomUserRepository.delete(chatroomUser);
     }
 
-    // member check
-    public boolean isChatroomMember(Long roomId, Long userId) {
-
-        return chatroomUserRepository.existsByChatroomIdAndUserId(roomId, userId);
-    }
-
-    // entered chatroom exist check
-    protected Chatroom isEnteredChatroomExist(Long participantId, Long opponentId) {
+    @Transactional
+    private void notMemberThenRegister(Chatroom chatroom, Long participantId, Long opponentId) {
 
         Optional<ChatroomUser> optionalChatroomUser = chatroomUserRepository.findByUserIdAndOpponentId(participantId, opponentId);
-        if (optionalChatroomUser.isPresent())
-            return optionalChatroomUser.get().getChatroom();
+        // already member => pass
+        if(optionalChatroomUser.isPresent())
+            return;
 
-        Optional<ChatroomUser> optionalReverseChatroomUser = chatroomUserRepository.findByUserIdAndOpponentId(opponentId, participantId);
-        if (optionalReverseChatroomUser.isPresent())
-            return optionalReverseChatroomUser.get().getChatroom();
+        // not member => register
+        Optional<User> optionalParticipant = userRepository.findById(participantId);
+        if(optionalParticipant.isEmpty())
+            throw new ChatHandler(ErrorStatus.USER_NOT_FOUND);
+        User participant = optionalParticipant.get();
 
-        return null;
+        ChatroomUser chatroomParticipant = ChatroomUser.of(participant, chatroom, opponentId);
+        chatroomUserRepository.save(chatroomParticipant);
     }
 
 }

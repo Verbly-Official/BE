@@ -15,6 +15,7 @@ import verbly.spring.domain.chat.repo.ChatMessageRepository;
 import verbly.spring.domain.chat.repo.ChatroomRepository;
 import verbly.spring.domain.chat.repo.ChatroomUserRepository;
 import verbly.spring.domain.chat.service.ChatMessageService;
+import verbly.spring.domain.chat.service.ChatUtilService;
 import verbly.spring.domain.chat.service.ChatroomService;
 import verbly.spring.domain.chat.service.ChatroomUserService;
 import verbly.spring.domain.user.entity.User;
@@ -24,6 +25,7 @@ import verbly.spring.global.webSocket.exception.WebSocketExceptionHandler;
 import verbly.spring.global.webSocket.util.WebSocketUtil;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -32,9 +34,10 @@ import java.util.*;
 public class WebSocketChatHandler extends TextWebSocketHandler {
 
     private final ChatMessageService chatMessageService;
-    private final ChatroomUserService chatroomUserService;
+    private final ChatroomUserRepository chatroomUserRepository;
     private final WebSocketUtil webSocketUtil;
     private final Map<Long, Set<WebSocketSession>> nowChatroom = new HashMap<>();
+    private final ChatUtilService chatUtilService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception{
@@ -51,7 +54,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         Long userId = webSocketUtil.getIdBySession(session);
 
         // member check
-        if(!chatroomUserService.isChatroomMember(chatroomId, userId)) {
+        if(!chatUtilService.isChatroomMember(chatroomId, userId)) {
             session.close();
             return;
         }
@@ -105,6 +108,10 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         3. remove closed session
         4. remove if empty
          */
+
+        ChatroomUser chatroomUser = webSocketUtil.getChatroomUser(session);
+        chatroomUser.updateLastReadAt(LocalDateTime.now());
+
         Long  chatroomId =  webSocketUtil.getChatroomIdBySession(session);
         Set<WebSocketSession> nowChatroomUser = nowChatroom.get(chatroomId);
         nowChatroomUser.remove(session);

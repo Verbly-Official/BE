@@ -5,7 +5,9 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.socket.WebSocketSession;
+import verbly.spring.domain.chat.entity.ChatroomUser;
 import verbly.spring.domain.chat.repo.ChatroomRepository;
+import verbly.spring.domain.chat.repo.ChatroomUserRepository;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.exception.UserHandler;
 import verbly.spring.domain.user.repository.UserRepository;
@@ -23,6 +25,7 @@ import java.util.Optional;
 public class WebSocketUtil {
 
     private final UserRepository userRepository;
+    private final ChatroomUserRepository chatroomUserRepository;
 
     public Long getChatroomIdByURI(URI uri) {
 
@@ -62,5 +65,16 @@ public class WebSocketUtil {
         User user = optionalUser.get();
 
         return user.getId();
+    }
+
+    public ChatroomUser getChatroomUser(WebSocketSession session) {
+
+        Long userId = getIdBySession(session);
+        Long chatroomId = getChatroomIdBySession(session);
+        Optional<ChatroomUser> chatroomUser = chatroomUserRepository.findByChatroomIdAndUserId(chatroomId, userId);
+        if (chatroomUser.isEmpty())
+            throw new WebSocketExceptionHandler(ErrorStatus.USER_NOT_FOUND);
+
+        return chatroomUser.get();
     }
 }

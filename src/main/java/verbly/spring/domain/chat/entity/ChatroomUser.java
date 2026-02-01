@@ -29,9 +29,6 @@ public class ChatroomUser {
     @Column(name = "opponent_id")
     private Long opponentId;
 
-    @Column(name = "unread_chat_count", columnDefinition = "integer default 0")
-    private Integer unreadChatCount;
-
     @Column(name = "last_read_at")
     private LocalDateTime lastReadAt;
 
@@ -49,12 +46,7 @@ public class ChatroomUser {
                 .build();
     }
 
-    public void countUpUnreadChatCount() {
-        this.unreadChatCount = this.unreadChatCount + 1;
-    }
-
-    public void updateReadState() {
-        this.unreadChatCount = 0;
-        this.lastReadAt = LocalDateTime.now();
+    public void updateLastReadAt(LocalDateTime lastReadAt) {
+        this.lastReadAt = lastReadAt;
     }
 }

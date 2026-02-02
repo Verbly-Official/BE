@@ -85,6 +85,8 @@ public class CorrectionNativeService {
     public void upsertWords(Long correctionId, CorrectionEditorRequestDTO.UpsertWords request) {
         Correction correction = findCorrectionOrThrow(correctionId);
 
+        markInProgressIfPending(correction);
+
         correctionWordRepository.deleteByCorrectionId(correctionId);
 
         List<CorrectionWord> entities = CorrectionEditorConverter.toWordEntities(correction, request);
@@ -102,6 +104,8 @@ public class CorrectionNativeService {
         CorrectionWord word = findWordOrThrow(request.getCorrectionWordId());
 
         validateWordBelongsToCorrection(correction, word);
+
+        markInProgressIfPending(correction);
 
         User corrector = SecurityUtils.getCurrentUser();
 
@@ -227,5 +231,12 @@ public class CorrectionNativeService {
 
         return String.join(" ", sentences);
     }
+
+    private void markInProgressIfPending(Correction correction) {
+        if (correction.getPost().getStatus() == PostStatus.PENDING) {
+            correction.getPost().changeStatus(PostStatus.IN_PROGRESS);
+        }
+    }
+
 
 }

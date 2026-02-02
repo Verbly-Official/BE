@@ -52,6 +52,7 @@ public enum ErrorStatus implements BaseErrorCode {
     CORRECTION_TEMP_POST_ALREADY_SUBMITTED(HttpStatus.BAD_REQUEST, "CORRECTION4005", "이미 Correction 요청한 문서입니다."),
     CORRECTION_NATIVE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "CORRECTION4006", "Correction Native - 접근 권한이 없습니다."),
     CORRECTION_WORD_NOT_FOUND(HttpStatus.NOT_FOUND, "CORRECTION4007", "교정 대상 단어를 찾을 수 없습니다."),
+    CORRECTION_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "CORRECTION4008", "이미 Correction 첨삭 완료한 문서입니다."),
 
     // 통계 관련 에러
     STATS_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATS4001", "사용자 통계 정보가 존재하지 않습니다."),

@@ -159,4 +159,27 @@ public class CorrectionNativeController {
                 .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.CORRECTION_READ_SUCCESS, result));
     }
+
+    /**
+     * 커렉션 첨삭 제출
+     */
+    @Operation(
+            summary = "커렉션 제출",
+            description = "커렉션 첨삭을 완료하고 커렉션 상태를 COMPLETED로 변경합니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    @Parameters({
+            @Parameter(name = "correctionId", description = "커렉션 ID", example = "1")
+    })
+    @PostMapping("/{correctionId}/submit")
+    public ResponseEntity<ApiResponse<Void>> submitCorrection(
+            @PathVariable Long correctionId
+    ) {
+        correctionNativeService.submitCorrection(correctionId);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_UPDATE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_UPDATE_SUCCESS, null));
+    }
+
 }

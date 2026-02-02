@@ -23,7 +23,10 @@ import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.security.utils.SecurityUtils;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,20 +51,33 @@ public class CorrectionNativeService {
     public CorrectionEditorResponseDTO.Detail getDetail(Long correctionId) {
         CorrectionEditorQueryDTO.CorrectionBaseRow base = findBaseOrThrow(correctionId);
 
-        List<CorrectionEditorResponseDTO.Sentence> sentences =
-                CorrectionEditorConverter.toSentences(base.getPostContent());
+        List<CorrectionWord> words =
+                correctionWordRepository.findByCorrectionId(correctionId);
 
-        List<CorrectionEditorResponseDTO.Word> words =
-                CorrectionEditorConverter.toWordResponses(correctionEditorQueryRepository.findWords(correctionId));
+        String correctedContent =
+                composeCorrectedContent(base.getPostContent(), words);
+
+        List<CorrectionEditorResponseDTO.Sentence> sentences =
+                CorrectionEditorConverter.toSentences(
+                        base.getPostContent(),
+                        correctedContent
+                );
+
+        List<CorrectionEditorResponseDTO.Word> wordResponses =
+                CorrectionEditorConverter.toWordResponses(
+                        correctionEditorQueryRepository.findWords(correctionId)
+                );
 
         List<CorrectionEditorResponseDTO.Feedback> feedback =
-                CorrectionEditorConverter.toFeedbackResponses(correctionEditorQueryRepository.findFeedback(correctionId));
+                CorrectionEditorConverter.toFeedbackResponses(
+                        correctionEditorQueryRepository.findFeedback(correctionId)
+                );
 
         return CorrectionEditorResponseDTO.Detail.builder()
                 .correctionId(base.getCorrectionId())
                 .postId(base.getPostId())
                 .sentences(sentences)
-                .words(words)
+                .words(wordResponses)
                 .feedback(feedback)
                 .build();
     }
@@ -112,6 +128,29 @@ public class CorrectionNativeService {
         );
     }
 
+    public void submitCorrection(Long correctionId) {
+        Correction correction = findCorrectionOrThrow(correctionId);
+
+        if (correction.getPost().getStatus() == PostStatus.COMPLETED) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_ALREADY_COMPLETED);
+        }
+
+        List<CorrectionWord> words =
+                correctionWordRepository.findByCorrectionId(correctionId);
+
+        if (words.isEmpty()) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_WORD_NOT_FOUND);
+        }
+
+        String validated = composeCorrectedContent(
+                correction.getPost().getContent(),
+                words
+        );
+
+        correction.getPost().changeStatus(PostStatus.COMPLETED);
+    }
+
+
 
 
     private Pageable normalize(Pageable pageable) {
@@ -152,4 +191,41 @@ public class CorrectionNativeService {
             throw new CorrectionHandler(ErrorStatus.CORRECTION_ACCESS_DENIED);
         }
     }
+
+    private String composeCorrectedContent(
+            String originalContent,
+            List<CorrectionWord> words
+    ) {
+        List<String> sentences =
+                CorrectionEditorConverter.splitSentences(originalContent);
+
+        Map<Integer, List<CorrectionWord>> grouped =
+                words.stream()
+                        .collect(Collectors.groupingBy(CorrectionWord::getSentenceIdx));
+
+        for (var entry : grouped.entrySet()) {
+            int sentenceIdx = entry.getKey();
+            List<CorrectionWord> sentenceWords = entry.getValue();
+
+            sentenceWords.sort(Comparator.comparingInt(CorrectionWord::getStartIdx));
+
+            String sentence = sentences.get(sentenceIdx);
+            StringBuilder sb = new StringBuilder(sentence);
+
+            int offset = 0;
+            for (CorrectionWord w : sentenceWords) {
+                int start = w.getStartIdx() + offset;
+                int end = w.getEndIdx() + offset;
+
+                sb.replace(start, end, w.getCorrectedText());
+                offset += w.getCorrectedText().length()
+                        - (w.getEndIdx() - w.getStartIdx());
+            }
+
+            sentences.set(sentenceIdx, sb.toString());
+        }
+
+        return String.join(" ", sentences);
+    }
+
 }

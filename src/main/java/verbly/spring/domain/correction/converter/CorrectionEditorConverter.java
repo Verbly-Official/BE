@@ -9,6 +9,7 @@ import verbly.spring.domain.correction.entity.CorrectionWord;
 import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.user.entity.User;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -24,10 +25,33 @@ public class CorrectionEditorConverter {
         return IntStream.range(0, parts.length)
                 .mapToObj(i -> CorrectionEditorResponseDTO.Sentence.builder()
                         .idx(i + 1)
-                        .text(parts[i].trim())
+                        .originalText(parts[i].trim())
                         .build())
                 .toList();
     }
+
+    public static List<CorrectionEditorResponseDTO.Sentence> toSentences(
+            String originalContent,
+            String correctedContent
+    ) {
+        if (originalContent == null || originalContent.isBlank()) return List.of();
+
+        String[] originalParts = originalContent.split("\\n");
+        String[] correctedParts = correctedContent == null
+                ? new String[0]
+                : correctedContent.split("\\n");
+
+        int size = Math.min(originalParts.length, correctedParts.length);
+
+        return IntStream.range(0, size)
+                .mapToObj(i -> CorrectionEditorResponseDTO.Sentence.builder()
+                        .idx(i + 1)
+                        .originalText(originalParts[i].trim())
+                        .correctedText(correctedParts[i].trim())
+                        .build())
+                .toList();
+    }
+
 
     public static List<CorrectionWord> toWordEntities(Correction correction, CorrectionEditorRequestDTO.UpsertWords request) {
         if (request == null || request.getEdits() == null || request.getEdits().isEmpty()) {
@@ -87,5 +111,18 @@ public class CorrectionEditorConverter {
                 .correctorType(correctorType)
                 .content(content)
                 .build();
+    }
+
+    public static List<String> splitSentences(String content) {
+        if (content == null || content.isBlank()) {
+            return List.of();
+        }
+
+        return Arrays.stream(
+                        content.split("(?<=[.!?])\\s+|\n")
+                )
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
     }
 }

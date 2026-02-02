@@ -230,14 +230,27 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
                 .filter(t -> wrongTaskIds.contains(t.getId()))
                 .toList();
 
+        // 오답 task들만 PENDING으로 되돌리고
         for (ReviewTask t : wrongTasks) {
             t.rollbackToPending();
         }
         reviewTaskRepository.saveAll(wrongTasks);
 
-        reviewQuestionRepository.deleteAllByReviewTask_IdIn(new ArrayList<>(wrongTaskIds));
+    // 오답 task에 해당하는 questionIds 추출
+        List<Long> wrongQuestionIds = questions.stream()
+                .filter(q -> wrongTaskIds.contains(q.getReviewTask().getId()))
+                .map(ReviewQuestion::getId)
+                .toList();
 
-        // “오답만” 새 세션 시작
+
+        if (!wrongQuestionIds.isEmpty()) {
+            reviewAnswerRepository.deleteAllByReviewQuestion_IdIn(wrongQuestionIds);
+            reviewAnswerRepository.flush(); // 삭제 SQL 먼저 반영
+        }
+
+        reviewQuestionRepository.deleteAllByReviewTask_IdIn(new ArrayList<>(wrongTaskIds));
+        reviewQuestionRepository.flush(); // 삭제 SQL 먼저 반영
+
         return startSessionOnlyWithGivenPendingTasks(userId, wrongTasks);
     }
 
@@ -265,7 +278,18 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
         }
         reviewTaskRepository.saveAll(tasks);
 
-        // 문제/답 기록은 “이번 시도”는 의미 없으니 삭제(선택)
+        // 해당 task들의 questionId 수집
+        List<Long> questionIds = reviewQuestionRepository.findAllByReviewTask_IdIn(taskIds)
+                .stream()
+                .map(ReviewQuestion::getId)
+                .toList();
+
+
+        if (!questionIds.isEmpty()) {
+            reviewAnswerRepository.deleteAllByReviewQuestion_IdIn(questionIds);
+        }
+
+
         reviewQuestionRepository.deleteAllByReviewTask_IdIn(taskIds);
     }
 

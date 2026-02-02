@@ -35,7 +35,7 @@ public class ReviewSession {
     @Column(name = "total_tasks", nullable = false)
     private int totalTasks;
 
-    /** 1-based든 0-based든 서비스에서 통일 (권장: 1-based) */
+
     @Column(name = "current_index", nullable = false)
     private int currentIndex = 1;
 

@@ -2,10 +2,7 @@ package verbly.spring.domain.correction.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -47,4 +44,11 @@ public class CorrectionEditorRequestDTO {
         private Long correctionWordId;
         private String content;
     }
+
+    @Getter
+    public static class UpdateFeedback {
+        @NotBlank(message = "내용은 필수입니다.")
+        private String content;
+    }
+
 }

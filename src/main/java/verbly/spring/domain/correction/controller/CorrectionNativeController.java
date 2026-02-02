@@ -182,4 +182,46 @@ public class CorrectionNativeController {
                 .body(ApiResponse.of(SuccessStatus.CORRECTION_UPDATE_SUCCESS, null));
     }
 
+    /**
+     * 커렉션 피드백 수정
+     */
+    @Operation(
+            summary = "커렉션 피드백 수정",
+            description = "피드백 작성자가 자신의 피드백 내용을 수정합니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    @PatchMapping("/{correctionId}/feedback/{feedbackId}")
+    public ResponseEntity<ApiResponse<Void>> updateFeedback(
+            @PathVariable Long correctionId,
+            @PathVariable Long feedbackId,
+            @RequestBody @Valid CorrectionEditorRequestDTO.UpdateFeedback request
+    ) {
+        correctionNativeService.updateFeedback(correctionId, feedbackId, request);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_UPDATE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_UPDATE_SUCCESS, null));
+    }
+
+    /**
+     * 커렉션 피드백 삭제
+     */
+    @Operation(
+            summary = "커렉션 피드백 삭제",
+            description = "피드백 작성자가 자신의 피드백을 삭제합니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    @DeleteMapping("/{correctionId}/feedback/{feedbackId}")
+    public ResponseEntity<ApiResponse<Void>> deleteFeedback(
+            @PathVariable Long correctionId,
+            @PathVariable Long feedbackId
+    ) {
+        correctionNativeService.deleteFeedback(correctionId, feedbackId);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_DELETE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_DELETE_SUCCESS, null));
+    }
+
+
 }

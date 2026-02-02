@@ -37,4 +37,9 @@ public class CorrectionFeedback extends BaseEntity {
     @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
 }

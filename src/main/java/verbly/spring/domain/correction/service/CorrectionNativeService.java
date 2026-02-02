@@ -154,6 +154,36 @@ public class CorrectionNativeService {
         correction.getPost().changeStatus(PostStatus.COMPLETED);
     }
 
+    public void updateFeedback(
+            Long correctionId,
+            Long feedbackId,
+            CorrectionEditorRequestDTO.UpdateFeedback request
+    ) {
+        validateNativeAccess();
+
+        findBaseOrThrow(correctionId);
+
+        CorrectionFeedback feedback = findFeedbackOrThrow(feedbackId);
+
+        validateFeedbackBelongsToCorrection(correctionId, feedback);
+        validateFeedbackOwner(feedback);
+
+        feedback.updateContent(request.getContent());
+    }
+
+    public void deleteFeedback(Long correctionId, Long feedbackId) {
+        validateNativeAccess();
+
+        findBaseOrThrow(correctionId);
+
+        CorrectionFeedback feedback = findFeedbackOrThrow(feedbackId);
+
+        validateFeedbackBelongsToCorrection(correctionId, feedback);
+        validateFeedbackOwner(feedback);
+
+        correctionFeedbackRepository.delete(feedback);
+    }
+
 
 
 
@@ -238,5 +268,23 @@ public class CorrectionNativeService {
         }
     }
 
+    private CorrectionFeedback findFeedbackOrThrow(Long feedbackId) {
+        return correctionFeedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> new CorrectionHandler(ErrorStatus.CORRECTION_FEEDBACK_NOT_FOUND));
+    }
+
+    private void validateFeedbackBelongsToCorrection(Long correctionId, CorrectionFeedback feedback) {
+        if (!feedback.getCorrection().getId().equals(correctionId)) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_ACCESS_DENIED);
+        }
+    }
+
+    private void validateFeedbackOwner(CorrectionFeedback feedback) {
+        User current = SecurityUtils.getCurrentUser();
+        if (current == null || feedback.getCorrector() == null ||
+                !feedback.getCorrector().getId().equals(current.getId())) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_FEEDBACK_ACCESS_DENIED);
+        }
+    }
 
 }

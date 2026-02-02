@@ -91,25 +91,27 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
         );
     }
 
-    @Override
     public ReviewResponseDTO.QuizHintResponse useHint(Long userId, Long sessionId, Long questionId) {
         ReviewSession session = reviewValidator.validateOwnedSessionForUpdate(userId, sessionId);
         reviewValidator.validateSessionInProgress(session);
 
         ReviewQuestion q = reviewValidator.validateQuestionWithTaskAndItem(questionId);
         reviewValidator.validateQuestionOwnership(userId, sessionId, q);
-
-        if (q.getHintUsed() >= q.getHintTotal()) {
+        // ✅ 세션 전체 힌트 제한 체크
+        if (session.getHintUsed() >= session.getHintTotal()) {
             throw new ReviewHandler(ErrorStatus.QUIZ_NO_HINTS_REMAINING);
         }
 
-        q.useHint();
+        // ✅ 세션 힌트 사용 1회 차감
+        session.useHint();
+        String textHint = q.getHint();
 
         return new ReviewResponseDTO.QuizHintResponse(
                 q.getId(),
-                q.getHintUsed(),
-                q.getHintTotal(),
-                Math.max(0, q.getHintTotal() - q.getHintUsed())
+                session.getHintUsed(),   // 이제 “세션 기준”으로 내려주는 게 더 자연스러움
+                session.getHintTotal(),
+                Math.max(0, session.getHintTotal() - session.getHintUsed()),
+                textHint
         );
     }
 

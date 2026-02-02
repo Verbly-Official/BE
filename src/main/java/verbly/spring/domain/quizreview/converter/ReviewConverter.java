@@ -32,9 +32,7 @@ public class ReviewConverter {
                 q.getLibraryItem().getPhrase(),
                 q.getQuestionType().name(),
                 q.getPrompt(),
-                options,
-                q.getHintTotal(),
-                q.getHintUsed()
+                options
         );
     }
 

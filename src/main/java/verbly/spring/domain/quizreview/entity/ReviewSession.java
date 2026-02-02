@@ -48,6 +48,11 @@ public class ReviewSession {
 
     @Column(name = "quit_at", columnDefinition = "datetime(3)")
     private LocalDateTime quitAt;
+    @Column(name = "hint_total", nullable = false)
+    private int hintTotal = 2;
+
+    @Column(name = "hint_used", nullable = false)
+    private int hintUsed = 0;
 
     public static ReviewSession start(Long userId, int totalTasks) {
         ReviewSession s = new ReviewSession();
@@ -55,6 +60,8 @@ public class ReviewSession {
         s.totalTasks = totalTasks;
         s.currentIndex = 1;
         s.status = ReviewSessionStatus.IN_PROGRESS;
+        s.hintTotal = 2;
+        s.hintUsed = 0;
         return s;
     }
 
@@ -65,6 +72,12 @@ public class ReviewSession {
     public void complete(LocalDateTime now) {
         this.status = ReviewSessionStatus.COMPLETED;
         this.completedAt = now;
+    }
+    public void useHint() {
+        if (hintUsed >= hintTotal) {
+            throw new IllegalStateException("No hints remaining");
+        }
+        hintUsed += 1;
     }
 
     public void quit(LocalDateTime now) {

@@ -80,6 +80,9 @@ dependencies {
 //	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 //	testImplementation 'org.springframework.boot:spring-boot-starter-thymeleaf-test'
 //	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+
+    //websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 }
 
 tasks.named('test') {

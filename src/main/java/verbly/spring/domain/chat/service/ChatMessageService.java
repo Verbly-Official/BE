@@ -71,7 +71,6 @@ public class ChatMessageService {
             chatroomUser.updateLastReadAt(lastReadMessageTime);
         }
 
-
         return chatMessageResponseDTOList;
     }
 

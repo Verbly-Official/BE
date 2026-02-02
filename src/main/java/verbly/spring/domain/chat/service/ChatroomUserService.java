@@ -121,7 +121,7 @@ public class ChatroomUserService {
     }
 
     @Transactional
-    private void notMemberThenRegister(Chatroom chatroom, Long participantId, Long opponentId) {
+    protected void notMemberThenRegister(Chatroom chatroom, Long participantId, Long opponentId) {
 
         Optional<ChatroomUser> optionalChatroomUser = chatroomUserRepository.findByUserIdAndOpponentId(participantId, opponentId);
         // already member => pass

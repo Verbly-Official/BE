@@ -1,4 +1,4 @@
-package verbly.spring.domain.review.dto;
+package verbly.spring.domain.review.dto.responeDTO;
 
 import lombok.*;
 import verbly.spring.domain.stats.entity.Stats;

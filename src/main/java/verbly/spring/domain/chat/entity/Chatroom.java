@@ -1,8 +1,7 @@
 package verbly.spring.domain.chat.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
@@ -10,6 +9,8 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @Getter
+@AllArgsConstructor
+@Builder(access = AccessLevel.PRIVATE)
 public class Chatroom {
 
     @Id
@@ -19,6 +20,10 @@ public class Chatroom {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    public static Chatroom of() {
+        return Chatroom.builder()
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 }
+

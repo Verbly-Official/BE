@@ -1,14 +1,15 @@
 package verbly.spring.domain.chat.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import verbly.spring.domain.user.entity.User;
 
 import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder(access = AccessLevel.PRIVATE)
 @Getter
 @Table(name = "chatroom_user")
 public class ChatroomUser {
@@ -17,16 +18,16 @@ public class ChatroomUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "chatroom_id")
     private Chatroom chatroom;
 
-    @Column(name = "unread_chat_count")
-    private Integer unreadChatCount;
+    @Column(name = "opponent_id")
+    private Long opponentId;
 
     @Column(name = "last_read_at")
     private LocalDateTime lastReadAt;
@@ -34,8 +35,18 @@ public class ChatroomUser {
     @Column(name = "joined_at")
     private LocalDateTime joinedAt;
 
-    @Column(name = "quit_at")
-    private LocalDateTime quitAt;
+    public static ChatroomUser of(User user, Chatroom chatroom, Long opponentId) {
 
+        return ChatroomUser.builder()
+                .user(user)
+                .chatroom(chatroom)
+                .opponentId(opponentId)
+                .lastReadAt(LocalDateTime.now())
+                .joinedAt(LocalDateTime.now())
+                .build();
+    }
 
+    public void updateLastReadAt(LocalDateTime lastReadAt) {
+        this.lastReadAt = lastReadAt;
+    }
 }

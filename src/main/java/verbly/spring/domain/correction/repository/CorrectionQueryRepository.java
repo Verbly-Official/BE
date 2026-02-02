@@ -18,5 +18,5 @@ public interface CorrectionQueryRepository {
             CorrectorType correctorType
     );
 
-    Page<CorrectionResponseDTO.MyCorrectionDto> findNativeCorrectionRequests(Pageable pageable);
+    Page<CorrectionResponseDTO.MyCorrectionDto> findNativeCorrectionRequests(PostStatus status, Pageable pageable);
 }

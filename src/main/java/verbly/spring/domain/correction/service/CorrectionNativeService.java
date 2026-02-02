@@ -18,6 +18,7 @@ import verbly.spring.domain.correction.entity.CorrectionWord;
 import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.correction.exception.CorrectionHandler;
 import verbly.spring.domain.correction.repository.*;
+import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.security.utils.SecurityUtils;
@@ -36,11 +37,11 @@ public class CorrectionNativeService {
     private final CorrectionFeedbackRepository correctionFeedbackRepository;
     private final CorrectionEditorQueryRepository correctionEditorQueryRepository;
 
-    public Page<CorrectionResponseDTO.MyCorrectionDto> getNativeCorrectionRequests(Pageable pageable) {
+    public Page<CorrectionResponseDTO.MyCorrectionDto> getNativeCorrectionRequests(PostStatus status, Pageable pageable) {
         validateNativeAccess();
 
         Pageable safePageable = normalize(pageable);
-        return correctionQueryRepository.findNativeCorrectionRequests(safePageable);
+        return correctionQueryRepository.findNativeCorrectionRequests(status, safePageable);
     }
 
     @Transactional(readOnly = true)

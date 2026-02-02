@@ -17,6 +17,7 @@ import verbly.spring.domain.correction.dto.response.CorrectionEditorResponseDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.correction.service.CorrectionNativeService;
+import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.global.common.code.SuccessStatus;
 import verbly.spring.global.common.response.ApiResponse;
 
@@ -37,7 +38,12 @@ public class CorrectionNativeController {
             summary = "외국인(네이티브) 커렉션 요청 리스트 조회",
             description = "외국인(네이티브) 유저가 첨삭할 커렉션 요청 리스트를 조회합니다.\n\n" +
                     "✅ Paging:\n" +
-                    "- page, size 파라미터를 지원합니다.",
+                    "- page, size 파라미터를 지원합니다.\n\n"+
+                    "### QueryString\n"+
+                    "미선택시(GET `/api/correction-native`) 모든 문서가 조회됩니다.\n\n" +
+                    "| 쿼리 파라미터 | 종류 | 기능 |\n" +
+                    "| --- | --- | --- |\n" +
+                    "| status | COMPLETED, IN_PROGRESS, PENDING | 상단 상태 탭 |\n",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     @Parameters({
@@ -46,10 +52,11 @@ public class CorrectionNativeController {
     })
     @GetMapping
     public ResponseEntity<ApiResponse<Page<CorrectionResponseDTO.MyCorrectionDto>>> getNativeCorrectionRequests(
+            @RequestParam(required = false) PostStatus status,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         Page<CorrectionResponseDTO.MyCorrectionDto> result =
-                correctionNativeService.getNativeCorrectionRequests(pageable);
+                correctionNativeService.getNativeCorrectionRequests(status, pageable);
 
         return ResponseEntity
                 .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())

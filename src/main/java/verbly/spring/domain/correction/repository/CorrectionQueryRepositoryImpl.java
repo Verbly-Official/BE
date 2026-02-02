@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPAExpressions;
@@ -134,13 +135,14 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
     }
 
     @Override
-    public Page<CorrectionResponseDTO.MyCorrectionDto> findNativeCorrectionRequests(Pageable pageable) {
+    public Page<CorrectionResponseDTO.MyCorrectionDto> findNativeCorrectionRequests(PostStatus status, Pageable pageable) {
         var latestCreatedAtSubQuery =
                 JPAExpressions.select(correctionFeedback.createdAt.max())
                         .from(correctionFeedback)
                         .where(correctionFeedback.correction.eq(correction));
 
-        var latestFeedback = new verbly.spring.domain.correction.entity.QCorrectionFeedback("latestFeedback");
+        var latestFeedback =
+                new verbly.spring.domain.correction.entity.QCorrectionFeedback("latestFeedback");
 
         var correctorNameExpr = new CaseBuilder()
                 .when(latestFeedback.correctorType.eq(CorrectorType.AI_ASSISTANT))
@@ -175,7 +177,8 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
                 )
                 .where(
                         user.learningLang.eq("en"),
-                        post.status.ne(PostStatus.TEMP)
+                        post.status.ne(PostStatus.TEMP),
+                        statusEq(status)
                 )
                 .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
                 .offset(pageable.getOffset())
@@ -189,7 +192,8 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
                 .join(post.author, user)
                 .where(
                         user.learningLang.eq("en"),
-                        post.status.ne(PostStatus.TEMP)
+                        post.status.ne(PostStatus.TEMP),
+                        statusEq(status)
                 )
                 .fetchOne();
 
@@ -219,4 +223,9 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
         }
         return orders;
     }
+
+    private BooleanExpression statusEq(PostStatus status) {
+        return status == null ? null : post.status.eq(status);
+    }
+
 }

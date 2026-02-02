@@ -145,8 +145,7 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
                 q,
                 nextAttempt,
                 request.userAnswerJson(),
-                correct,
-                request.mistakeNote()
+                correct
         );
         reviewAnswerRepository.save(answer);
 

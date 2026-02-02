@@ -7,8 +7,7 @@ import jakarta.validation.constraints.Size;
 public class ReviewRequestDTO {
 
     public record QuizAnswerSubmitRequest(
-            @NotNull JsonNode userAnswerJson,
-            @Size(max = 1000) String mistakeNote
+            @NotNull JsonNode userAnswerJson
     ) {}
 
     public record QuizHintRequest() {}

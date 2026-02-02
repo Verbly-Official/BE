@@ -7,11 +7,15 @@ import verbly.spring.domain.correction.converter.CorrectionConverter;
 import verbly.spring.domain.correction.dto.request.CorrectionRequestDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.entity.Correction;
+import verbly.spring.domain.correction.entity.CorrectionWord;
 import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.correction.exception.CorrectionHandler;
 import verbly.spring.domain.correction.repository.CorrectionFeedbackRepository;
 import verbly.spring.domain.correction.repository.CorrectionQueryRepository;
 import verbly.spring.domain.correction.repository.CorrectionRepository;
+import verbly.spring.domain.correction.repository.CorrectionWordRepository;
+import verbly.spring.domain.correction.tokenizer.EnglishWordTokenizer;
+import verbly.spring.domain.correction.tokenizer.WordToken;
 import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.post.repository.PostRepository;
@@ -29,6 +33,8 @@ public class CorrectionService {
     private final CorrectionRepository correctionRepository;
     private final CorrectionQueryRepository correctionQueryRepository;
     private final CorrectionFeedbackRepository correctionFeedbackRepository;
+    private final CorrectionWordRepository correctionWordRepository;
+    private final EnglishWordTokenizer englishWordTokenizer;
 
     /**
      * 내 문서 목록 조회
@@ -91,6 +97,9 @@ public class CorrectionService {
                     .build();
 
             Correction savedCorrection = correctionRepository.save(correction);
+
+            saveWords(savedCorrection, savedPost.getContent());
+
             return CorrectionConverter.toCreateCorrectionResponse(savedCorrection);
         }
 
@@ -110,6 +119,8 @@ public class CorrectionService {
                 .build();
 
         Correction savedCorrection = correctionRepository.save(correction);
+
+        saveWords(savedCorrection, savedPost.getContent());
 
         return CorrectionConverter.toCreateCorrectionResponse(savedCorrection);
     }
@@ -136,6 +147,9 @@ public class CorrectionService {
         post.update(newTitle, newContent);
         postRepository.save(post);
 
+        correctionWordRepository.deleteByCorrectionId(correction.getId());
+        saveWords(correction, post.getContent());
+
         return CorrectionConverter.toMyCorrectionDTO(correction, null, null);
     }
 
@@ -150,6 +164,7 @@ public class CorrectionService {
         Post post = correction.getPost();
 
         correctionFeedbackRepository.deleteAllByCorrectionId(correctionId);
+        correctionWordRepository.deleteByCorrectionId(correctionId);
         correctionRepository.delete(correction);
         postRepository.delete(post);
     }
@@ -229,6 +244,28 @@ public class CorrectionService {
     private void validateNotAlreadySubmitted(Long postId) {
         if (correctionRepository.existsByPostId(postId)) {
             throw new CorrectionHandler(ErrorStatus.CORRECTION_TEMP_POST_ALREADY_SUBMITTED);
+        }
+    }
+
+    private void saveWords(Correction correction, String content) {
+        correctionWordRepository.deleteByCorrectionId(correction.getId());
+
+        List<WordToken> tokens = englishWordTokenizer.tokenize(content);
+
+        List<CorrectionWord> words = tokens.stream()
+                .map(t -> CorrectionWord.builder()
+                        .correction(correction)
+                        .sentenceIdx(t.getSentenceIdx())
+                        .startIdx(t.getStartIdx())
+                        .endIdx(t.getEndIdx())
+                        .originalText(t.getText())
+                        .correctedText(t.getText())
+                        .build()
+                )
+                .toList();
+
+        if (!words.isEmpty()) {
+            correctionWordRepository.saveAll(words);
         }
     }
 }

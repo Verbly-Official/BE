@@ -1,14 +1,12 @@
 package verbly.spring.domain.correction.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Getter
 @Entity
 @Table(name = "correction_word")
 public class CorrectionWord{
@@ -42,4 +40,10 @@ public class CorrectionWord{
     @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
     private String correctedText;
+
+    public void update(String correctedText, Integer startIdx, Integer endIdx) {
+        this.correctedText = correctedText;
+        this.startIdx = startIdx;
+        this.endIdx = endIdx;
+    }
 }

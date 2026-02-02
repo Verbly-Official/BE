@@ -354,8 +354,7 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
     }
 
     private List<ReviewQuestion> generateQuestions(Long userId, List<ReviewTask> tasks) {
-        // NOTE: 실제 서비스에서는 AI 생성/코퍼스 생성으로 대체 가능
-        // 지금은 동작 가능한 최소 구현
+
 
         List<ReviewQuestion> result = new ArrayList<>();
 

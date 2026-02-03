@@ -58,7 +58,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .orElse("default_profile_url");
         String email = Optional.ofNullable(user.getEmail()).orElse("");
 
-        /**/
+        /*
         // JSON 응답 방식 (SPA 등 API 호출용)
         AuthResponseDTO.LoginResultDTO result = AuthResponseDTO.LoginResultDTO.builder()
                 .accessToken(accessToken)
@@ -81,13 +81,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+        */
 
-
-        /*
+        /**/
         // 쿠키로 프론트에게 내려주기
-        boolean isOnboardingCompleted = user.getStatus() == UserStatus.ONBOARDING;
+        boolean isOnboardingCompleted = user.getStatus() == UserStatus.ACTIVE; // ACTIVE = 소셜 가입 완료, 온보딩 전
         SuccessStatus status = isOnboardingCompleted
-                ? SuccessStatus.USER_ALREADY_ONBOARDING_COMPLETED
+                ? SuccessStatus.USER_ALREADY_LOGIN
                 : SuccessStatus.USER_NEEDS_ONBOARDING;
 
         // 1. 민감 정보: HttpOnly + Secure 쿠키
@@ -108,8 +108,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         clearJsessionCookie(response);
 
         // 3. 리다이렉트 (브릿지 페이지)
-        response.sendRedirect("https://www.verbly.site/oauth-redirect");
-        */
+        response.sendRedirect("http://localhost:5173/login/callback"); // https://www.verbly.kr/login/callback
+
     }
 
     private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
@@ -117,7 +117,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .httpOnly(httpOnly)
                 .secure(true) // 운영환경에서는 true (HTTPS)
                 .path("/")
-                .domain("verbly.site")
+                .domain("localhost") // www.verbly.kr
                 .maxAge(maxAgeInSeconds)
                 .sameSite("Lax")
                 .build();

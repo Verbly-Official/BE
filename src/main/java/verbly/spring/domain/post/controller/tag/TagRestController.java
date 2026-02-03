@@ -1,7 +1,6 @@
-package verbly.spring.domain.post.controller;
+package verbly.spring.domain.post.controller.tag;
 
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +14,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/tags")
-public class TagRestController implements TagControllerDocs{
+public class TagRestController implements TagControllerDocs {
     private final TrendingTagQueryService trendingTagQueryService;
 
     @Override

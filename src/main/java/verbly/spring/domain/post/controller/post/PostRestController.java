@@ -1,4 +1,4 @@
-package verbly.spring.domain.post.controller;
+package verbly.spring.domain.post.controller.post;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
-public class PostRestController implements PostControllerDocs{
+public class PostRestController implements PostControllerDocs {
 
     private final PostQueryService postQueryService;
     private final PostCommandService postCommandService;

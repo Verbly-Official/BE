@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import verbly.spring.domain.follow.entity.Follow;
 import verbly.spring.domain.follow.exception.FollowHandler;
-import verbly.spring.domain.follow.repo.FollowRepository;
+import verbly.spring.domain.follow.repository.FollowRepository;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.exception.UserHandler;

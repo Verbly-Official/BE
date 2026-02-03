@@ -4,10 +4,17 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import verbly.spring.domain.post.entity.Comment;
+import verbly.spring.domain.post.entity.Post;
+import verbly.spring.domain.post.entity.PostLike;
 import verbly.spring.domain.stats.entity.Stats;
 import verbly.spring.domain.user.enums.AuthProvider;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.entity.BaseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users") // user는 예약어라 users로
@@ -54,6 +61,16 @@ public class User extends BaseEntity {
     @Column(length = 50)
     private String timezone;
 
+    @Column(columnDefinition = "BINARY(16)", nullable = false, unique = true)
+    private UUID uuid;
+
+    @PrePersist
+    public void generateUuid() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID();
+        }
+    }
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status; // ONBOARDING(소셜 로그인 직후), ACTIVE(온보딩 완료), SUSPENDED, DELETED
@@ -63,6 +80,15 @@ public class User extends BaseEntity {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Stats stats;
+
+    @OneToMany(mappedBy = "author")
+    private List<Post> posts;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostLike> postLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
     public void setStats(Stats stats) {
         this.stats = stats;

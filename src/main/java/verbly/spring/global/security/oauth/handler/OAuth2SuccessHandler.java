@@ -115,7 +115,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(httpOnly)
-                .secure(true) // 운영환경에서는 true (HTTPS)
+                .secure(false) // 운영환경에서는 true (HTTPS)
                 .path("/")
                 .domain("localhost") // www.verbly.kr
                 .maxAge(maxAgeInSeconds)
@@ -128,7 +128,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private void clearJsessionCookie(HttpServletResponse response) {
         ResponseCookie deleteJsessionCookie = ResponseCookie.from("JSESSIONID", "")
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .path("/")
                 .maxAge(0) // 쿠키 즉시 만료
                 .build();

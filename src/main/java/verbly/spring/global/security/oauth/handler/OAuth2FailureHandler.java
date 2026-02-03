@@ -40,7 +40,7 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
     private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(httpOnly)
-                .secure(true) // 운영환경 HTTPS에서는 true로 유지
+                .secure(false) // 운영환경 HTTPS에서는 true로 유지
                 .path("/")
                 .domain("localhost") // www.verbly.kr
                 .maxAge(maxAgeInSeconds)

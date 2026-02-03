@@ -5,5 +5,5 @@ import verbly.spring.domain.auth.dto.response.AuthResponseDTO;
 
 public interface AuthCommandService {
     void logout(HttpServletResponse response, Long userId);
-    AuthResponseDTO.ReissueTokenResponseDTO reissue(String refreshToken);
+    AuthResponseDTO.ReissueTokenResponseDTO reissue(HttpServletResponse response, String refreshToken);
 }

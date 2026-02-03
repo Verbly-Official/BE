@@ -38,7 +38,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
     }
 
     @Override
-    public AuthResponseDTO.ReissueTokenResponseDTO reissue(String refreshToken) {
+    public AuthResponseDTO.ReissueTokenResponseDTO reissue(HttpServletResponse response, String refreshToken) {
         // 1. RefreshToken 유효성 검사 (서명 및 토큰 타입까지 확인)
         if (!jwtTokenProvider.isRefreshToken(refreshToken)) {
             throw new AuthHandler(ErrorStatus.INVALID_JWT_REFRESH_TOKEN);
@@ -66,8 +66,23 @@ public class AuthCommandServiceImpl implements AuthCommandService {
                 )
         );
 
+        addCookie(response, "accessToken", newAccessToken, true, 60 * 60 * 4); // 4시간
+
         // 5. DTO 변환은 컨버터에 위임
         return AuthConverter.toReissueTokenResponseDTO(newAccessToken);
+    }
+
+    private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .httpOnly(httpOnly)
+                .secure(false) // 운영환경에서는 true (HTTPS)
+                .path("/")
+                .domain("localhost") // www.verbly.kr
+                .maxAge(maxAgeInSeconds)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
     private void clearCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {

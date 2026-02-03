@@ -47,35 +47,18 @@ public class AuthRestController {
     )
 //    public ApiResponse<AuthResponseDTO.ReissueTokenResponseDTO> reissueAccessToken(HttpServletRequest request) {
 //        String refreshToken = JwtTokenProvider.resolveToken(request); // Authorization 헤더에서 Bearer 토큰을 추출
-//    public void reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
-    public ApiResponse<AuthResponseDTO.ReissueTokenResponseDTO> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
+    public void reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
+//    public ApiResponse<AuthResponseDTO.ReissueTokenResponseDTO> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
 
         String refreshToken = jwtTokenProvider.resolveRefreshToken(request);
         if (!StringUtils.hasText(refreshToken) || !jwtTokenProvider.isRefreshToken(refreshToken)) { // refreshToken == null은 !StringUtils.hasText(refreshToken)로 체크 가능
             throw new AuthHandler(ErrorStatus.INVALID_JWT_REFRESH_TOKEN); // TOKEN4002
         }
 
-        AuthResponseDTO.ReissueTokenResponseDTO tokens = authCommandService.reissue(refreshToken);
+        authCommandService.reissue(response, refreshToken);
 
-        // 어세스 토큰 재발급
-        addCookie(response, "accessToken", tokens.getAccessToken(), true, 60 * 60 * 4); // 4시간
-
+//        return ApiResponse.onSuccess(tokens); // 테스트용
         // 응답 바디 없이 204 No Content
-//        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-
-        return ApiResponse.onSuccess(tokens); // 테스트용
-    }
-
-    private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
-        ResponseCookie cookie = ResponseCookie.from(name, value)
-                .httpOnly(httpOnly)
-                .secure(true)
-                .path("/")
-                .domain("verbly.site")
-                .maxAge(maxAgeInSeconds)
-                .sameSite("Lax")
-                .build();
-
-        response.addHeader("Set-Cookie", cookie.toString());
+        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 }

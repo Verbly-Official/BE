@@ -39,7 +39,7 @@ public class UserResponseDTO {
         private long point;
         private int level;
 
-//        private long followCount;
+        private long followCount;
         private long totalPosts;
         private long correctionsGiven; // 외국인에게만 뜨는 도움 준 수
         private long correctionsReceived; // 한국인에게만 뜨는 도움 받은 글

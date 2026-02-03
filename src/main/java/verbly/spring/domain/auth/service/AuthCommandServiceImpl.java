@@ -30,29 +30,9 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
         // JWT를 로컬(localStorage, 쿠키 등)에서 직접 제거해야 로그아웃
         clearCookie(response, "accessToken", "", true, 0);
-//        ResponseCookie deleteAccessTokenCookie = ResponseCookie.from("accessToken", "")
-//                .httpOnly(true)
-//                .secure(true)
-//                .path("/")
-//                .domain("localhost") // www.verbly.kr
-//                .maxAge(0)
-//                .sameSite("Lax")
-//                .build();
 
         // refreshToken 쿠키 삭제 (즉시 만료 설정)
         clearCookie(response, "refreshToken", "", true, 0);
-//        ResponseCookie deleteRefreshTokenCookie = ResponseCookie.from("refreshToken", "")
-//                .httpOnly(true)
-//                .secure(true) // HTTPS 환경이라면 true
-//                .path("/")
-//                .domain("localhost") // www.verbly.kr
-//                .maxAge(0) // 즉시 만료
-//                .sameSite("Lax")
-//                .build();
-
-//        response.addHeader("Set-Cookie", deleteAccessTokenCookie.toString());
-//        response.addHeader("Set-Cookie", deleteRefreshTokenCookie.toString());
-//        response.addHeader("Set-Cookie", deleteCsrfCookie.toString());
 
         log.info("유저 {} 로그아웃 처리 및 JWT 쿠키 삭제 완료", user.getId());
     }

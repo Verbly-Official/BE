@@ -43,28 +43,19 @@ public class ReviewAnswer {
     @Column(name = "is_correct", nullable = false)
     private boolean correct;
 
-    /**
-     * 오답노트
-     */
-    @Lob
-    @Column(name = "mistake_note", columnDefinition = "TEXT")
-    private String mistakeNote;
+
 
     @CreationTimestamp
     @Column(name = "answered_at", nullable = false, columnDefinition = "datetime(3)")
     private LocalDateTime answeredAt;
 
-    public static ReviewAnswer of(ReviewQuestion q, int attemptNo, JsonNode userAnswerJson, boolean correct, String mistakeNote) {
+    public static ReviewAnswer of(ReviewQuestion q, int attemptNo, JsonNode userAnswerJson, boolean correct) {
         ReviewAnswer a = new ReviewAnswer();
         a.reviewQuestion = q;
         a.attemptNo = attemptNo;
         a.userAnswerJson = userAnswerJson;
         a.correct = correct;
-        a.mistakeNote = mistakeNote;
         return a;
     }
 
-    public void updateMistakeNote(String note) {
-        this.mistakeNote = note;
-    }
 }

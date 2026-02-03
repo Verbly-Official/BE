@@ -17,6 +17,7 @@ import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.code.SuccessStatus;
 import verbly.spring.global.common.response.ApiResponse;
+import verbly.spring.global.common.utils.CookieUtils;
 import verbly.spring.global.security.auth.CustomOAuth2User;
 import verbly.spring.global.security.jwt.JwtTokenProvider;
 import org.springframework.stereotype.Component;
@@ -31,8 +32,8 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
-
     private final JwtTokenProvider jwtTokenProvider;
+    private final CookieUtils cookieUtils;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -91,48 +92,23 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 : SuccessStatus.USER_NEEDS_ONBOARDING;
 
         // 1. 민감 정보: HttpOnly + Secure 쿠키
-        addCookie(response, "accessToken", accessToken, true, 60 * 60 * 4); // 4시간
-        addCookie(response, "refreshToken", refreshToken, true, 60 * 60 * 24 * 7); // 7일
-        addCookie(response, "userId", String.valueOf(user.getId()), true, 60 * 60 * 4);
-        addCookie(response, "provider", user.getProvider().toString(), false, 60 * 60 * 4);
-        addCookie(response, "nickname", URLEncoder.encode(nickname, StandardCharsets.UTF_8), false, 60 * 60 * 4);
-        addCookie(response, "profileImage", URLEncoder.encode(profileImageUrl, StandardCharsets.UTF_8), false, 60 * 60 * 4);
-        addCookie(response, "email", URLEncoder.encode(email, StandardCharsets.UTF_8), false, 60 * 60 * 4);
-        addCookie(response, "userStatus", String.valueOf(user.getStatus()), false, 60 * 60 * 4);
+        cookieUtils.addCookie(response, "accessToken", accessToken, true, 60 * 60 * 4); // 4시간
+        cookieUtils.addCookie(response, "refreshToken", refreshToken, true, 60 * 60 * 24 * 7); // 7일
+        cookieUtils.addCookie(response, "userId", String.valueOf(user.getId()), true, 60 * 60 * 4);
+        cookieUtils.addCookie(response, "provider", user.getProvider().toString(), false, 60 * 60 * 4);
+        cookieUtils.addCookie(response, "nickname", URLEncoder.encode(nickname, StandardCharsets.UTF_8), false, 60 * 60 * 4);
+        cookieUtils.addCookie(response, "profileImage", URLEncoder.encode(profileImageUrl, StandardCharsets.UTF_8), false, 60 * 60 * 4);
+        cookieUtils.addCookie(response, "email", URLEncoder.encode(email, StandardCharsets.UTF_8), false, 60 * 60 * 4);
+        cookieUtils.addCookie(response, "userStatus", String.valueOf(user.getStatus()), false, 60 * 60 * 4);
 
         // 2. 상태 정보: HttpOnly = false (JS에서 읽게)
-        addCookie(response, "isSuccess", "true", false, 60);
-        addCookie(response, "code", status.getCode(), false, 60);
-        addCookie(response, "message", URLEncoder.encode(status.getMessage(), StandardCharsets.UTF_8), false, 60);
+        cookieUtils.addCookie(response, "isSuccess", "true", false, 60);
+        cookieUtils.addCookie(response, "code", status.getCode(), false, 60);
+        cookieUtils.addCookie(response, "message", URLEncoder.encode(status.getMessage(), StandardCharsets.UTF_8), false, 60);
 
-        clearJsessionCookie(response);
+        cookieUtils.clearJsessionCookie(response);
 
         // 3. 리다이렉트 (브릿지 페이지)
         response.sendRedirect("http://localhost:5173/login/callback"); // https://www.verbly.kr/login/callback
-
-    }
-
-    private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
-        ResponseCookie cookie = ResponseCookie.from(name, value)
-                .httpOnly(httpOnly)
-                .secure(false) // 운영환경에서는 true (HTTPS)
-                .path("/")
-                .domain("localhost") // www.verbly.kr
-                .maxAge(maxAgeInSeconds)
-                .sameSite("Lax")
-                .build();
-
-        response.addHeader("Set-Cookie", cookie.toString());
-    }
-
-    private void clearJsessionCookie(HttpServletResponse response) {
-        ResponseCookie deleteJsessionCookie = ResponseCookie.from("JSESSIONID", "")
-                .httpOnly(true)
-                .secure(false)
-                .path("/")
-                .maxAge(0) // 쿠키 즉시 만료
-                .build();
-        response.addHeader("Set-Cookie", deleteJsessionCookie.toString());
-        log.info("JSESSIONID 쿠키 삭제 완료");
     }
 }

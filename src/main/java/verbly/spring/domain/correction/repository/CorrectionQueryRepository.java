@@ -1,5 +1,7 @@
 package verbly.spring.domain.correction.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.post.enums.PostStatus;
@@ -15,4 +17,6 @@ public interface CorrectionQueryRepository {
             PostStatus status,
             CorrectorType correctorType
     );
+
+    Page<CorrectionResponseDTO.MyCorrectionDto> findNativeCorrectionRequests(PostStatus status, Pageable pageable);
 }

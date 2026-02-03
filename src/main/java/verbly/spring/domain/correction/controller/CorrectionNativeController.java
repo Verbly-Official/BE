@@ -91,7 +91,9 @@ public class CorrectionNativeController {
      */
     @Operation(
             summary = "커렉션 단어 교정 저장",
-            description = "문장별 교정 단어(구간)를 저장합니다. 기존 교정은 모두 삭제 후 재저장됩니다.",
+            description = "문장별 교정 단어(구간)를 저장합니다. 기존 교정은 모두 삭제 후 재저장됩니다.\n\n" +
+                    "단어를 삭제할 경우 `\"correctedText\": null`로 요청하면 됩니다."
+            ,
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     @Parameters({
@@ -178,8 +180,8 @@ public class CorrectionNativeController {
         correctionNativeService.submitCorrection(correctionId);
 
         return ResponseEntity
-                .status(SuccessStatus.CORRECTION_UPDATE_SUCCESS.getHttpStatus())
-                .body(ApiResponse.of(SuccessStatus.CORRECTION_UPDATE_SUCCESS, null));
+                .status(SuccessStatus.CORRECTION_SUBMIT_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_SUBMIT_SUCCESS, null));
     }
 
     /**

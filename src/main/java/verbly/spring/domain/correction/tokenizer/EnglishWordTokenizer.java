@@ -1,10 +1,10 @@
 package verbly.spring.domain.correction.tokenizer;
 
 import org.springframework.stereotype.Component;
+import verbly.spring.domain.correction.converter.CorrectionEditorConverter;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -17,7 +17,8 @@ public class EnglishWordTokenizer {
 
         List<WordToken> result = new ArrayList<>();
 
-        List<String> sentences = splitSentences(content);
+        List<String> sentences = CorrectionEditorConverter.splitSentences(content);
+
 
         for (int sentenceIdx = 0; sentenceIdx < sentences.size(); sentenceIdx++) {
             String sentence = sentences.get(sentenceIdx);
@@ -45,12 +46,6 @@ public class EnglishWordTokenizer {
                     raw
             ));
         }
-    }
-
-    private List<String> splitSentences(String content) {
-        return Arrays.stream(content.split("(?<=[.!?])\\s+|\n"))
-                .filter(s -> !s.isBlank())
-                .toList();
     }
 
     private boolean looksLikeWord(String s) {

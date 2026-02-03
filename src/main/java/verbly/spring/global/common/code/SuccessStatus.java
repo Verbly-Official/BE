@@ -32,6 +32,8 @@ public enum SuccessStatus implements BaseCode {
     CORRECTION_TEMP_UPDATE_SUCCESS(HttpStatus.OK, "CORRECTION2008", "Correction - 임시저장 글을 성공적으로 수정했습니다."),
     CORRECTION_TEMP_READ_SUCCESS(HttpStatus.OK, "CORRECTION2009", "Correction - 임시저장 글을 성공적으로 조회했습니다."),
     CORRECTION_TEMP_DELETE_SUCCESS(HttpStatus.OK, "CORRECTION2010", "Correction - 임시저장 글을 성공적으로 삭제했습니다."),
+    CORRECTION_SUBMIT_SUCCESS(HttpStatus.OK, "CORRECTION2011", "Correction 첨삭을 성공적으로 제출했습니다."),
+
     // 라이브러리 관련 응답
     LIBRARY_ITEM_CREATE_SUCCESS(HttpStatus.CREATED, "LIB2001", "라이브러리 아이템이 생성되었습니다."),
     LIBRARY_ITEM_LIST_SUCCESS(HttpStatus.OK, "LIB2002", "라이브러리 목록을 성공적으로 조회했습니다."),

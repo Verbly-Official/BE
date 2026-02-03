@@ -66,11 +66,12 @@ public class CorrectionEditorQueryRepositoryImpl implements CorrectionEditorQuer
                 .select(Projections.constructor(
                         CorrectionEditorQueryDTO.FeedbackRow.class,
                         feedback.id,
-                        feedback.correctionWord.id,
+                        feedback.sentenceIdx,
                         user.nickname,
                         feedback.correctorType,
                         feedback.content,
-                        feedback.createdAt
+                        feedback.createdAt,
+                        feedback.updatedAt
                 ))
                 .from(feedback)
                 .join(feedback.corrector, user)

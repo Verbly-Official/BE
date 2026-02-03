@@ -29,10 +29,6 @@ public class CorrectionEditorRequestDTO {
         @NotNull(message = "문장에서 수정할 블록의 끝 index는 필수입니다.")
         private  Integer endIdx;
 
-        @NotBlank(message = "원문은 필수입니다.")
-        private String originalText;
-
-        @NotBlank(message = "교정된 문자열은 필수입니다.")
         private String correctedText;
     }
 
@@ -41,7 +37,10 @@ public class CorrectionEditorRequestDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class WriteFeedback {
-        private Long correctionWordId;
+        @NotNull
+        private Integer sentenceIdx;
+
+        @NotBlank
         private String content;
     }
 

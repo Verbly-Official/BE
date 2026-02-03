@@ -23,6 +23,7 @@ import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.security.utils.SecurityUtils;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +90,10 @@ public class CorrectionNativeService {
 
         correctionWordRepository.deleteByCorrectionId(correctionId);
 
-        List<CorrectionWord> entities = CorrectionEditorConverter.toWordEntities(correction, request);
+        String content = correction.getPost().getContent();
+        List<CorrectionWord> entities =
+                CorrectionEditorConverter.toWordEntities(correction, content, request);
+
         if (!entities.isEmpty()) {
             correctionWordRepository.saveAll(entities);
         }
@@ -101,9 +105,8 @@ public class CorrectionNativeService {
             CorrectionEditorRequestDTO.WriteFeedback request
     ) {
         Correction correction = findCorrectionOrThrow(correctionId);
-        CorrectionWord word = findWordOrThrow(request.getCorrectionWordId());
 
-        validateWordBelongsToCorrection(correction, word);
+        validateSentenceIdx(correction.getPost().getContent(), request.getSentenceIdx());
 
         markInProgressIfPending(correction);
 
@@ -112,7 +115,7 @@ public class CorrectionNativeService {
         CorrectionFeedback saved = correctionFeedbackRepository.save(
                 CorrectionEditorConverter.toFeedbackEntity(
                         correction,
-                        word,
+                        request.getSentenceIdx(),
                         corrector,
                         correctorType,
                         request.getContent()
@@ -230,8 +233,9 @@ public class CorrectionNativeService {
             String originalContent,
             List<CorrectionWord> words
     ) {
-        List<String> sentences =
-                CorrectionEditorConverter.splitSentences(originalContent);
+        List<String> sentences = new ArrayList<>(
+                CorrectionEditorConverter.splitSentences(originalContent)
+        );
 
         Map<Integer, List<CorrectionWord>> grouped =
                 words.stream()
@@ -240,6 +244,10 @@ public class CorrectionNativeService {
         for (var entry : grouped.entrySet()) {
             int sentenceIdx = entry.getKey();
             List<CorrectionWord> sentenceWords = entry.getValue();
+
+            if (sentenceIdx < 0 || sentenceIdx >= sentences.size()) {
+                throw new CorrectionHandler(ErrorStatus.CORRECTION_SENTENCE_INDEX_OUT_OF_RANGE);
+            }
 
             sentenceWords.sort(Comparator.comparingInt(CorrectionWord::getStartIdx));
 
@@ -251,9 +259,12 @@ public class CorrectionNativeService {
                 int start = w.getStartIdx() + offset;
                 int end = w.getEndIdx() + offset;
 
+                if (start < 0 || end > sb.length() || start > end) {
+                    throw new CorrectionHandler(ErrorStatus.CORRECTION_SENTENCE_INDEX_OUT_OF_RANGE);
+                }
+
                 sb.replace(start, end, w.getCorrectedText());
-                offset += w.getCorrectedText().length()
-                        - (w.getEndIdx() - w.getStartIdx());
+                offset += w.getCorrectedText().length() - (w.getEndIdx() - w.getStartIdx());
             }
 
             sentences.set(sentenceIdx, sb.toString());
@@ -284,6 +295,13 @@ public class CorrectionNativeService {
         if (current == null || feedback.getCorrector() == null ||
                 !feedback.getCorrector().getId().equals(current.getId())) {
             throw new CorrectionHandler(ErrorStatus.CORRECTION_FEEDBACK_ACCESS_DENIED);
+        }
+    }
+
+    private void validateSentenceIdx(String postContent, Integer sentenceIdx) {
+        List<String> sentences = CorrectionEditorConverter.splitSentences(postContent);
+        if (sentenceIdx == null || sentenceIdx < 0 || sentenceIdx >= sentences.size()) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_SENTENCE_INDEX_OUT_OF_RANGE);
         }
     }
 

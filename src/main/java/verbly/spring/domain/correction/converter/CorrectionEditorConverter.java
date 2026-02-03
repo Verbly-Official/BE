@@ -34,39 +34,42 @@ public class CorrectionEditorConverter {
             String originalContent,
             String correctedContent
     ) {
-        if (originalContent == null || originalContent.isBlank()) return List.of();
+        List<String> originals = splitSentences(originalContent);
+        List<String> corrected = splitSentences(correctedContent);
 
-        String[] originalParts = originalContent.split("\\n");
-        String[] correctedParts = correctedContent == null
-                ? new String[0]
-                : correctedContent.split("\\n");
-
-        int size = Math.min(originalParts.length, correctedParts.length);
+        int size = Math.min(originals.size(), corrected.size());
 
         return IntStream.range(0, size)
                 .mapToObj(i -> CorrectionEditorResponseDTO.Sentence.builder()
                         .idx(i + 1)
-                        .originalText(originalParts[i].trim())
-                        .correctedText(correctedParts[i].trim())
-                        .build())
+                        .originalText(originals.get(i))
+                        .correctedText(corrected.get(i))
+                        .build()
+                )
                 .toList();
     }
 
 
-    public static List<CorrectionWord> toWordEntities(Correction correction, CorrectionEditorRequestDTO.UpsertWords request) {
-        if (request == null || request.getEdits() == null || request.getEdits().isEmpty()) {
-            return List.of();
-        }
+    public static List<CorrectionWord> toWordEntities(Correction correction, String postContent, CorrectionEditorRequestDTO.UpsertWords request) {
+        List<String> sentences = CorrectionEditorConverter.splitSentences(postContent);
 
         return request.getEdits().stream()
-                .map(e -> CorrectionWord.builder()
-                        .correction(correction)
-                        .sentenceIdx(e.getSentenceIdx())
-                        .startIdx(e.getStartIdx())
-                        .endIdx(e.getEndIdx())
-                        .originalText(e.getOriginalText())
-                        .correctedText(e.getCorrectedText())
-                        .build())
+                .map(e -> {
+                    String sentence = sentences.get(e.getSentenceIdx());
+
+                    String originalText = sentence.substring(e.getStartIdx(), e.getEndIdx());
+
+                    String corrected = e.getCorrectedText() == null ? "" : e.getCorrectedText();
+
+                    return CorrectionWord.builder()
+                            .correction(correction)
+                            .sentenceIdx(e.getSentenceIdx())
+                            .startIdx(e.getStartIdx())
+                            .endIdx(e.getEndIdx())
+                            .originalText(originalText)
+                            .correctedText(corrected)
+                            .build();
+                })
                 .toList();
     }
 
@@ -87,7 +90,7 @@ public class CorrectionEditorConverter {
         return rows.stream()
                 .map(r -> CorrectionEditorResponseDTO.Feedback.builder()
                         .feedbackId(r.getFeedbackId())
-                        .wordId(r.getWordId())
+                        .sentenceIdx(r.getSentenceIdx())
                         .correctorName(r.getCorrectorName())
                         .correctorType(r.getCorrectorType())
                         .content(r.getContent())
@@ -99,14 +102,14 @@ public class CorrectionEditorConverter {
 
     public static CorrectionFeedback toFeedbackEntity(
             Correction correction,
-            CorrectionWord word,
+            Integer sentenceIdx,
             User corrector,
             CorrectorType correctorType,
             String content
     ) {
         return CorrectionFeedback.builder()
                 .correction(correction)
-                .correctionWord(word)
+                .sentenceIdx(sentenceIdx)
                 .corrector(corrector)
                 .correctorType(correctorType)
                 .content(content)

@@ -41,7 +41,7 @@ public class CorrectionEditorResponseDTO {
     @Builder
     public static class Feedback {
         private final Long feedbackId;
-        private final Long wordId;
+        private final Integer sentenceIdx;
         private final String correctorName;
         private final CorrectorType correctorType;
         private final String content;

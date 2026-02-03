@@ -30,7 +30,7 @@ public class CorrectionEditorQueryDTO {
     @AllArgsConstructor
     public static class FeedbackRow {
         private Long feedbackId;
-        private Long wordId;
+        private Integer sentenceIdx;
         private String correctorName;
         private CorrectorType correctorType;
         private String content;

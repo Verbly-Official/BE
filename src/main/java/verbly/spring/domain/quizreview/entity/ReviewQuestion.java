@@ -67,15 +67,14 @@ public class ReviewQuestion {
     @Column(name = "explanation", columnDefinition = "TEXT")
     private String explanation;
 
-    /** 외부 FK: 글.Key (선택) */
+    /** 외부 FK: */
     @Column(name = "source_post_id")
     private Long sourcePostId;
 
-    @Column(name = "hint_total", nullable = false)
-    private int hintTotal = 2;
+    @Lob
+    @Column(name = "hint",columnDefinition = "TEXT")
+    private String hint;
 
-    @Column(name = "hint_used", nullable = false)
-    private int hintUsed = 0;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, columnDefinition = "datetime(3)")
@@ -92,15 +91,9 @@ public class ReviewQuestion {
         q.prompt = prompt;
         q.optionsJson = optionsJson;
         q.answerKeyJson = answerKeyJson;
-        q.hintTotal = 2;
-        q.hintUsed = 0;
+
         return q;
     }
 
-    public void useHint() {
-        if (hintUsed >= hintTotal) {
-            throw new IllegalStateException("No hints remaining");
-        }
-        hintUsed += 1;
-    }
+
 }

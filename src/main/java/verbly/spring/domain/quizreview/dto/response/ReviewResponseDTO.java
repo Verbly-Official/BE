@@ -21,7 +21,8 @@ public class ReviewResponseDTO {
             Long questionId,
             int hintUsed,
             int hintTotal,
-            int hintRemaining
+            int hintRemaining,
+            String hint
     ) {}
 
     public record QuizMistakeResponse(
@@ -40,9 +41,8 @@ public class ReviewResponseDTO {
             String phrase,
             String questionType,
             String prompt,
-            List<String> options,
-            int hintTotal,
-            int hintUsed
+            List<String> options
+
     ) {}
 
     public  record QuizQuitResponse(

@@ -9,6 +9,6 @@ import java.util.Optional;
 public interface ReviewAnswerRepository extends JpaRepository<ReviewAnswer, Long> {
 
     Optional<ReviewAnswer> findTopByReviewQuestion_IdOrderByAttemptNoDesc(Long reviewQuestionId);
-
+    void deleteAllByReviewQuestion_IdIn(List<Long> reviewQuestionIds);
     List<ReviewAnswer> findAllByReviewQuestion_IdInOrderByReviewQuestion_IdAscAttemptNoDesc(List<Long> reviewQuestionIds);
 }

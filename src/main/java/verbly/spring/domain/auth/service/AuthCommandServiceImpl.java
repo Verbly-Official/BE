@@ -29,34 +29,16 @@ public class AuthCommandServiceImpl implements AuthCommandService {
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
 
         // JWT를 로컬(localStorage, 쿠키 등)에서 직접 제거해야 로그아웃
-        ResponseCookie deleteAccessTokenCookie = ResponseCookie.from("accessToken", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .domain("verbly.site")
-                .maxAge(0)
-                .sameSite("Lax")
-                .build();
+        clearCookie(response, "accessToken", "", false, 0);
 
         // refreshToken 쿠키 삭제 (즉시 만료 설정)
-        ResponseCookie deleteRefreshTokenCookie = ResponseCookie.from("refreshToken", "")
-                .httpOnly(true)
-                .secure(true) // HTTPS 환경이라면 true
-                .path("/")
-                .domain("verbly.site") // 운영 도메인과 맞춰서 설정
-                .maxAge(0) // 즉시 만료
-                .sameSite("Lax")
-                .build();
-
-        response.addHeader("Set-Cookie", deleteAccessTokenCookie.toString());
-        response.addHeader("Set-Cookie", deleteRefreshTokenCookie.toString());
-//        response.addHeader("Set-Cookie", deleteCsrfCookie.toString());
+        clearCookie(response, "refreshToken", "", false, 0);
 
         log.info("유저 {} 로그아웃 처리 및 JWT 쿠키 삭제 완료", user.getId());
     }
 
     @Override
-    public AuthResponseDTO.ReissueTokenResponseDTO reissue(String refreshToken) {
+    public AuthResponseDTO.ReissueTokenResponseDTO reissue(HttpServletResponse response, String refreshToken) {
         // 1. RefreshToken 유효성 검사 (서명 및 토큰 타입까지 확인)
         if (!jwtTokenProvider.isRefreshToken(refreshToken)) {
             throw new AuthHandler(ErrorStatus.INVALID_JWT_REFRESH_TOKEN);
@@ -84,7 +66,36 @@ public class AuthCommandServiceImpl implements AuthCommandService {
                 )
         );
 
+        addCookie(response, "accessToken", newAccessToken, true, 60 * 60 * 4); // 4시간
+
         // 5. DTO 변환은 컨버터에 위임
         return AuthConverter.toReissueTokenResponseDTO(newAccessToken);
+    }
+
+    private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .httpOnly(httpOnly)
+                .secure(false) // 운영환경에서는 true (HTTPS)
+                .path("/")
+                .domain("localhost") // www.verbly.kr
+                .maxAge(maxAgeInSeconds)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader("Set-Cookie", cookie.toString());
+    }
+
+    private void clearCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
+        ResponseCookie deleteTokenCookie = ResponseCookie.from(name, value)
+                .httpOnly(httpOnly)
+                .secure(false)
+                .path("/")
+                .domain("localhost") // www.verbly.kr
+                .maxAge(maxAgeInSeconds)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader("Set-Cookie", deleteTokenCookie.toString());
+        log.info("쿠키 삭제 완료");
     }
 }

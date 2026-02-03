@@ -56,7 +56,6 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private Integer commentsCount = 0;
 
-    @Column(nullable = false)
     private Boolean publicSetting;
 
     private LocalDateTime correctedAt;

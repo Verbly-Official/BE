@@ -13,6 +13,7 @@ import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.exception.UserHandler;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
+import verbly.spring.global.common.utils.CookieUtils;
 import verbly.spring.global.security.auth.CustomUserDetails;
 import verbly.spring.global.security.jwt.JwtTokenProvider;
 
@@ -22,6 +23,7 @@ import verbly.spring.global.security.jwt.JwtTokenProvider;
 public class AuthCommandServiceImpl implements AuthCommandService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final CookieUtils cookieUtils;
 
     @Override
     public void logout(HttpServletResponse response, Long userId) {
@@ -29,10 +31,10 @@ public class AuthCommandServiceImpl implements AuthCommandService {
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
 
         // JWT를 로컬(localStorage, 쿠키 등)에서 직접 제거해야 로그아웃
-        clearCookie(response, "accessToken", "", false, 0);
+        cookieUtils.clearCookie(response, "accessToken", "", false);
 
         // refreshToken 쿠키 삭제 (즉시 만료 설정)
-        clearCookie(response, "refreshToken", "", false, 0);
+        cookieUtils.clearCookie(response, "refreshToken", "", false);
 
         log.info("유저 {} 로그아웃 처리 및 JWT 쿠키 삭제 완료", user.getId());
     }
@@ -66,36 +68,9 @@ public class AuthCommandServiceImpl implements AuthCommandService {
                 )
         );
 
-        addCookie(response, "accessToken", newAccessToken, true, 60 * 60 * 4); // 4시간
+        cookieUtils.addCookie(response, "accessToken", newAccessToken, true, 60 * 60 * 4); // 4시간
 
         // 5. DTO 변환은 컨버터에 위임
         return AuthConverter.toReissueTokenResponseDTO(newAccessToken);
-    }
-
-    private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
-        ResponseCookie cookie = ResponseCookie.from(name, value)
-                .httpOnly(httpOnly)
-                .secure(false) // 운영환경에서는 true (HTTPS)
-                .path("/")
-                .domain("localhost") // www.verbly.kr
-                .maxAge(maxAgeInSeconds)
-                .sameSite("Lax")
-                .build();
-
-        response.addHeader("Set-Cookie", cookie.toString());
-    }
-
-    private void clearCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
-        ResponseCookie deleteTokenCookie = ResponseCookie.from(name, value)
-                .httpOnly(httpOnly)
-                .secure(false)
-                .path("/")
-                .domain("localhost") // www.verbly.kr
-                .maxAge(maxAgeInSeconds)
-                .sameSite("Lax")
-                .build();
-
-        response.addHeader("Set-Cookie", deleteTokenCookie.toString());
-        log.info("쿠키 삭제 완료");
     }
 }

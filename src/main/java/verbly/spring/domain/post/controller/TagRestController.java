@@ -15,11 +15,11 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/tags")
-public class TagRestController {
+public class TagRestController implements TagControllerDocs{
     private final TrendingTagQueryService trendingTagQueryService;
 
+    @Override
     @GetMapping("/trending")
-    @Operation(summary = "트렌딩 태그 리스트 반환", description = "하루 기준 태그 사용량 상위 10개 반환")
     public ApiResponse<List<TagResponseDTO.TrendingTags>> getTrendingTags(
 
     ){

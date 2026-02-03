@@ -27,7 +27,7 @@ public class TempPostService {
      * Correction 글 임시저장
      */
     @Transactional
-    public Long createTempPost(PostRequestDTO request) {
+    public Long createTempPost(PostRequestDTO.tempDto request) {
         User user = SecurityUtils.getCurrentUser();
         Post post = Post.builder()
                 .author(user)
@@ -44,7 +44,7 @@ public class TempPostService {
      * Correction 임시저장된 글 수정
      */
     @Transactional
-    public PostResponseDTO.Detail updateTempPost(Long postId, PostRequestDTO requestDTO) {
+    public PostResponseDTO.Detail updateTempPost(Long postId, PostRequestDTO.tempDto requestDTO) {
         Long userId = SecurityUtils.getCurrentUserId();
         Post post = findOwnedPostOrThrow(userId, postId);
 

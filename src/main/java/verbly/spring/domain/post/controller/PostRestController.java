@@ -1,6 +1,5 @@
 package verbly.spring.domain.post.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -26,15 +25,15 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
-public class PostRestController {
+public class PostRestController implements PostControllerDocs{
 
     private final PostQueryService postQueryService;
     private final PostCommandService postCommandService;
     private final CommentQueryService commentQueryService;
     private final CommentCommandService commentCommandService;
 
+    @Override
     @GetMapping()
-    @Operation(summary = "홈 화면 포스트 조회", description = "스크롤 페이지를 위한 slice 객체 반환")
     public ApiResponse<Slice<PostResponseDTO.HomePosts>> getHomePosts(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal CustomUserDetails userDetails
@@ -43,8 +42,8 @@ public class PostRestController {
         return ApiResponse.onSuccess(postQueryService.getHomePosts(pageable, viewer));
     }
 
+    @Override
     @GetMapping("/{uuid}")
-    @Operation(summary = "특정 유저 포스트 조회", description = "스크롤 페이지를 위한 slice 객체 반환")
     public ApiResponse<Slice<PostResponseDTO.UserPosts>> getUserPosts(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             @PathVariable(name = "uuid") UUID uuid,
@@ -54,8 +53,8 @@ public class PostRestController {
         return ApiResponse.onSuccess(postQueryService.getUserPosts(pageable,uuid, viewer));
     }
 
+    @Override
     @PostMapping("/{postId}/like")
-    @Operation(summary = "포스트 좋아요 추가")
     public ApiResponse<PostResponseDTO.AddPostLike> addPostLike(
             @PathVariable(name = "postId") Long postId,
             @AuthenticationPrincipal CustomUserDetails userDetails
@@ -64,8 +63,8 @@ public class PostRestController {
         return ApiResponse.onSuccess(postCommandService.addPostLike(postId, viewer.getId()));
     }
 
+    @Override
     @DeleteMapping("/{postId}/like")
-    @Operation(summary = "포스트 좋아요 삭제")
     public ApiResponse<PostResponseDTO.AddPostLike> deletePostLike(
             @PathVariable(name = "postId") Long postId,
             @AuthenticationPrincipal CustomUserDetails userDetails
@@ -74,8 +73,8 @@ public class PostRestController {
         return ApiResponse.onSuccess(postCommandService.deletePostLike(postId, viewer.getId()));
     }
 
+    @Override
     @GetMapping("{postId}/comments")
-    @Operation(summary = "특정 포스트의 댓글 조회", description = "스크롤 페이지를 위한 slice 객체 반환")
     public ApiResponse<Slice<CommentResponseDTO.getComment>> getComments(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             @PathVariable(name = "postId") Long postId
@@ -83,8 +82,8 @@ public class PostRestController {
         return ApiResponse.onSuccess(commentQueryService.getComments(pageable, postId));
     }
 
+    @Override
     @PostMapping("{postId}/comments")
-    @Operation(summary = "특정 포스트에 댓글 작성")
     public ApiResponse<CommentResponseDTO.getMyComment> makeComment(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable(name = "postId") Long postId,
@@ -94,8 +93,8 @@ public class PostRestController {
         return ApiResponse.onSuccess(commentCommandService.getMyComment(viewer, postId, dto));
     }
 
+    @Override
     @PostMapping("/home")
-    @Operation(summary = "홈 화면의 포스트 등록")
     public ApiResponse<PostResponseDTO.HomeWritePost> writeHomePost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid PostRequestDTO.HomeWritePost dto

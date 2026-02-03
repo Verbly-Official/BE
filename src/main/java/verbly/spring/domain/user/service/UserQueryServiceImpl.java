@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.correction.repository.CorrectionFeedbackRepository;
 import verbly.spring.domain.correction.repository.CorrectionRepository;
+import verbly.spring.domain.follow.repository.FollowRepository;
 import verbly.spring.domain.post.repository.PostRepository;
 import verbly.spring.domain.user.converter.UserConverter;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
@@ -22,6 +23,7 @@ public class UserQueryServiceImpl implements UserQueryService {
     private final PostRepository postRepository;
     private final CorrectionRepository correctionRepository;
     private final CorrectionFeedbackRepository correctionFeedbackRepository;
+    private final FollowRepository followRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final ProfileValidator profileValidator;
 
@@ -37,7 +39,8 @@ public class UserQueryServiceImpl implements UserQueryService {
         long totalPosts = postRepository.countByAuthor_Id(user.getId());
         long correctionsGiven = correctionFeedbackRepository.countByCorrector_Id(user.getId());
         long correctionsReceived = correctionRepository.countByPost_Author_Id(user.getId());
+        long followingCount = followRepository.countByFollowerId(user.getId());
 
-        return UserConverter.toUserInfoDTO(user, totalPosts, correctionsGiven, correctionsReceived); // 정보 조회에 성공하면, 우리가 정의한 Response DTO인 UserInfoDTO 로 반환
+        return UserConverter.toUserInfoDTO(user, totalPosts, correctionsGiven, correctionsReceived, followingCount); // 정보 조회에 성공하면, 우리가 정의한 Response DTO인 UserInfoDTO 로 반환
     }
 }

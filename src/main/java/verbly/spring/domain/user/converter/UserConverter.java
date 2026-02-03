@@ -29,7 +29,7 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.UserInfoDTO toUserInfoDTO(User user, long totalPosts, long correctionsGiven, long correctionsReceived) {
+    public static UserResponseDTO.UserInfoDTO toUserInfoDTO(User user, long totalPosts, long correctionsGiven, long correctionsReceived, long followingCount) {
         String profileImageUrl = Optional.ofNullable(user.getProfileImage())
                 .map(ProfileImage::getImageUrl)
                 .orElse("default_profile_url");
@@ -46,7 +46,7 @@ public class UserConverter {
                 .streakDays(user.getStats().getStreakDays())
                 .point(user.getStats().getPoint())
                 .level(user.getStats().getLevel().getValue())
-//                .followCount(user.getFollowCount())
+                .followCount(followingCount)
                 .totalPosts(totalPosts)
                 .correctionsGiven(correctionsGiven)
                 .correctionsReceived(correctionsReceived)

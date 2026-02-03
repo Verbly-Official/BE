@@ -1,4 +1,4 @@
-package verbly.spring.domain.follow.repo;
+package verbly.spring.domain.follow.repository;
 
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +26,8 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
         ORDER BY FUNCTION('rand')
      """)
     List<User> findRandomUser(@Param("followerId") Long followerId, Pageable pageable);
-
     void deleteByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
-
     boolean existsFollowByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
+    long countByFollowerId(Long followerId); // 내가 팔로우한 수
+    long countByFolloweeId(Long followeeId); // 나를 팔로우한 수 // 추후 확장할 수도
 }

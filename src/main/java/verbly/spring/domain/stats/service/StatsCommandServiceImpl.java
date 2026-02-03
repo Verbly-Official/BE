@@ -3,9 +3,11 @@ package verbly.spring.domain.stats.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.stats.entity.Stats;
 import verbly.spring.domain.stats.exception.StatsHandler;
 import verbly.spring.domain.stats.repository.StatsRepository;
+import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.code.ErrorStatus;
 
 @Slf4j
@@ -28,5 +30,12 @@ public class StatsCommandServiceImpl implements StatsCommandService {
                 .orElseThrow(() -> new StatsHandler(ErrorStatus.STATS_NOT_FOUND));
 
         stats.setPoint(stats.getPoint() + amount);
+    }
+
+    @Override
+    @Transactional
+    public void markAttendanceIfNeeded(User user) {
+        Stats stats = user.getStats();
+        stats.markAttendance(user.getTimezone());
     }
 }

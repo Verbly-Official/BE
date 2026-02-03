@@ -95,9 +95,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         addCookie(response, "refreshToken", refreshToken, true, 60 * 60 * 24 * 7); // 7일
         addCookie(response, "userId", String.valueOf(user.getId()), true, 60 * 60 * 4);
         addCookie(response, "provider", user.getProvider().toString(), false, 60 * 60 * 4);
-        addCookie(response, "nickname", nickname, false, 60 * 60 * 4);
-        addCookie(response, "profileImage", profileImageUrl, false, 60 * 60 * 4);
-        addCookie(response, "email", email, false, 60 * 60 * 4);
+        addCookie(response, "nickname", URLEncoder.encode(nickname, StandardCharsets.UTF_8), false, 60 * 60 * 4);
+        addCookie(response, "profileImage", URLEncoder.encode(profileImageUrl, StandardCharsets.UTF_8), false, 60 * 60 * 4);
+        addCookie(response, "email", URLEncoder.encode(email, StandardCharsets.UTF_8), false, 60 * 60 * 4);
         addCookie(response, "userStatus", String.valueOf(user.getStatus()), false, 60 * 60 * 4);
 
         // 2. 상태 정보: HttpOnly = false (JS에서 읽게)

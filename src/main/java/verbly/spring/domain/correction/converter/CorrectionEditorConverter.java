@@ -24,7 +24,7 @@ public class CorrectionEditorConverter {
 
         return IntStream.range(0, parts.length)
                 .mapToObj(i -> CorrectionEditorResponseDTO.Sentence.builder()
-                        .idx(i + 1)
+                        .sentenceIdx(i)
                         .originalText(parts[i].trim())
                         .build())
                 .toList();
@@ -41,7 +41,7 @@ public class CorrectionEditorConverter {
 
         return IntStream.range(0, size)
                 .mapToObj(i -> CorrectionEditorResponseDTO.Sentence.builder()
-                        .idx(i + 1)
+                        .sentenceIdx(i)
                         .originalText(originals.get(i))
                         .correctedText(corrected.get(i))
                         .build()

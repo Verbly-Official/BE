@@ -91,7 +91,7 @@ public class CorrectionNativeController {
      */
     @Operation(
             summary = "커렉션 단어 교정 저장",
-            description = "문장별 교정 단어(구간)를 저장합니다. 기존 교정은 모두 삭제 후 재저장됩니다.\n\n" +
+            description = "문장별 교정 단어(구간)를 저장합니다. 요청에 포함된 교정 구간만 수정되며, 나머지 교정 정보는 유지됩니다.\n\n" +
                     "단어를 삭제할 경우 `\"correctedText\": null`로 요청하면 됩니다."
             ,
             security = { @SecurityRequirement(name = "JWT TOKEN") }
@@ -99,7 +99,7 @@ public class CorrectionNativeController {
     @Parameters({
             @Parameter(name = "correctionId", description = "커렉션 ID", example = "1")
     })
-    @PutMapping("/{correctionId}/words")
+    @PatchMapping("/{correctionId}/words")
     public ResponseEntity<ApiResponse<Void>> upsertWords(
             @PathVariable Long correctionId,
             @RequestBody @Valid CorrectionEditorRequestDTO.UpsertWords request

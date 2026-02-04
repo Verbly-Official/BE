@@ -84,4 +84,20 @@ public class UserConverter {
                 .level(viewer.getStats().getLevel())
                 .build();
     }
+
+    public static UserResponseDTO.HomeUserInfoDTO toHomeUserInfoDTO(User target, long totalPosts, long following, long follower,
+                                                                    boolean isFollowing, long correctionReceived, long correctionGiven) {
+        return UserResponseDTO.HomeUserInfoDTO.builder()
+                .imageUrl(target.getProfileImage().getImageUrl())
+                .nickname(target.getNickname())
+                .nativeLang(target.getNativeLang())
+                .description(target.getBio())
+                .totalPosts((int)totalPosts)
+                .follower((int)follower)
+                .following((int)following)
+                .isFollowing(isFollowing)
+                .correctionReceived((int)correctionReceived)
+                .correctionGiven((int)correctionGiven)
+                .build();
+    }
 }

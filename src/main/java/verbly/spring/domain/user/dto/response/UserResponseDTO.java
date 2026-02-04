@@ -95,4 +95,21 @@ public class UserResponseDTO {
         Integer correctionReceived;
         Level level;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HomeUserInfoDTO {
+        String imageUrl;
+        String nickname;
+        String nativeLang;
+        String description;
+        Integer totalPosts;
+        Integer follower;
+        Integer following;
+        Boolean isFollowing;
+        Integer correctionReceived;
+        Integer correctionGiven;
+    }
 }

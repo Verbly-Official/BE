@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import verbly.spring.domain.post.entity.Post;
 import org.springframework.data.repository.query.Param;
+import verbly.spring.domain.post.enums.PostStatus;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,5 +32,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findAllByAuthorIdAndTempTrueOrderByCreatedAtDesc(Long authorId);
     Optional<Post> findByIdAndAuthorIdAndTempTrue(Long postId, Long authorId);
+    Integer countByAuthorIdAndStatus(Long authorId, PostStatus status);
 
 }

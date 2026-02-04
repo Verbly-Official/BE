@@ -20,14 +20,8 @@ public class CorrectionEditorRequestDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class WordEdit {
-        @NotNull(message = "문장 index는 필수입니다.")
-        private Integer sentenceIdx;
-
-        @NotNull(message = "문장에서 수정할 블록의 시작 index는 필수입니다.")
-        private Integer startIdx;
-
-        @NotNull(message = "문장에서 수정할 블록의 끝 index는 필수입니다.")
-        private  Integer endIdx;
+        @NotNull(message = "wordId는 필수입니다.")
+        private Long wordId;
 
         private String correctedText;
     }

@@ -88,15 +88,7 @@ public class CorrectionNativeService {
 
         markInProgressIfPending(correction);
 
-        correctionWordRepository.deleteByCorrectionId(correctionId);
-
-        String content = correction.getPost().getContent();
-        List<CorrectionWord> entities =
-                CorrectionEditorConverter.toWordEntities(correction, content, request);
-
-        if (!entities.isEmpty()) {
-            correctionWordRepository.saveAll(entities);
-        }
+        applyWordIdEditsOrThrow(correction, request.getEdits());
     }
 
     public CorrectionEditorResponseDTO.WriteFeedbackResult writeFeedback(
@@ -305,4 +297,23 @@ public class CorrectionNativeService {
         }
     }
 
+    private void applyWordIdEditsOrThrow(
+            Correction correction,
+            List<CorrectionEditorRequestDTO.WordEdit> edits
+    ) {
+        if (edits == null || edits.isEmpty()) {
+            return;
+        }
+
+        for (CorrectionEditorRequestDTO.WordEdit edit : edits) {
+            CorrectionWord word = findWordOrThrow(edit.getWordId());
+            validateWordBelongsToCorrection(correction, word);
+
+            String newCorrected = (edit.getCorrectedText() == null)
+                    ? ""
+                    : edit.getCorrectedText();
+
+            word.update(newCorrected, word.getStartIdx(), word.getEndIdx());
+        }
+    }
 }

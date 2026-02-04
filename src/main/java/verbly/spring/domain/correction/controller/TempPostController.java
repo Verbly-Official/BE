@@ -58,7 +58,7 @@ public class TempPostController {
     )
     @PostMapping
     public ResponseEntity<ApiResponse<Long>> createTempPost(
-            @RequestBody @Valid PostRequestDTO request
+            @RequestBody @Valid PostRequestDTO.tempDto request
     ) {
         Long postId = tempPostService.createTempPost(request);
         return ResponseEntity.status(SuccessStatus.CORRECTION_TEMP_CREATE_SUCCESS.getHttpStatus())
@@ -95,7 +95,7 @@ public class TempPostController {
     @PatchMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostResponseDTO.Detail>> updateTempPost(
             @PathVariable Long postId,
-            @RequestBody @Valid PostRequestDTO request
+            @RequestBody @Valid PostRequestDTO.tempDto request
     ){
         PostResponseDTO.Detail result = tempPostService.updateTempPost(postId, request);
         return ResponseEntity

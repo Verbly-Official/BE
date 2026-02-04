@@ -119,7 +119,7 @@ public class ReviewRestController {
 
                     ✅ 요청 바디
                     - userAnswerJson: 프론트에서 보내는 사용자 답안 JSON(필수)
-                    - mistakeNote: 오답 노트(선택)
+                   
 
                     ✅ 응답
                     - 정답 여부/정답키/해설을 반환하며,
@@ -141,8 +141,8 @@ public class ReviewRestController {
                                     {
                                       "userAnswerJson": {
                                         "answer": "어색한 분위기를 깨다"
-                                      },
-                                      "mistakeNote": "뜻을 헷갈림"
+                                      }
+                                      
                                     }
                                     """
                     )

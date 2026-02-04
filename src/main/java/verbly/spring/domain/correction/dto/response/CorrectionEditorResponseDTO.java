@@ -21,7 +21,7 @@ public class CorrectionEditorResponseDTO {
     @Getter
     @Builder
     public static class Sentence {
-        private final Integer idx;
+        private final Integer sentenceIdx;
         private final String originalText;
         private String correctedText;
     }

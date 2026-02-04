@@ -5,7 +5,11 @@ import lombok.*;
 import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.entity.BaseEntity;
+import org.hibernate.annotations.Check;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -13,6 +17,7 @@ import verbly.spring.global.common.entity.BaseEntity;
 @Getter
 @Entity
 @Table(name = "post")
+@Check(constraints = "likes_count >= 0 AND comments_count >= 0")
 public class Post extends BaseEntity {
 
     @Id
@@ -42,6 +47,30 @@ public class Post extends BaseEntity {
     // 임시저장 유무
     @Column(nullable = false)
     private boolean temp;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer likesCount = 0;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer commentsCount = 0;
+
+    private Boolean publicSetting;
+
+    private LocalDateTime correctedAt;
+
+    @Builder.Default
+    private Boolean hotPosted = false;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostTag> postTags = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostLike> postLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
 
     public void update(String title, String content) {

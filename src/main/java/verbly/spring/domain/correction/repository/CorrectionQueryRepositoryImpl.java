@@ -1,12 +1,10 @@
 package verbly.spring.domain.correction.repository;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +19,6 @@ import verbly.spring.domain.post.enums.PostStatus;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static verbly.spring.domain.correction.entity.QCorrection.correction;
 import static verbly.spring.domain.correction.entity.QCorrectionFeedback.correctionFeedback;

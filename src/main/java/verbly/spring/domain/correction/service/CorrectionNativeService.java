@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,12 +88,7 @@ public class CorrectionNativeService {
 
         markInProgressIfPending(correction);
 
-        List<CorrectionWord> existing = correctionWordRepository.findByCorrectionId(correctionId);
-
-
-        Map<WordKey, CorrectionWord> byKey = indexByKey(existing);
-
-        applyEditsOrThrow(request.getEdits(), byKey);
+        applyWordIdEditsOrThrow(correction, request.getEdits());
     }
 
     public CorrectionEditorResponseDTO.WriteFeedbackResult writeFeedback(
@@ -303,47 +297,23 @@ public class CorrectionNativeService {
         }
     }
 
-    private Map<WordKey, CorrectionWord> indexByKey(List<CorrectionWord> words) {
-        return words.stream()
-                .collect(Collectors.toMap(
-                        WordKey::from,
-                        Function.identity(),
-                        (a, b) -> a
-                ));
-    }
-
-    private void applyEditsOrThrow(
-            List<CorrectionEditorRequestDTO.WordEdit> edits,
-            Map<WordKey, CorrectionWord> byKey
+    private void applyWordIdEditsOrThrow(
+            Correction correction,
+            List<CorrectionEditorRequestDTO.WordEdit> edits
     ) {
+        if (edits == null || edits.isEmpty()) {
+            return;
+        }
+
         for (CorrectionEditorRequestDTO.WordEdit edit : edits) {
-            CorrectionWord target = findTargetOrThrow(edit, byKey);
+            CorrectionWord word = findWordOrThrow(edit.getWordId());
+            validateWordBelongsToCorrection(correction, word);
 
-            target.update(
-                    edit.getCorrectedText(),
-                    target.getStartIdx(),
-                    target.getEndIdx()
-            );
+            String newCorrected = (edit.getCorrectedText() == null)
+                    ? ""
+                    : edit.getCorrectedText();
+
+            word.update(newCorrected, word.getStartIdx(), word.getEndIdx());
         }
     }
-
-    private CorrectionWord findTargetOrThrow(
-            CorrectionEditorRequestDTO.WordEdit edit,
-            Map<WordKey, CorrectionWord> byKey
-    ) {
-        WordKey key = new WordKey(edit.getSentenceIdx(), edit.getStartIdx(), edit.getEndIdx());
-        CorrectionWord target = byKey.get(key);
-
-        if (target == null) {
-            throw new CorrectionHandler(ErrorStatus.CORRECTION_SENTENCE_INDEX_OUT_OF_RANGE);
-        }
-        return target;
-    }
-
-    private record WordKey(Integer sentenceIdx, Integer startIdx, Integer endIdx) {
-        static WordKey from(CorrectionWord w) {
-            return new WordKey(w.getSentenceIdx(), w.getStartIdx(), w.getEndIdx());
-        }
-    }
-
 }

@@ -1,11 +1,9 @@
 package verbly.spring.domain.correction.converter;
 
-import verbly.spring.domain.correction.dto.request.CorrectionEditorRequestDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionEditorQueryDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionEditorResponseDTO;
 import verbly.spring.domain.correction.entity.Correction;
 import verbly.spring.domain.correction.entity.CorrectionFeedback;
-import verbly.spring.domain.correction.entity.CorrectionWord;
 import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.user.entity.User;
 
@@ -46,30 +44,6 @@ public class CorrectionEditorConverter {
                         .correctedText(corrected.get(i))
                         .build()
                 )
-                .toList();
-    }
-
-
-    public static List<CorrectionWord> toWordEntities(Correction correction, String postContent, CorrectionEditorRequestDTO.UpsertWords request) {
-        List<String> sentences = CorrectionEditorConverter.splitSentences(postContent);
-
-        return request.getEdits().stream()
-                .map(e -> {
-                    String sentence = sentences.get(e.getSentenceIdx());
-
-                    String originalText = sentence.substring(e.getStartIdx(), e.getEndIdx());
-
-                    String corrected = e.getCorrectedText() == null ? "" : e.getCorrectedText();
-
-                    return CorrectionWord.builder()
-                            .correction(correction)
-                            .sentenceIdx(e.getSentenceIdx())
-                            .startIdx(e.getStartIdx())
-                            .endIdx(e.getEndIdx())
-                            .originalText(originalText)
-                            .correctedText(corrected)
-                            .build();
-                })
                 .toList();
     }
 

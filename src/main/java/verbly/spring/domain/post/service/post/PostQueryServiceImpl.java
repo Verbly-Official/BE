@@ -15,6 +15,9 @@ import verbly.spring.domain.post.repository.HotPostRepository;
 import verbly.spring.domain.post.repository.PostLikeRepository;
 import verbly.spring.domain.post.repository.PostRepository;
 import verbly.spring.domain.user.entity.User;
+import verbly.spring.domain.user.exception.UserHandler;
+import verbly.spring.domain.user.repository.UserRepository;
+import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.security.auth.CustomUserDetails;
 
 import java.util.List;
@@ -25,6 +28,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class PostQueryServiceImpl implements PostQueryService {
 
+    private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostConverter postConverter;
@@ -32,9 +36,9 @@ public class PostQueryServiceImpl implements PostQueryService {
     private final FollowRepository followRepository;
 
     @Override
-    public Slice<PostResponseDTO.HomePosts> getHomePosts(Pageable pageable, User viewer) {
+    public Slice<PostResponseDTO.HomePosts> getHomePosts(Pageable pageable, Long viewerId) {
         Slice<Post> postSlice = postRepository.findAll(pageable);
-
+        User viewer = userRepository.findById(viewerId).orElseThrow(()-> new UserHandler(ErrorStatus.USER_NOT_FOUND));
         return postSlice.map(post -> {
             boolean isLiked = false;
             boolean isFollowing = false;
@@ -47,8 +51,9 @@ public class PostQueryServiceImpl implements PostQueryService {
     }
 
     @Override
-    public Slice<PostResponseDTO.UserPosts> getUserPosts(Pageable pageable, UUID uuid, User viewer) {
+    public Slice<PostResponseDTO.UserPosts> getUserPosts(Pageable pageable, UUID uuid, Long viewerId) {
         Slice<Post> postSlice = postRepository.findAllByAuthor_Uuid(uuid, pageable);
+        User viewer = userRepository.findById(viewerId).orElseThrow(()-> new UserHandler(ErrorStatus.USER_NOT_FOUND));
         return postSlice.map(post -> {
             boolean isLiked = false;
             boolean isFollowing = false;
@@ -61,8 +66,8 @@ public class PostQueryServiceImpl implements PostQueryService {
     }
 
     @Override
-    public List<PostResponseDTO.hotPost> getHotPosts(CustomUserDetails userDetails) {
-        User viewer = userDetails != null ? userDetails.getUser() : null;
+    public List<PostResponseDTO.hotPost> getHotPosts(Long viewerId) {
+        User viewer = userRepository.findById(viewerId).orElseThrow(()-> new UserHandler(ErrorStatus.USER_NOT_FOUND));
 
         List<HotPost> hotPosts = hotPostRepository.findAll(Sort.by(Sort.Direction.DESC, "growthScore"));
 

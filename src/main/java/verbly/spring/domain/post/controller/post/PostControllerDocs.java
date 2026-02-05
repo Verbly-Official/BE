@@ -96,8 +96,7 @@ public interface PostControllerDocs {
             )
     })
     ApiResponse<Slice<PostResponseDTO.HomePosts>> getHomePosts(
-            Pageable pageable,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            Pageable pageable
     );
 
     @Operation( summary = "특정 유저 포스트 조회",
@@ -173,8 +172,7 @@ public interface PostControllerDocs {
     })
     ApiResponse<Slice<PostResponseDTO.UserPosts>> getUserPosts(
             Pageable pageable,
-            UUID uuid,
-            CustomUserDetails userDetails
+            UUID uuid
     );
 
     @Operation( summary = "특정 포스트에 좋아요 추가",
@@ -207,8 +205,7 @@ public interface PostControllerDocs {
             )
     })
     ApiResponse<PostResponseDTO.AddPostLike> addPostLike(
-            Long postId,
-            CustomUserDetails userDetails
+            Long postId
     );
 
     @Operation( summary = "특정 포스트에 좋아요 제거",
@@ -241,8 +238,7 @@ public interface PostControllerDocs {
             )
     })
     ApiResponse<PostResponseDTO.AddPostLike> deletePostLike(
-            Long postId,
-            CustomUserDetails userDetails
+            Long postId
     );
 
     @Operation( summary = "특정 포스트 댓글 조회",
@@ -372,7 +368,6 @@ public interface PostControllerDocs {
             )
     })
     ApiResponse<CommentResponseDTO.getMyComment> makeComment(
-            CustomUserDetails userDetails,
             Long postId,
             CommentRequestDTO.makeComment dto
     );
@@ -427,7 +422,6 @@ public interface PostControllerDocs {
             )
     })
     ApiResponse<PostResponseDTO.HomeWritePost> writeHomePost(
-            CustomUserDetails userDetails,
             PostRequestDTO.HomeWritePost dto
     );
 
@@ -469,9 +463,7 @@ public interface PostControllerDocs {
                     )
             )
     })
-    ApiResponse<List<PostResponseDTO.hotPost>> getHotPosts(
-            CustomUserDetails userDetails
-    );
+    ApiResponse<List<PostResponseDTO.hotPost>> getHotPosts();
 }
 
 

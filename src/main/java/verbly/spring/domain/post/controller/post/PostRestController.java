@@ -20,6 +20,7 @@ import verbly.spring.domain.post.service.post.PostQueryService;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.auth.CustomUserDetails;
+import verbly.spring.global.security.utils.SecurityUtils;
 
 import java.util.List;
 import java.util.UUID;
@@ -40,42 +41,38 @@ public class PostRestController implements PostControllerDocs {
     @Override
     @GetMapping()
     public ApiResponse<Slice<PostResponseDTO.HomePosts>> getHomePosts(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(postQueryService.getHomePosts(pageable, viewer));
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(postQueryService.getHomePosts(pageable, userId));
     }
 
     @Override
     @GetMapping("/{uuid}")
     public ApiResponse<Slice<PostResponseDTO.UserPosts>> getUserPosts(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-            @PathVariable(name = "uuid") UUID uuid,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @PathVariable(name = "uuid") UUID uuid
     ) {
-        User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(postQueryService.getUserPosts(pageable,uuid, viewer));
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(postQueryService.getUserPosts(pageable,uuid, userId));
     }
 
     @Override
     @PostMapping("/{postId}/like")
     public ApiResponse<PostResponseDTO.AddPostLike> addPostLike(
-            @PathVariable(name = "postId") Long postId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @PathVariable(name = "postId") Long postId
     ) {
-        User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(postCommandService.addPostLike(postId, viewer.getId()));
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(postCommandService.addPostLike(postId, userId));
     }
 
     @Override
     @DeleteMapping("/{postId}/like")
     public ApiResponse<PostResponseDTO.AddPostLike> deletePostLike(
-            @PathVariable(name = "postId") Long postId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @PathVariable(name = "postId") Long postId
     ) {
-        User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(postCommandService.deletePostLike(postId, viewer.getId()));
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(postCommandService.deletePostLike(postId, userId));
     }
 
     @Override
@@ -90,29 +87,26 @@ public class PostRestController implements PostControllerDocs {
     @Override
     @PostMapping("{postId}/comments")
     public ApiResponse<CommentResponseDTO.getMyComment> makeComment(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable(name = "postId") Long postId,
             @RequestBody @Valid CommentRequestDTO.makeComment dto
             ){
-        User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(commentCommandService.getMyComment(viewer, postId, dto));
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(commentCommandService.getMyComment(userId, postId, dto));
     }
 
     @Override
     @PostMapping("/home")
     public ApiResponse<PostResponseDTO.HomeWritePost> writeHomePost(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid PostRequestDTO.HomeWritePost dto
             ){
-        User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(postCommandService.writeHomePost(dto, viewer));
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(postCommandService.writeHomePost(dto, userId));
     }
 
     @Override
     @GetMapping("/hot")
-    public ApiResponse<List<PostResponseDTO.hotPost>> getHotPosts(
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ){
-        return ApiResponse.onSuccess(postQueryService.getHotPosts(userDetails));
+    public ApiResponse<List<PostResponseDTO.hotPost>> getHotPosts(){
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(postQueryService.getHotPosts(userId));
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import verbly.spring.domain.follow.repository.FollowRepository;
 import verbly.spring.domain.post.converter.PostConverter;
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
 import verbly.spring.domain.post.entity.HotPost;
@@ -28,6 +29,7 @@ public class PostQueryServiceImpl implements PostQueryService {
     private final PostLikeRepository postLikeRepository;
     private final PostConverter postConverter;
     private final HotPostRepository hotPostRepository;
+    private final FollowRepository followRepository;
 
     @Override
     public Slice<PostResponseDTO.HomePosts> getHomePosts(Pageable pageable, User viewer) {
@@ -35,10 +37,12 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         return postSlice.map(post -> {
             boolean isLiked = false;
+            boolean isFollowing = false;
             if (viewer != null) {
                 isLiked = postLikeRepository.existsByUserAndPost(viewer, post);
+                isFollowing = followRepository.existsFollowByFollowerIdAndFolloweeId(viewer.getId(), post.getAuthor().getId());
             }
-            return postConverter.toHomePosts(post, isLiked);
+            return postConverter.toHomePosts(post, isLiked, isFollowing);
         });
     }
 
@@ -47,10 +51,12 @@ public class PostQueryServiceImpl implements PostQueryService {
         Slice<Post> postSlice = postRepository.findAllByAuthor_Uuid(uuid, pageable);
         return postSlice.map(post -> {
             boolean isLiked = false;
+            boolean isFollowing = false;
             if (viewer != null) {
                 isLiked = postLikeRepository.existsByUserAndPost(viewer, post);
+                isFollowing = followRepository.existsFollowByFollowerIdAndFolloweeId(viewer.getId(), post.getAuthor().getId());
             }
-            return postConverter.toUserPosts(post, isLiked);
+            return postConverter.toUserPosts(post, isLiked, isFollowing);
         });
     }
 
@@ -63,10 +69,12 @@ public class PostQueryServiceImpl implements PostQueryService {
         return hotPosts.stream()
                 .map(hotPost -> {
                     boolean isLiked = false;
+                    boolean isFollowing = false;
                     if (viewer != null) {
                         isLiked = postLikeRepository.existsByUserAndPost(viewer, hotPost.getPost());
+                        isFollowing = followRepository.existsFollowByFollowerIdAndFolloweeId(viewer.getId(), hotPost.getPost().getAuthor().getId());
                     }
-                    return postConverter.toHotPost(hotPost.getPost(), isLiked);
+                    return postConverter.toHotPost(hotPost.getPost(), isLiked, isFollowing);
                 })
                 .toList();
     }

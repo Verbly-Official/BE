@@ -14,6 +14,7 @@ import verbly.spring.domain.post.dto.response.CommentResponseDTO;
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
 import verbly.spring.domain.post.service.comment.CommentCommandService;
 import verbly.spring.domain.post.service.comment.CommentQueryService;
+import verbly.spring.domain.post.service.hotpost.HotPostScheduler;
 import verbly.spring.domain.post.service.post.PostCommandService;
 import verbly.spring.domain.post.service.post.PostQueryService;
 import verbly.spring.domain.user.entity.User;
@@ -31,6 +32,9 @@ public class PostRestController implements PostControllerDocs {
     private final PostCommandService postCommandService;
     private final CommentQueryService commentQueryService;
     private final CommentCommandService commentCommandService;
+
+    //test
+    private final HotPostScheduler scheduler;
 
     @Override
     @GetMapping()
@@ -101,5 +105,11 @@ public class PostRestController implements PostControllerDocs {
             ){
         User viewer = userDetails != null ? userDetails.getUser() : null;
         return ApiResponse.onSuccess(postCommandService.writeHomePost(dto, viewer));
+    }
+
+    @GetMapping("/test")
+    public String triggerBatch() {
+        scheduler.runBatch();
+        return "배치 실행 완료! DB 확인해보세요.";
     }
 }

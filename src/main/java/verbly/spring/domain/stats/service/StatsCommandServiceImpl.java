@@ -36,6 +36,10 @@ public class StatsCommandServiceImpl implements StatsCommandService {
     @Transactional
     public void markAttendanceIfNeeded(User user) {
         Stats stats = user.getStats();
-        stats.markAttendance(user.getTimezone());
+        String rawTimeZone = user.getTimezone();
+        String safeZoneId = org.springframework.util.StringUtils.hasText(rawTimeZone)
+                ? rawTimeZone
+                : "Asia/Seoul";
+        stats.markAttendance(safeZoneId);
     }
 }

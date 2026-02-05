@@ -21,6 +21,7 @@ import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.auth.CustomUserDetails;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -105,6 +106,14 @@ public class PostRestController implements PostControllerDocs {
             ){
         User viewer = userDetails != null ? userDetails.getUser() : null;
         return ApiResponse.onSuccess(postCommandService.writeHomePost(dto, viewer));
+    }
+
+    @Override
+    @GetMapping("/hot")
+    public ApiResponse<List<PostResponseDTO.hotPost>> getHotPosts(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        return ApiResponse.onSuccess(postQueryService.getHotPosts(userDetails));
     }
 
     @GetMapping("/test")

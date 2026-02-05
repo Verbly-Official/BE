@@ -3,15 +3,20 @@ package verbly.spring.domain.post.service.post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.post.converter.PostConverter;
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
+import verbly.spring.domain.post.entity.HotPost;
 import verbly.spring.domain.post.entity.Post;
+import verbly.spring.domain.post.repository.HotPostRepository;
 import verbly.spring.domain.post.repository.PostLikeRepository;
 import verbly.spring.domain.post.repository.PostRepository;
 import verbly.spring.domain.user.entity.User;
+import verbly.spring.global.security.auth.CustomUserDetails;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,6 +27,8 @@ public class PostQueryServiceImpl implements PostQueryService {
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostConverter postConverter;
+    private final HotPostRepository hotPostRepository;
+
     @Override
     public Slice<PostResponseDTO.HomePosts> getHomePosts(Pageable pageable, User viewer) {
         Slice<Post> postSlice = postRepository.findAll(pageable);
@@ -45,5 +52,22 @@ public class PostQueryServiceImpl implements PostQueryService {
             }
             return postConverter.toUserPosts(post, isLiked);
         });
+    }
+
+    @Override
+    public List<PostResponseDTO.hotPost> getHotPosts(CustomUserDetails userDetails) {
+        User viewer = userDetails != null ? userDetails.getUser() : null;
+
+        List<HotPost> hotPosts = hotPostRepository.findAll(Sort.by(Sort.Direction.DESC, "growthScore"));
+
+        return hotPosts.stream()
+                .map(hotPost -> {
+                    boolean isLiked = false;
+                    if (viewer != null) {
+                        isLiked = postLikeRepository.existsByUserAndPost(viewer, hotPost.getPost());
+                    }
+                    return postConverter.toHotPost(hotPost.getPost(), isLiked);
+                })
+                .toList();
     }
 }

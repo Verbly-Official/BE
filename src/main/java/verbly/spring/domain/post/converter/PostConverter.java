@@ -104,4 +104,25 @@ public class PostConverter {
                 .updatedAt(post.getUpdatedAt())
                 .build();
     }
+
+    public static PostResponseDTO.hotPost toHotPost(Post post, Boolean isLiked){
+        List<String> tags = post.getPostTags().stream()
+                .map(postTag -> postTag.getTag().getName())
+                .collect(Collectors.toList());
+        return PostResponseDTO.hotPost.builder()
+                .postId(post.getId())
+                .content(post.getContent())
+                .commentsCount(post.getCommentsCount())
+                .status(post.getStatus())
+                .likesCount(post.getLikesCount())
+                .createdAt(post.getCreatedAt())
+                .tags(tags)
+                .userImageUrl(post.getAuthor().getProfileImage().getImageUrl().toString())
+                .uuid(post.getAuthor().getUuid())
+                .nickname(post.getAuthor().getNickname())
+                .isFollowing(false)
+                //Follow 구현 후 수정 예정
+                .isLiked(isLiked)
+                .build();
+    }
 }

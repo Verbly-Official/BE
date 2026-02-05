@@ -17,6 +17,7 @@ import verbly.spring.domain.post.dto.response.PostResponseDTO;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.auth.CustomUserDetails;
 
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Post", description = "게시글 및 댓글 관련 API")
@@ -428,6 +429,10 @@ public interface PostControllerDocs {
     ApiResponse<PostResponseDTO.HomeWritePost> writeHomePost(
             CustomUserDetails userDetails,
             PostRequestDTO.HomeWritePost dto
+    );
+
+    ApiResponse<List<PostResponseDTO.hotPost>> getHotPosts(
+            CustomUserDetails userDetails
     );
 }
 

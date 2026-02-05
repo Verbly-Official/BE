@@ -115,10 +115,4 @@ public class PostRestController implements PostControllerDocs {
     ){
         return ApiResponse.onSuccess(postQueryService.getHotPosts(userDetails));
     }
-
-    @GetMapping("/test")
-    public String triggerBatch() {
-        scheduler.runBatch();
-        return "배치 실행 완료! DB 확인해보세요.";
-    }
 }

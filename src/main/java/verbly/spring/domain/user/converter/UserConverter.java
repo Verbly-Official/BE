@@ -1,11 +1,13 @@
 package verbly.spring.domain.user.converter;
 
+import org.springframework.stereotype.Component;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.user.entity.User;
 
 import java.util.Optional;
 
+@Component
 public class UserConverter {
     public static ProfileImage toProfileImage(String imageUrl, User user) {
         return ProfileImage.builder()
@@ -68,6 +70,34 @@ public class UserConverter {
                                 ? user.getProfileImage().getImageUrl()
                                 : null
                 )
+                .build();
+    }
+
+    public static UserResponseDTO.HomeViewerInfoDTO toHomeViewerInfoDTO(User viewer, long following, long correctionReceived) {
+        return UserResponseDTO.HomeViewerInfoDTO.builder()
+                .imageUrl(viewer.getProfileImage().getImageUrl())
+                .nickname(viewer.getNickname())
+                .following((int)following)
+                .streak(viewer.getStats().getStreakDays())
+                .point(viewer.getStats().getPoint())
+                .correctionReceived((int)correctionReceived)
+                .level(viewer.getStats().getLevel())
+                .build();
+    }
+
+    public static UserResponseDTO.HomeUserInfoDTO toHomeUserInfoDTO(User target, long totalPosts, long following, long follower,
+                                                                    boolean isFollowing, long correctionReceived, long correctionGiven) {
+        return UserResponseDTO.HomeUserInfoDTO.builder()
+                .imageUrl(target.getProfileImage().getImageUrl())
+                .nickname(target.getNickname())
+                .nativeLang(target.getNativeLang())
+                .description(target.getBio())
+                .totalPosts((int)totalPosts)
+                .follower((int)follower)
+                .following((int)following)
+                .isFollowing(isFollowing)
+                .correctionReceived((int)correctionReceived)
+                .correctionGiven((int)correctionGiven)
                 .build();
     }
 }

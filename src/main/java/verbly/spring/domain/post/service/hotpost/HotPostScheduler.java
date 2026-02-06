@@ -9,9 +9,11 @@ import verbly.spring.domain.post.entity.HotPost;
 import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.post.entity.PostLikeHistory;
 import verbly.spring.domain.post.enums.PostStatus;
+import verbly.spring.domain.post.exception.PostHandler;
 import verbly.spring.domain.post.repository.HotPostRepository;
 import verbly.spring.domain.post.repository.PostLikeHistoryRepository;
 import verbly.spring.domain.post.repository.PostRepository;
+import verbly.spring.global.common.code.ErrorStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,7 +45,7 @@ public class HotPostScheduler {
                     Long postId = ((Number) result[0]).longValue();
                     int growth = ((Number) result[1]).intValue();
                     Post post = postRepository.findById(postId)
-                            .orElseThrow(() -> new RuntimeException("Post not found: " + postId));
+                            .orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
                     return HotPost.builder().post(post).growthScore(growth).build();
                 })
                 .toList();

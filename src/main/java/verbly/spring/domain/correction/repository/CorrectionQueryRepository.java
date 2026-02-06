@@ -18,4 +18,12 @@ public interface CorrectionQueryRepository {
     );
 
     Page<CorrectionResponseDTO.MyCorrectionDto> findNativeCorrectionRequests(PostStatus status, Pageable pageable);
+
+    long countMyCorrections(
+            Long userId,
+            Boolean bookmark,
+            PostStatus status,
+            CorrectorType correctorType
+    );
+
 }

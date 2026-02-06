@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.correction.converter.CorrectionConverter;
 import verbly.spring.domain.correction.dto.request.CorrectionRequestDTO;
+import verbly.spring.domain.correction.dto.response.CorrectionListResponseDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.entity.Correction;
 import verbly.spring.domain.correction.entity.CorrectionWord;
@@ -40,7 +41,7 @@ public class CorrectionService {
      * 내 문서 목록 조회
      */
     @Transactional(readOnly = true)
-    public List<CorrectionResponseDTO.MyCorrectionDto> getMyCorrections(
+    public CorrectionListResponseDTO getMyCorrections(
             Boolean bookmark,
             Boolean sort,
             PostStatus status,
@@ -48,13 +49,27 @@ public class CorrectionService {
     ) {
         Long userId = SecurityUtils.getCurrentUserId();
 
-        return correctionQueryRepository.findMyCorrections(
-                userId,
-                bookmark,
-                sort,
-                status,
-                correctorType
-        );
+        List<CorrectionResponseDTO.MyCorrectionDto> corrections =
+                correctionQueryRepository.findMyCorrections(
+                        userId,
+                        bookmark,
+                        sort,
+                        status,
+                        correctorType
+                );
+
+        long totalRequest =
+                correctionQueryRepository.countMyCorrections(
+                        userId,
+                        bookmark,
+                        status,
+                        correctorType
+                );
+
+        return CorrectionListResponseDTO.builder()
+                .totalRequest(totalRequest)
+                .corrections(corrections)
+                .build();
     }
 
     public CorrectionResponseDTO.MyCorrectionDto getCorrectionDetail(Long correctionId){

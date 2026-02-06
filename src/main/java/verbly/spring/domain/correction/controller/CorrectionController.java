@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.correction.dto.request.CorrectionRequestDTO;
+import verbly.spring.domain.correction.dto.response.CorrectionListResponseDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.correction.service.CorrectionService;
@@ -106,13 +107,13 @@ public class CorrectionController {
             @Parameter(name = "correctorType", description = "correctorType 필터", example = "AI_ASSISTANT")
     })
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CorrectionResponseDTO.MyCorrectionDto>>> getMyCorrections(
+    public ResponseEntity<ApiResponse<CorrectionListResponseDTO>> getMyCorrections(
             @RequestParam(required = false) Boolean bookmark,
             @RequestParam(required = false) Boolean sort,
             @RequestParam(required = false) PostStatus status,
             @RequestParam(required = false) CorrectorType correctorType
     ) {
-        List<CorrectionResponseDTO.MyCorrectionDto> result =
+        CorrectionListResponseDTO result =
                 correctionService.getMyCorrections(bookmark, sort, status, correctorType);
 
         return ResponseEntity

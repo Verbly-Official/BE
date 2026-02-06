@@ -197,6 +197,61 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
         return new PageImpl<>(content, pageable, total == null ? 0 : total);
     }
 
+    @Override
+    public long countMyCorrections(
+            Long userId,
+            Boolean bookmark,
+            PostStatus status,
+            CorrectorType correctorType
+    ) {
+        // TEMP는 집계 제외
+        if (status == PostStatus.TEMP) {
+            return 0L;
+        }
+
+        BooleanBuilder where = new BooleanBuilder();
+        where.and(post.author.id.eq(userId));
+
+        if (bookmark != null) {
+            where.and(Boolean.TRUE.equals(bookmark)
+                    ? correction.bookmark.isTrue()
+                    : correction.bookmark.isFalse()
+            );
+        }
+
+        if (status != null) {
+            where.and(post.status.eq(status));
+        }
+
+        var latestCreatedAtSubQuery =
+                JPAExpressions.select(correctionFeedback.createdAt.max())
+                        .from(correctionFeedback)
+                        .where(correctionFeedback.correction.eq(correction));
+
+        var latestFeedback =
+                new verbly.spring.domain.correction.entity.QCorrectionFeedback("latestFeedback");
+
+        // count 쿼리
+        var countQuery = queryFactory
+                .select(correction.id.countDistinct())
+                .from(correction)
+                .join(correction.post, post)
+                .leftJoin(latestFeedback)
+                .on(
+                        latestFeedback.correction.eq(correction)
+                                .and(latestFeedback.createdAt.eq(latestCreatedAtSubQuery))
+                )
+                .where(where);
+
+        if (correctorType != null) {
+            countQuery.where(latestFeedback.correctorType.eq(correctorType));
+        }
+
+        Long total = countQuery.fetchOne();
+        return total == null ? 0L : total;
+    }
+
+
     private List<OrderSpecifier<?>> resolveSort(Sort sort) {
         List<OrderSpecifier<?>> orders = new ArrayList<>();
 

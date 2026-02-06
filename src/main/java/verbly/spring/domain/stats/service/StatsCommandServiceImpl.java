@@ -31,15 +31,4 @@ public class StatsCommandServiceImpl implements StatsCommandService {
 
         stats.setPoint(stats.getPoint() + amount);
     }
-
-    @Override
-    @Transactional
-    public void markAttendanceIfNeeded(User user) {
-        Stats stats = user.getStats();
-        String rawTimeZone = user.getTimezone();
-        String safeZoneId = org.springframework.util.StringUtils.hasText(rawTimeZone)
-                ? rawTimeZone
-                : "Asia/Seoul";
-        stats.markAttendance(safeZoneId);
-    }
 }

@@ -6,4 +6,5 @@ import verbly.spring.domain.correction.entity.CorrectionFeedback;
 public interface CorrectionFeedbackRepository extends JpaRepository<CorrectionFeedback, Long> {
     void deleteAllByCorrectionId(Long correctionId);
     long countByCorrector_Id(Long correctorId);
+    long countDistinctCorrectionByCorrectorId(Long correctorId);
 }

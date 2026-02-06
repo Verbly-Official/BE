@@ -3,6 +3,7 @@ package verbly.spring.domain.user.dto.response;
 import lombok.*;
 import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.user.entity.User;
+import verbly.spring.domain.user.enums.Level;
 
 public class UserResponseDTO {
     @Getter
@@ -79,5 +80,36 @@ public class UserResponseDTO {
                     .nativeLang(user.getNativeLang())
                     .build();
         }
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HomeViewerInfoDTO {
+        String imageUrl;
+        String nickname;
+        Integer following;
+        Integer streak;
+        Long point;
+        Integer correctionReceived;
+        Level level;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HomeUserInfoDTO {
+        String imageUrl;
+        String nickname;
+        String nativeLang;
+        String description;
+        Integer totalPosts;
+        Integer follower;
+        Integer following;
+        Boolean isFollowing;
+        Integer correctionReceived;
+        Integer correctionGiven;
     }
 }

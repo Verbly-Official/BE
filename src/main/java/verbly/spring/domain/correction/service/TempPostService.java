@@ -3,8 +3,6 @@ package verbly.spring.domain.correction.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import verbly.spring.domain.correction.converter.CorrectionConverter;
-import verbly.spring.domain.correction.dto.request.CorrectionRequestDTO;
 import verbly.spring.domain.correction.exception.CorrectionHandler;
 import verbly.spring.domain.post.converter.PostConverter;
 import verbly.spring.domain.post.dto.request.PostRequestDTO;

@@ -49,7 +49,6 @@ public interface UserControllerDocs {
             )
     })
     ApiResponse<UserResponseDTO.HomeViewerInfoDTO> getHomeViewerInfo(
-            @AuthenticationPrincipal CustomUserDetails userDetails
     );
 
     @Operation(
@@ -89,7 +88,6 @@ public interface UserControllerDocs {
             )
     })
     ApiResponse<UserResponseDTO.HomeUserInfoDTO> getUserProfileInfo(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable(name = "uuid") UUID uuid
     );
 }

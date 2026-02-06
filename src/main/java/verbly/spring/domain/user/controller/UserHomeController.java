@@ -25,17 +25,15 @@ public class UserHomeController implements UserControllerDocs {
     @Override
     @GetMapping("/viewer/info")
     public ApiResponse<UserResponseDTO.HomeViewerInfoDTO> getHomeViewerInfo(
-            @AuthenticationPrincipal CustomUserDetails userDetails
     ){
-        return ApiResponse.onSuccess(userHomeQueryService.getHomeViewerInfo(userDetails));
+        return ApiResponse.onSuccess(userHomeQueryService.getHomeViewerInfo());
     }
 
     @Override
     @GetMapping("/users/{uuid}")
     public ApiResponse<UserResponseDTO.HomeUserInfoDTO> getUserProfileInfo(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable(name = "uuid") UUID uuid
     ){
-        return ApiResponse.onSuccess(userHomeQueryService.getUserProfileInfo(userDetails, uuid));
+        return ApiResponse.onSuccess(userHomeQueryService.getUserProfileInfo(uuid));
     }
 }

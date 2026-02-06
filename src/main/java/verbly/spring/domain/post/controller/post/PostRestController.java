@@ -42,7 +42,6 @@ public class PostRestController implements PostControllerDocs {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         User viewer = userDetails != null ? userDetails.getUser() : null;
-        statsCommandService.markAttendanceIfNeeded(viewer);
         return ApiResponse.onSuccess(postQueryService.getHomePosts(pageable, viewer));
     }
 

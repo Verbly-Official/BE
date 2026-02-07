@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.auth.CustomUserDetails;
@@ -92,7 +93,13 @@ public interface UserControllerDocs {
             @PathVariable(name = "uuid") UUID uuid
     );
 
+    @Operation(
+            summary = "출석 확인 API",
+            security = @SecurityRequirement(name = "JWT TOKEN"),
+            description = "✅ **query string:**\n" +
+                    "- timezone: 사용자 위치 timezone (String/ 부적절한 timezone 입력 시 seoul로 고정)\n"
+    )
     ResponseEntity<Void> homeApi(
-            @PathVariable(name = "timezone") String timezone
+            @RequestParam String timezone
     );
 }

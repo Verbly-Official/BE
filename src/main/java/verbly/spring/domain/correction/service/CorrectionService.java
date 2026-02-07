@@ -83,12 +83,15 @@ public class CorrectionService {
                 .build();
     }
 
+    /**
+     * 문서 상세 조회
+     */
     public CorrectionResponseDTO.MyCorrectionDto getCorrectionDetail(Long correctionId){
         validateNativeAccess();
 
         Long userId = SecurityUtils.getCurrentUserId();
 
-        Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
+        Correction correction = findOwnedCorrectionDetailOrThrow(userId, correctionId);
 
         return CorrectionConverter.toMyCorrectionDTO(correction, null, null);
     }
@@ -244,6 +247,12 @@ public class CorrectionService {
                 .filter(c -> c.getPost().getAuthor().getId().equals(userId))
                 .orElseThrow(() -> new CorrectionHandler(ErrorStatus.CORRECTION_ACCESS_DENIED));
     }
+
+    private Correction findOwnedCorrectionDetailOrThrow(Long userId, Long correctionId) {
+        return correctionRepository.findOwnedDetailWithTags(userId, correctionId)
+                .orElseThrow(() -> new CorrectionHandler(ErrorStatus.CORRECTION_ACCESS_DENIED));
+    }
+
 
     private Post findTempPostOrThrow(Long tempPostId, User user) {
         Post post = findPostOrThrow(tempPostId);

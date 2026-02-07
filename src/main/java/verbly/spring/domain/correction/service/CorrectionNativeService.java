@@ -41,11 +41,18 @@ public class CorrectionNativeService {
     private final CorrectionFeedbackRepository correctionFeedbackRepository;
     private final CorrectionEditorQueryRepository correctionEditorQueryRepository;
 
-    public Page<CorrectionResponseDTO.MyCorrectionDto> getNativeCorrectionRequests(PostStatus status, Pageable pageable) {
+    public CorrectionResponseDTO.NativeCorrectionDTO getNativeCorrectionRequests(PostStatus status, Pageable pageable) {
         validateNativeAccess();
 
         Pageable safePageable = normalize(pageable);
-        return correctionQueryRepository.findNativeCorrectionRequests(status, safePageable);
+
+        Page<CorrectionResponseDTO.MyCorrectionDto> pageResult =
+                correctionQueryRepository.findNativeCorrectionRequests(status, safePageable);
+
+        long totalRequest =
+                correctionQueryRepository.countNativeCorrectionRequests(status);
+
+        return CorrectionResponseDTO.NativeCorrectionDTO.from(pageResult, totalRequest);
     }
 
     @Transactional(readOnly = true)

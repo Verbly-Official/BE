@@ -51,11 +51,11 @@ public class CorrectionNativeController {
             @Parameter(name = "size", description = "페이지 크기", example = "10")
     })
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<CorrectionResponseDTO.MyCorrectionDto>>> getNativeCorrectionRequests(
+    public ResponseEntity<ApiResponse<CorrectionResponseDTO.NativeCorrectionDTO>> getNativeCorrectionRequests(
             @RequestParam(required = false) PostStatus status,
             @PageableDefault(size = 10) Pageable pageable
     ) {
-        Page<CorrectionResponseDTO.MyCorrectionDto> result =
+        CorrectionResponseDTO.NativeCorrectionDTO result =
                 correctionNativeService.getNativeCorrectionRequests(status, pageable);
 
         return ResponseEntity

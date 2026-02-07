@@ -26,4 +26,6 @@ public interface CorrectionQueryRepository {
             CorrectorType correctorType
     );
 
+    long countNativeCorrectionRequests(PostStatus status);
+
 }

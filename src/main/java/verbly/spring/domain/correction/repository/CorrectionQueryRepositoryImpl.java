@@ -19,6 +19,7 @@ import verbly.spring.domain.post.enums.PostStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static verbly.spring.domain.correction.entity.QCorrection.correction;
 import static verbly.spring.domain.correction.entity.QCorrectionFeedback.correctionFeedback;
@@ -250,6 +251,30 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
         Long total = countQuery.fetchOne();
         return total == null ? 0L : total;
     }
+
+    @Override
+    public long countNativeCorrectionRequests(PostStatus status) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(post.temp.isFalse());
+
+        builder.and(post.status.ne(PostStatus.TEMP));
+
+        if (status != null) {
+            builder.and(post.status.eq(status));
+        }
+
+        return Optional.ofNullable(
+                queryFactory
+                        .select(correction.count())
+                        .from(correction)
+                        .join(correction.post, post)
+                        .where(builder)
+                        .fetchOne()
+        ).orElse(0L);
+
+    }
+
 
 
     private List<OrderSpecifier<?>> resolveSort(Sort sort) {

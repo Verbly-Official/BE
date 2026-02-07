@@ -34,13 +34,9 @@ public class UserHomeQueryServiceImpl implements UserHomeQueryService {
     private final UserConverter userConverter;
 
     @Override
-    @Transactional
     public UserResponseDTO.HomeViewerInfoDTO getHomeViewerInfo() {
         Long userId = SecurityUtils.getCurrentUserId();
         User viewer = userRepository.findById(userId).orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
-
-        statsCommandService.markAttendance(userId, viewer.getTimezone());
-
         long correctionReceived = postRepository.countByAuthorIdAndStatus(viewer.getId(), PostStatus.COMPLETED);
         long following = followRepository.countByFollowerId(viewer.getId());
         return userConverter.toHomeViewerInfoDTO(viewer, following, correctionReceived);

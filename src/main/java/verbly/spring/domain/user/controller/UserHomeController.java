@@ -1,16 +1,18 @@
 package verbly.spring.domain.user.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import verbly.spring.domain.stats.service.StatsCommandService;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.domain.user.service.userhome.UserHomeQueryService;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.auth.CustomUserDetails;
+import verbly.spring.global.security.utils.SecurityUtils;
 
 import java.util.UUID;
 
@@ -21,6 +23,7 @@ import java.util.UUID;
 public class UserHomeController implements UserControllerDocs {
 
     private final UserHomeQueryService userHomeQueryService;
+    private final StatsCommandService statsCommandService;
 
     @Override
     @GetMapping("/viewer/info")
@@ -35,5 +38,15 @@ public class UserHomeController implements UserControllerDocs {
             @PathVariable(name = "uuid") UUID uuid
     ){
         return ApiResponse.onSuccess(userHomeQueryService.getUserProfileInfo(uuid));
+    }
+
+    @Override
+    @PostMapping()
+    public ResponseEntity<Void> homeApi(
+            @RequestParam String timezone
+    ){
+        Long userId = SecurityUtils.getCurrentUserId();
+        statsCommandService.markAttendance(userId, timezone);
+        return ResponseEntity.noContent().build();
     }
 }

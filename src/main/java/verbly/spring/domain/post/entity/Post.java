@@ -5,6 +5,7 @@ import lombok.*;
 import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.entity.BaseEntity;
+import verbly.spring.domain.post.entity.Folder;
 import org.hibernate.annotations.Check;
 
 import java.time.LocalDateTime;
@@ -95,13 +96,12 @@ public class Post extends BaseEntity {
         this.temp = temp;
     }
 
-    public void clearTags() {
-        this.postTags.clear();
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "folder_id")
+    private Folder folder;
 
-    public void addPostTag(PostTag postTag) {
-        this.postTags.add(postTag);
+    public void moveToFolder(Folder folder) {
+        this.folder = folder;
     }
-
 
 }

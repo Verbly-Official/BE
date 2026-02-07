@@ -34,4 +34,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findByIdAndAuthorIdAndTempTrue(Long postId, Long authorId);
     Integer countByAuthorIdAndStatus(Long authorId, PostStatus status);
 
+    Optional<Post> findByIdAndAuthorId(Long postId, Long authorId);
 }

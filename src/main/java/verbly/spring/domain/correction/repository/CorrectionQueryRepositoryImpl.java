@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static verbly.spring.domain.correction.entity.QCorrection.correction;
+import static verbly.spring.domain.correction.entity.QCorrectionBookmark.correctionBookmark;
 import static verbly.spring.domain.correction.entity.QCorrectionFeedback.correctionFeedback;
 import static verbly.spring.domain.post.entity.QPost.post;
 import static verbly.spring.domain.user.entity.QUser.user;
@@ -57,34 +58,19 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
                             post.author.id.eq(authorId),
                             post.status.eq(PostStatus.TEMP)
                     )
-                    .orderBy(
-                            Boolean.TRUE.equals(sort)
-                                    ? post.createdAt.desc()
-                                    : post.id.desc()
-                    )
+                    .orderBy(Boolean.TRUE.equals(sort) ? post.createdAt.desc() : post.id.desc())
                     .fetch();
         }
-        BooleanBuilder where = new BooleanBuilder();
 
+        BooleanBuilder where = new BooleanBuilder();
         where.and(post.author.id.eq(authorId));
 
-        if (bookmark != null) {
-            if (Boolean.TRUE.equals(bookmark)) {
-                where.and(correction.bookmark.isTrue());
-            } else {
-                where.and(correction.bookmark.isFalse());
-            }
-        }
-
-        if (status != null) {
-            where.and(post.status.eq(status));
-        }
+        if (status != null) where.and(post.status.eq(status));
 
         var latestCreatedAtSubQuery =
                 JPAExpressions.select(correctionFeedback.createdAt.max())
                         .from(correctionFeedback)
                         .where(correctionFeedback.correction.eq(correction));
-
 
         var latestFeedback = new verbly.spring.domain.correction.entity.QCorrectionFeedback("latestFeedback");
 
@@ -95,6 +81,12 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
                 .then(user.nickname)
                 .otherwise((String) null);
 
+        var bookmarkedExpr = correctionBookmark.id.isNotNull();
+
+        if (bookmark != null) {
+            where.and(Boolean.TRUE.equals(bookmark) ? bookmarkedExpr : bookmarkedExpr.not());
+        }
+
         var baseQuery = queryFactory
                 .select(Projections.fields(
                         CorrectionResponseDTO.MyCorrectionDto.class,
@@ -103,7 +95,7 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
                         post.title.as("title"),
                         post.status.as("status"),
                         post.content.as("content"),
-                        correction.bookmark.as("bookmark"),
+                        bookmarkedExpr.as("bookmark"),
                         latestFeedback.correctorType.as("correctorType"),
                         correctorNameExpr.as("correctorName"),
                         correction.createdAt.as("correctionCreatedAt"),
@@ -111,8 +103,11 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
                 ))
                 .from(correction)
                 .join(correction.post, post)
-                .leftJoin(latestFeedback)
-                .on(
+                .leftJoin(correctionBookmark).on(
+                        correctionBookmark.correction.eq(correction)
+                                .and(correctionBookmark.user.id.eq(authorId))
+                )
+                .leftJoin(latestFeedback).on(
                         latestFeedback.correction.eq(correction)
                                 .and(latestFeedback.createdAt.eq(latestCreatedAtSubQuery))
                 )
@@ -123,24 +118,24 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
             baseQuery.where(latestFeedback.correctorType.eq(correctorType));
         }
 
-        if (Boolean.TRUE.equals(sort)) {
-            baseQuery.orderBy(correction.createdAt.desc());
-        } else {
-            baseQuery.orderBy(correction.id.desc());
-        }
+        baseQuery.orderBy(Boolean.TRUE.equals(sort) ? correction.createdAt.desc() : correction.id.desc());
 
         return baseQuery.fetch();
     }
 
     @Override
-    public Page<CorrectionResponseDTO.MyCorrectionDto> findNativeCorrectionRequests(PostStatus status, Pageable pageable) {
+    public Page<CorrectionResponseDTO.MyCorrectionDto> findNativeCorrectionRequests(
+            Long userId,
+            Boolean bookmark,
+            PostStatus status,
+            Pageable pageable
+    ) {
         var latestCreatedAtSubQuery =
                 JPAExpressions.select(correctionFeedback.createdAt.max())
                         .from(correctionFeedback)
                         .where(correctionFeedback.correction.eq(correction));
 
-        var latestFeedback =
-                new verbly.spring.domain.correction.entity.QCorrectionFeedback("latestFeedback");
+        var latestFeedback = new verbly.spring.domain.correction.entity.QCorrectionFeedback("latestFeedback");
 
         var correctorNameExpr = new CaseBuilder()
                 .when(latestFeedback.correctorType.eq(CorrectorType.AI_ASSISTANT))
@@ -148,6 +143,17 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
                 .when(latestFeedback.correctorType.eq(CorrectorType.NATIVE_SPEAKER))
                 .then(user.nickname)
                 .otherwise((String) null);
+
+        var bookmarkedExpr = correctionBookmark.id.isNotNull();
+
+        BooleanBuilder where = new BooleanBuilder();
+        where.and(user.learningLang.eq("en"));
+        where.and(post.status.ne(PostStatus.TEMP));
+        where.and(statusEq(status));
+
+        if (bookmark != null) {
+            where.and(Boolean.TRUE.equals(bookmark) ? bookmarkedExpr : bookmarkedExpr.not());
+        }
 
         List<OrderSpecifier<?>> orderSpecifiers = resolveSort(pageable.getSort());
 
@@ -159,7 +165,7 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
                         post.title.as("title"),
                         post.status.as("status"),
                         post.content.as("content"),
-                        correction.bookmark.as("bookmark"),
+                        bookmarkedExpr.as("bookmark"),
                         latestFeedback.correctorType.as("correctorType"),
                         correctorNameExpr.as("correctorName"),
                         correction.createdAt.as("correctionCreatedAt"),
@@ -168,31 +174,30 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
                 .from(correction)
                 .join(correction.post, post)
                 .join(post.author, user)
-                .leftJoin(latestFeedback)
-                .on(
+                .leftJoin(correctionBookmark).on(
+                        correctionBookmark.correction.eq(correction)
+                                .and(correctionBookmark.user.id.eq(userId))
+                )
+                .leftJoin(latestFeedback).on(
                         latestFeedback.correction.eq(correction)
                                 .and(latestFeedback.createdAt.eq(latestCreatedAtSubQuery))
                 )
-                .where(
-                        user.learningLang.eq("en"),
-                        post.status.ne(PostStatus.TEMP),
-                        statusEq(status)
-                )
+                .where(where)
                 .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         Long total = queryFactory
-                .select(correction.count())
+                .select(correction.id.countDistinct())
                 .from(correction)
                 .join(correction.post, post)
                 .join(post.author, user)
-                .where(
-                        user.learningLang.eq("en"),
-                        post.status.ne(PostStatus.TEMP),
-                        statusEq(status)
+                .leftJoin(correctionBookmark).on(
+                        correctionBookmark.correction.eq(correction)
+                                .and(correctionBookmark.user.id.eq(userId))
                 )
+                .where(where)
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, total == null ? 0 : total);
@@ -213,13 +218,6 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
         BooleanBuilder where = new BooleanBuilder();
         where.and(post.author.id.eq(userId));
 
-        if (bookmark != null) {
-            where.and(Boolean.TRUE.equals(bookmark)
-                    ? correction.bookmark.isTrue()
-                    : correction.bookmark.isFalse()
-            );
-        }
-
         if (status != null) {
             where.and(post.status.eq(status));
         }
@@ -232,13 +230,21 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
         var latestFeedback =
                 new verbly.spring.domain.correction.entity.QCorrectionFeedback("latestFeedback");
 
+        var bookmarkedExpr = correctionBookmark.id.isNotNull();
+        if (bookmark != null) {
+            where.and(Boolean.TRUE.equals(bookmark) ? bookmarkedExpr : bookmarkedExpr.not());
+        }
+
         // count 쿼리
         var countQuery = queryFactory
                 .select(correction.id.countDistinct())
                 .from(correction)
                 .join(correction.post, post)
-                .leftJoin(latestFeedback)
-                .on(
+                .leftJoin(correctionBookmark).on(
+                        correctionBookmark.correction.eq(correction)
+                                .and(correctionBookmark.user.id.eq(userId))
+                )
+                .leftJoin(latestFeedback).on(
                         latestFeedback.correction.eq(correction)
                                 .and(latestFeedback.createdAt.eq(latestCreatedAtSubQuery))
                 )
@@ -253,23 +259,31 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
     }
 
     @Override
-    public long countNativeCorrectionRequests(PostStatus status) {
-        BooleanBuilder builder = new BooleanBuilder();
+    public long countNativeCorrectionRequests(
+            Long userId,
+            Boolean bookmark,
+            PostStatus status
+    ) {
+        BooleanBuilder where = new BooleanBuilder();
+        where.and(post.temp.isFalse());
+        where.and(post.status.ne(PostStatus.TEMP));
+        where.and(statusEq(status));
 
-        builder.and(post.temp.isFalse());
-
-        builder.and(post.status.ne(PostStatus.TEMP));
-
-        if (status != null) {
-            builder.and(post.status.eq(status));
+        var bookmarkedExpr = correctionBookmark.id.isNotNull();
+        if (bookmark != null) {
+            where.and(Boolean.TRUE.equals(bookmark) ? bookmarkedExpr : bookmarkedExpr.not());
         }
 
         return Optional.ofNullable(
                 queryFactory
-                        .select(correction.count())
+                        .select(correction.id.countDistinct())
                         .from(correction)
                         .join(correction.post, post)
-                        .where(builder)
+                        .leftJoin(correctionBookmark).on(
+                                correctionBookmark.correction.eq(correction)
+                                        .and(correctionBookmark.user.id.eq(userId))
+                        )
+                        .where(where)
                         .fetchOne()
         ).orElse(0L);
 

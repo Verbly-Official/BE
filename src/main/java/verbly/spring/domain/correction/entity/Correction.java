@@ -19,17 +19,4 @@ public class Correction extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", nullable = false, unique = true)
     private Post post;
-
-    // 즐겨찾기
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean bookmark = false;
-
-    public void addBookmark() {
-        this.bookmark = true;
-    }
-
-    public void removeBookmark() {
-        this.bookmark = false;
-    }
 }

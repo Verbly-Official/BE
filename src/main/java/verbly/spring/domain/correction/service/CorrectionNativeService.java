@@ -13,6 +13,7 @@ import verbly.spring.domain.correction.dto.response.CorrectionEditorQueryDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionEditorResponseDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.entity.Correction;
+import verbly.spring.domain.correction.entity.CorrectionBookmark;
 import verbly.spring.domain.correction.entity.CorrectionFeedback;
 import verbly.spring.domain.correction.entity.CorrectionWord;
 import verbly.spring.domain.correction.enums.CorrectorType;
@@ -40,17 +41,33 @@ public class CorrectionNativeService {
     private final CorrectionWordRepository correctionWordRepository;
     private final CorrectionFeedbackRepository correctionFeedbackRepository;
     private final CorrectionEditorQueryRepository correctionEditorQueryRepository;
+    private final CorrectionBookmarkRepository correctionBookmarkRepository;
 
-    public CorrectionResponseDTO.NativeCorrectionDTO getNativeCorrectionRequests(PostStatus status, Pageable pageable) {
+    public CorrectionResponseDTO.NativeCorrectionDTO getNativeCorrectionRequests(
+            Boolean bookmark,
+            PostStatus status,
+            Pageable pageable
+    ) {
         validateNativeAccess();
+
+        Long userId = SecurityUtils.getCurrentUserId();
 
         Pageable safePageable = normalize(pageable);
 
         Page<CorrectionResponseDTO.MyCorrectionDto> pageResult =
-                correctionQueryRepository.findNativeCorrectionRequests(status, safePageable);
+                correctionQueryRepository.findNativeCorrectionRequests(
+                        userId,
+                        bookmark,
+                        status,
+                        safePageable
+                );
 
         long totalRequest =
-                correctionQueryRepository.countNativeCorrectionRequests(status);
+                correctionQueryRepository.countNativeCorrectionRequests(
+                        userId,
+                        bookmark,
+                        status
+                );
 
         return CorrectionResponseDTO.NativeCorrectionDTO.from(pageResult, totalRequest);
     }
@@ -197,7 +214,31 @@ public class CorrectionNativeService {
         correctionFeedbackRepository.delete(feedback);
     }
 
+    public void addBookmark(Long correctionId) {
+        validateNativeAccess();
 
+        User user = SecurityUtils.getCurrentUser();
+
+        Correction correction = findCorrectionOrThrow(correctionId);
+
+        if (correctionBookmarkRepository.existsByUserIdAndCorrectionId(user.getId(), correctionId)) {
+            return;
+        }
+
+        correctionBookmarkRepository.save(
+                CorrectionBookmark.builder()
+                        .user(user)
+                        .correction(correction)
+                        .build()
+        );
+    }
+
+    public void removeBookmark(Long correctionId) {
+        validateNativeAccess();
+
+        Long userId = SecurityUtils.getCurrentUserId();
+        correctionBookmarkRepository.deleteByUserIdAndCorrectionId(userId, correctionId);
+    }
 
 
     private Pageable normalize(Pageable pageable) {

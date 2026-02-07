@@ -8,13 +8,11 @@ import verbly.spring.domain.correction.dto.request.CorrectionRequestDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionListResponseDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.entity.Correction;
+import verbly.spring.domain.correction.entity.CorrectionBookmark;
 import verbly.spring.domain.correction.entity.CorrectionWord;
 import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.correction.exception.CorrectionHandler;
-import verbly.spring.domain.correction.repository.CorrectionFeedbackRepository;
-import verbly.spring.domain.correction.repository.CorrectionQueryRepository;
-import verbly.spring.domain.correction.repository.CorrectionRepository;
-import verbly.spring.domain.correction.repository.CorrectionWordRepository;
+import verbly.spring.domain.correction.repository.*;
 import verbly.spring.domain.correction.tokenizer.EnglishWordTokenizer;
 import verbly.spring.domain.correction.tokenizer.WordToken;
 import verbly.spring.domain.post.entity.Post;
@@ -45,6 +43,7 @@ public class CorrectionService {
     private final EnglishWordTokenizer englishWordTokenizer;
     private final PostTagRepository postTagRepository;
     private final TagRepository tagRepository;
+    private final CorrectionBookmarkRepository correctionBookmarkRepository;
 
     /**
      * 내 문서 목록 조회
@@ -191,6 +190,7 @@ public class CorrectionService {
         Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
         Post post = correction.getPost();
 
+        correctionBookmarkRepository.deleteAllByCorrection_Id(correctionId);
         correctionFeedbackRepository.deleteAllByCorrectionId(correctionId);
         correctionWordRepository.deleteByCorrectionId(correctionId);
         correctionRepository.delete(correction);
@@ -204,12 +204,21 @@ public class CorrectionService {
     public void addBookmark(Long correctionId) {
         validateNativeAccess();
 
-        Long userId = SecurityUtils.getCurrentUserId();
+        User user = SecurityUtils.getCurrentUser();
+        Long userId = user.getId();
 
         Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
 
-        correction.addBookmark();
-        correctionRepository.save(correction);
+        if (correctionBookmarkRepository.existsByUserIdAndCorrectionId(userId, correctionId)) {
+            return;
+        }
+
+        correctionBookmarkRepository.save(
+                CorrectionBookmark.builder()
+                        .user(user)
+                        .correction(correction)
+                        .build()
+        );
     }
 
     /**
@@ -221,10 +230,7 @@ public class CorrectionService {
 
         Long userId = SecurityUtils.getCurrentUserId();
 
-        Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
-
-        correction.removeBookmark();
-        correctionRepository.save(correction);
+        correctionBookmarkRepository.deleteByUserIdAndCorrectionId(userId, correctionId);
     }
 
 

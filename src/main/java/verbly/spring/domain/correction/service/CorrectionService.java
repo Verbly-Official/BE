@@ -18,8 +18,12 @@ import verbly.spring.domain.correction.repository.CorrectionWordRepository;
 import verbly.spring.domain.correction.tokenizer.EnglishWordTokenizer;
 import verbly.spring.domain.correction.tokenizer.WordToken;
 import verbly.spring.domain.post.entity.Post;
+import verbly.spring.domain.post.entity.PostTag;
+import verbly.spring.domain.post.entity.Tag;
 import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.post.repository.PostRepository;
+import verbly.spring.domain.post.repository.PostTagRepository;
+import verbly.spring.domain.post.repository.TagRepository;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.security.utils.SecurityUtils;
@@ -30,12 +34,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CorrectionService {
 
+    private static final int MAX_TAG_COUNT = 10;
+    private static final int MAX_TAG_LENGTH = 30;
+
     private final PostRepository postRepository;
     private final CorrectionRepository correctionRepository;
     private final CorrectionQueryRepository correctionQueryRepository;
     private final CorrectionFeedbackRepository correctionFeedbackRepository;
     private final CorrectionWordRepository correctionWordRepository;
     private final EnglishWordTokenizer englishWordTokenizer;
+    private final PostTagRepository postTagRepository;
+    private final TagRepository tagRepository;
 
     /**
      * 내 문서 목록 조회
@@ -111,17 +120,7 @@ public class CorrectionService {
             post.changeStatus(PostStatus.PENDING);
             post.changeTemp(false);
 
-            Post savedPost = postRepository.save(post);
-
-            Correction correction = Correction.builder()
-                    .post(savedPost)
-                    .build();
-
-            Correction savedCorrection = correctionRepository.save(correction);
-
-            saveWords(savedCorrection, savedPost.getContent());
-
-            return CorrectionConverter.toCreateCorrectionResponse(savedCorrection);
+            return getCreateCorrectionResponseDTO(requestDTO, post);
         }
 
         // 새 글 및 커렉션 생성
@@ -133,17 +132,7 @@ public class CorrectionService {
                 .temp(false)
                 .build();
 
-        Post savedPost = postRepository.save(post);
-
-        Correction correction = Correction.builder()
-                .post(savedPost)
-                .build();
-
-        Correction savedCorrection = correctionRepository.save(correction);
-
-        saveWords(savedCorrection, savedPost.getContent());
-
-        return CorrectionConverter.toCreateCorrectionResponse(savedCorrection);
+        return getCreateCorrectionResponseDTO(requestDTO, post);
     }
 
     /**
@@ -163,15 +152,26 @@ public class CorrectionService {
 
         validateRequiredFields(newTitle, newContent);
 
-        if (post.isSameContent(newTitle, newContent)) {
+        boolean contentChanged = !post.isSameContent(newTitle, newContent);
+        boolean tagsRequested = (requestDTO.getTags() != null);
+
+        if (!contentChanged && !tagsRequested) {
             return CorrectionConverter.toMyCorrectionDTO(correction, null, null);
         }
 
-        post.update(newTitle, newContent);
-        postRepository.save(post);
+        if (contentChanged) {
 
-        correctionWordRepository.deleteByCorrectionId(correction.getId());
-        saveWords(correction, post.getContent());
+
+            post.update(newTitle, newContent);
+            postRepository.save(post);
+
+            correctionWordRepository.deleteByCorrectionId(correction.getId());
+            saveWords(correction, post.getContent());
+        }
+
+        if (tagsRequested) {
+            applyTags(post, requestDTO.getTags());
+        }
 
         return CorrectionConverter.toMyCorrectionDTO(correction, null, null);
     }
@@ -306,4 +306,57 @@ public class CorrectionService {
             throw new CorrectionHandler(ErrorStatus.CORRECTION_NATIVE_ACCESS_DENIED);
         }
     }
+
+    private void applyTags(Post post, List<String> rawTags) {
+        postTagRepository.deleteByPost(post);
+        post.getPostTags().clear();
+
+        if (rawTags == null || rawTags.isEmpty()) return;
+
+        List<String> tags = rawTags.stream()
+                .filter(t -> t != null && !t.isBlank())
+                .map(String::trim)
+                .filter(t -> !t.isBlank())
+                .distinct()
+                .limit(MAX_TAG_COUNT)
+                .toList();
+
+        for (String name : tags) {
+            if (name.length() > MAX_TAG_LENGTH) {
+                throw new CorrectionHandler(ErrorStatus.POST_TAG_NOT_VALIDATE);
+            }
+
+            Tag tag = tagRepository.findByName(name)
+                    .orElseGet(() -> tagRepository.save(Tag.builder().name(name).build()));
+
+            PostTag postTag = PostTag.builder()
+                    .post(post)
+                    .tag(tag)
+                    .build();
+
+            post.getPostTags().add(postTag);
+            postTagRepository.save(postTag);
+        }
+    }
+
+    private String normalizeTag(String tag) {
+        return tag == null ? "" : tag.trim();
+    }
+
+    private CorrectionResponseDTO.CreateCorrectionResponseDTO getCreateCorrectionResponseDTO(CorrectionRequestDTO.CreateDTO requestDTO, Post post) {
+        Post savedPost = postRepository.save(post);
+
+        applyTags(savedPost, requestDTO.getTags());
+
+        Correction correction = Correction.builder()
+                .post(savedPost)
+                .build();
+
+        Correction savedCorrection = correctionRepository.save(correction);
+
+        saveWords(savedCorrection, savedPost.getContent());
+
+        return CorrectionConverter.toCreateCorrectionResponse(savedCorrection);
+    }
+
 }

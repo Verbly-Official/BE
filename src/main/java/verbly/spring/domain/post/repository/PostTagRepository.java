@@ -4,6 +4,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.post.entity.PostTag;
 import verbly.spring.domain.post.entity.Tag;
 
@@ -21,4 +22,6 @@ public interface PostTagRepository extends JpaRepository<PostTag, Long> {
             @Param("end") LocalDateTime end,
             Pageable pageable
     );
+
+    void deleteByPost(Post post);
 }

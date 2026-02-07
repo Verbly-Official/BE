@@ -95,4 +95,13 @@ public class Post extends BaseEntity {
         this.temp = temp;
     }
 
+    public void clearTags() {
+        this.postTags.clear();
+    }
+
+    public void addPostTag(PostTag postTag) {
+        this.postTags.add(postTag);
+    }
+
+
 }

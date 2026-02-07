@@ -3,7 +3,6 @@ package verbly.spring.domain.correction.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import verbly.spring.domain.correction.enums.CorrectorType;
-import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.post.enums.PostStatus;
 
 import java.time.LocalDateTime;

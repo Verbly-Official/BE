@@ -30,6 +30,8 @@ public class CorrectionResponseDTO {
         private Boolean bookmark;
         private String content;
 
+        private List<String> tags;
+
         private CorrectorType correctorType;
         private String correctorName;
 

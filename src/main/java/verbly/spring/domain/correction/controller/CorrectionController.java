@@ -20,8 +20,6 @@ import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.global.common.code.SuccessStatus;
 import verbly.spring.global.common.response.ApiResponse;
 
-import java.util.List;
-
 @Tag(name = "Correction", description = "Correction 탭 API")
 @RestController
 @RequestMapping("/api/correction")
@@ -38,11 +36,16 @@ public class CorrectionController {
             description = "새로운 글을 작성합니다.\n\n" +
                     "✅ 요청 본문에 포함할 수 있는 값:\n" +
                     "- tempPostId: 임시저장 글 ID (Long, 선택)\n" +
+                    "- tags: 태그 목록 (List<String>, 선택)\n\n" +
                     "- title: 제목 (String, 필수)\n" +
                     "- content: 내용 (String, 필수)\n\n" +
                     "✅ 동작 방식:\n" +
                     "- tempPostId가 없으면: 새 Post 및 Correction 생성\n" +
-                    "- tempPostId가 있으면: 임시저장 Post를 Correction 생성(요청)"
+                    "- tempPostId가 있으면: 임시저장 Post를 Correction 생성(요청)\n\n" +
+                    "📎 tags 필드 설명:\n" +
+                    "- tags는 선택 값이며, 전달하지 않으면 태그 없이 생성됩니다.\n" +
+                    "- 태그는 문자열 배열 형태로 전달합니다.\n" +
+                    "- 예: [\"Business_Email\", \"Job_Application\"]"
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Correction Write 요청 예시",
@@ -55,7 +58,8 @@ public class CorrectionController {
                                     value = """
                                         {
                                           "title": "제목",
-                                          "content": "내용"
+                                          "content": "내용",
+                                          "tags": ["Business_Email", "Job_Application"]
                                         }
                                         """
                             ),
@@ -65,7 +69,8 @@ public class CorrectionController {
                                         {
                                           "tempPostId": 123,
                                           "title": "임시저장했던 제목(수정 가능)",
-                                          "content": "임시저장했던 내용(수정 가능)"
+                                          "content": "임시저장했던 내용(수정 가능)",
+                                          "tags": ["Draft", "Email"]
                                         }
                                         """
                             )
@@ -149,7 +154,13 @@ public class CorrectionController {
             description = "자신의 커렉션 글을 수정합니다.\n\n" +
                     "✅ 수정 가능한 값:\n" +
                     "- title: 제목 (String, 선택)\n" +
-                    "- content: 내용 (String, 선택)\n",
+                    "- content: 내용 (String, 선택)\n" +
+                    "- tags: 태그 목록 (List<String>, 선택)\n\n" +
+
+                    "📌 tags 필드 동작 방식:\n" +
+                    "- tags 필드를 **전송하지 않으면(null)** 기존 태그 유지\n" +
+                    "- tags를 **빈 배열([])로 전송**하면 기존 태그 전체 삭제\n" +
+                    "- tags에 **문자열 배열을 전송**하면 기존 태그를 해당 값으로 교체\n\n",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -162,7 +173,8 @@ public class CorrectionController {
                             value = """
                                     {
                                         "title": "수정된 제목",
-                                        "content": "수정된 내용"
+                                        "content": "수정된 내용",
+                                        "tags": ["변경할 태그 1", "변경할 태그 2"]
                                     }
                                     """
                     )

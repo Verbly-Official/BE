@@ -57,6 +57,8 @@ public class CorrectionNativeService {
 
     @Transactional(readOnly = true)
     public CorrectionEditorResponseDTO.Detail getDetail(Long correctionId) {
+        validateNativeAccess();
+
         CorrectionEditorQueryDTO.CorrectionBaseRow base = findBaseOrThrow(correctionId);
 
         List<CorrectionWord> words =
@@ -91,6 +93,8 @@ public class CorrectionNativeService {
     }
 
     public void upsertWords(Long correctionId, CorrectionEditorRequestDTO.UpsertWords request) {
+        validateNativeAccess();
+
         Correction correction = findCorrectionOrThrow(correctionId);
 
         markInProgressIfPending(correction);
@@ -103,6 +107,8 @@ public class CorrectionNativeService {
             CorrectorType correctorType,
             CorrectionEditorRequestDTO.WriteFeedback request
     ) {
+        validateNativeAccess();
+
         Correction correction = findCorrectionOrThrow(correctionId);
 
         validateSentenceIdx(correction.getPost().getContent(), request.getSentenceIdx());
@@ -128,6 +134,8 @@ public class CorrectionNativeService {
 
     @Transactional(readOnly = true)
     public List<CorrectionEditorResponseDTO.Feedback> getFeedback(Long correctionId) {
+        validateNativeAccess();
+
         findBaseOrThrow(correctionId);
         return CorrectionEditorConverter.toFeedbackResponses(
                 correctionEditorQueryRepository.findFeedback(correctionId)
@@ -135,6 +143,8 @@ public class CorrectionNativeService {
     }
 
     public void submitCorrection(Long correctionId) {
+        validateNativeAccess();
+
         Correction correction = findCorrectionOrThrow(correctionId);
 
         if (correction.getPost().getStatus() == PostStatus.COMPLETED) {
@@ -200,6 +210,7 @@ public class CorrectionNativeService {
         return PageRequest.of(page, size, sort);
     }
 
+    // nativeLang == "en"
     private void validateNativeAccess() {
         User currentUser = SecurityUtils.getCurrentUser();
 

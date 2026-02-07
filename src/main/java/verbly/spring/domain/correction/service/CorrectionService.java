@@ -47,6 +47,8 @@ public class CorrectionService {
             PostStatus status,
             CorrectorType correctorType
     ) {
+        validateNativeAccess();
+
         Long userId = SecurityUtils.getCurrentUserId();
 
         List<CorrectionResponseDTO.MyCorrectionDto> corrections =
@@ -73,6 +75,8 @@ public class CorrectionService {
     }
 
     public CorrectionResponseDTO.MyCorrectionDto getCorrectionDetail(Long correctionId){
+        validateNativeAccess();
+
         Long userId = SecurityUtils.getCurrentUserId();
 
         Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
@@ -88,6 +92,8 @@ public class CorrectionService {
      */
     @Transactional
     public CorrectionResponseDTO.CreateCorrectionResponseDTO createCorrection(CorrectionRequestDTO.CreateDTO requestDTO) {
+        validateNativeAccess();
+
         User user = SecurityUtils.getCurrentUser();
 
         String title = normalize(requestDTO.getTitle());
@@ -145,6 +151,8 @@ public class CorrectionService {
      */
     @Transactional
     public CorrectionResponseDTO.MyCorrectionDto updateCorrection(Long correctionId, CorrectionRequestDTO.UpdateDTO requestDTO) {
+        validateNativeAccess();
+
         Long userId = SecurityUtils.getCurrentUserId();
 
         Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
@@ -173,6 +181,8 @@ public class CorrectionService {
      */
     @Transactional
     public void deleteCorrection(Long correctionId) {
+        validateNativeAccess();
+
         Long userId = SecurityUtils.getCurrentUserId();
 
         Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
@@ -189,6 +199,8 @@ public class CorrectionService {
      */
     @Transactional
     public void addBookmark(Long correctionId) {
+        validateNativeAccess();
+
         Long userId = SecurityUtils.getCurrentUserId();
 
         Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
@@ -202,6 +214,8 @@ public class CorrectionService {
      */
     @Transactional
     public void removeBookmark(Long correctionId) {
+        validateNativeAccess();
+
         Long userId = SecurityUtils.getCurrentUserId();
 
         Correction correction = findOwnedCorrectionOrThrow(userId, correctionId);
@@ -281,6 +295,15 @@ public class CorrectionService {
 
         if (!words.isEmpty()) {
             correctionWordRepository.saveAll(words);
+        }
+    }
+
+    // nativeLang == "ko"
+    private void validateNativeAccess() {
+        User currentUser = SecurityUtils.getCurrentUser();
+
+        if (currentUser == null || !"ko".equalsIgnoreCase(currentUser.getNativeLang())) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_NATIVE_ACCESS_DENIED);
         }
     }
 }

@@ -3,6 +3,7 @@ package verbly.spring.domain.correction.dto.response;
 import lombok.Builder;
 import lombok.Getter;
 import verbly.spring.domain.correction.enums.CorrectorType;
+import verbly.spring.domain.post.enums.PostStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,6 +14,7 @@ public class CorrectionEditorResponseDTO {
     public static class Detail {
         private final Long correctionId;
         private final Long postId;
+        private final PostStatus status;
         private final List<Sentence> sentences;
         private final List<Word> words;
         private final List<Feedback> feedback;

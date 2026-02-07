@@ -86,6 +86,7 @@ public class CorrectionNativeService {
         return CorrectionEditorResponseDTO.Detail.builder()
                 .correctionId(base.getCorrectionId())
                 .postId(base.getPostId())
+                .status(base.getStatus())
                 .sentences(sentences)
                 .words(wordResponses)
                 .feedback(feedback)

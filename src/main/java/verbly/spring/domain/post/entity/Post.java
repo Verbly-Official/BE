@@ -16,8 +16,11 @@ import java.util.List;
 @Builder
 @Getter
 @Entity
-@Table(name = "post", indexes = {
-        @Index(name = "idx_post_status_like", columnList = "status, likeCount")
+@Table(name = "post",
+        indexes = {
+        @Index(name = "idx_post_status_like", columnList = "status, likesCount"),
+        @Index(name = "idx_post_author_id", columnList = "author_id")
+
 })
 @Check(constraints = "likes_count >= 0 AND comments_count >= 0")
 public class Post extends BaseEntity {

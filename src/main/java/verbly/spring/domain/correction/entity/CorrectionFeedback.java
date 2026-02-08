@@ -21,10 +21,6 @@ public class CorrectionFeedback extends BaseEntity {
     @JoinColumn(name = "correction_id", nullable = false)
     private Correction correction;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "correction_edit_id", nullable = false)
-    private CorrectionWord correctionWord;
-
     // 코멘트 작성자 = 도움 준 사람
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "corrector_id", nullable = false)
@@ -34,7 +30,15 @@ public class CorrectionFeedback extends BaseEntity {
     @Column(nullable = false)
     private CorrectorType correctorType;
 
+    @Column(nullable = false)
+    private Integer sentenceIdx;
+
     @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
 }

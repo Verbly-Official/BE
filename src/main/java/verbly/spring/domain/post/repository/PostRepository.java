@@ -33,6 +33,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findAllByAuthorIdAndTempTrueOrderByCreatedAtDesc(Long authorId);
     Optional<Post> findByIdAndAuthorIdAndTempTrue(Long postId, Long authorId);
+    Integer countByAuthorIdAndStatus(Long authorId, PostStatus status);
 
     @Query(value = """
         SELECT p.id, 

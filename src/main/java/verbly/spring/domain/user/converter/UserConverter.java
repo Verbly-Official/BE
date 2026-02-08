@@ -1,11 +1,13 @@
 package verbly.spring.domain.user.converter;
 
+import org.springframework.stereotype.Component;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.user.entity.User;
 
 import java.util.Optional;
 
+@Component
 public class UserConverter {
     public static ProfileImage toProfileImage(String imageUrl, User user) {
         return ProfileImage.builder()

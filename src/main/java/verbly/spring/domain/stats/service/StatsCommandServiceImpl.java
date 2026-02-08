@@ -33,6 +33,7 @@ public class StatsCommandServiceImpl implements StatsCommandService {
             timezone = "Asia/Seoul"; // 에러 나면 무조건 서울로
         }
         stats.markAttendance(timezone);
+        stats.updateLastActive(timezone);
     }
 
     @Override

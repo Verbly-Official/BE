@@ -20,7 +20,7 @@ public class StatsCommandServiceImpl implements StatsCommandService {
 
     @Override
     @Transactional
-    public void markAttendance(Long userId, String timezone) {
+    public void checkAttendance(Long userId, String timezone) {
         Stats stats = statsRepository.findByUserId(userId)
                 .orElseThrow(() -> new StatsHandler(ErrorStatus.STATS_NOT_FOUND));
         try {

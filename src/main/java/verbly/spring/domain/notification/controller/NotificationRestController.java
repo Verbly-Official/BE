@@ -1,9 +1,11 @@
 package verbly.spring.domain.notification.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -30,14 +32,10 @@ public class NotificationRestController {
     }
 
     @GetMapping()
-    public ApiResponse<List<NotificationsResponseDTO.NotificationDTO>> getNotifications() {
+    public ApiResponse<List<NotificationsResponseDTO.NotificationDTO>> getNotifications(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         Long userId = SecurityUtils.getCurrentUserId();
-        return ApiResponse.onSuccess(notificationQueryService.getNotifications(userId));
-    }
-
-    @GetMapping("/all")
-    public ApiResponse<List<NotificationsResponseDTO.NotificationDTO>> getAllNotifications() {
-        Long userId = SecurityUtils.getCurrentUserId();
-        return ApiResponse.onSuccess(notificationQueryService.getNotifications10(userId));
+        return ApiResponse.onSuccess(notificationQueryService.getNotifications(userId, pageable));
     }
 }

@@ -11,6 +11,4 @@ public class NotificationConverter {
                 .createdAt(notification.getCreatedAt())
                 .build();
     }
-
-    public static
 }

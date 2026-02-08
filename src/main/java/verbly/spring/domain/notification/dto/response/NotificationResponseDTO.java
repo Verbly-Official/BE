@@ -1,4 +1,4 @@
-package verbly.spring.domain.notification.dto;
+package verbly.spring.domain.notification.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

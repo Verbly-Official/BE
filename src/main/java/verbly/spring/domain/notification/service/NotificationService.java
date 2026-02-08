@@ -5,14 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import verbly.spring.domain.notification.dto.NotificationResponseDTO;
+import verbly.spring.domain.notification.dto.response.NotificationResponseDTO;
 import verbly.spring.domain.notification.entity.Notification;
 import verbly.spring.domain.notification.enums.NotificationType;
 import verbly.spring.domain.notification.repository.EmitterRepository;
 import verbly.spring.domain.notification.repository.NotificationRepository;
 import verbly.spring.domain.user.entity.User;
-
-import java.io.IOException;
 
 @Slf4j
 @Service

@@ -24,31 +24,28 @@ public class CorrectionConverter {
 
     public static CorrectionResponseDTO.MyCorrectionDto toMyCorrectionDTO(
             Correction correction,
-            CorrectorType latestCorrectorType,
-            String latestCorrectorName
+            CorrectorType correctorType,
+            String correctorName,
+            boolean isBookmarked
     ) {
         Post post = correction.getPost();
 
-        List<String> tags = (post.getPostTags() == null)
-                ? Collections.emptyList()
-                : post.getPostTags().stream()
-                .map(PostTag::getTag)
-                .filter(Objects::nonNull)
-                .map(Tag::getName)
-                .filter(Objects::nonNull)
+        List<String> tags = post.getPostTags().stream()
+                .map(pt -> pt.getTag().getName())
                 .toList();
-
 
         return CorrectionResponseDTO.MyCorrectionDto.builder()
                 .correctionId(correction.getId())
                 .postId(post.getId())
                 .title(post.getTitle())
+                .status(post.getStatus())
+                .bookmark(isBookmarked)
+                .content(post.getContent())
                 .tags(tags)
-                .correctorType(latestCorrectorType)
-                .correctorName(latestCorrectorName)
+                .correctorType(correctorType)
+                .correctorName(correctorName)
                 .correctionCreatedAt(correction.getCreatedAt())
                 .correctionUpdatedAt(correction.getUpdatedAt())
-                .status(post.getStatus())
                 .build();
     }
 

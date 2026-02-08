@@ -181,11 +181,11 @@ public class CorrectionController {
             )
     )
     @PatchMapping("/{correctionId}")
-    public ResponseEntity<ApiResponse<CorrectionResponseDTO.MyCorrectionDto>> updateCorrection(
+    public ResponseEntity<ApiResponse<CorrectionResponseDTO.CreateCorrectionResponseDTO>> updateCorrection(
             @PathVariable Long correctionId,
             @RequestBody @Valid CorrectionRequestDTO.UpdateDTO request
     ) {
-        CorrectionResponseDTO.MyCorrectionDto result =
+        CorrectionResponseDTO.CreateCorrectionResponseDTO result =
                 correctionService.updateCorrection(correctionId, request);
 
         return ResponseEntity

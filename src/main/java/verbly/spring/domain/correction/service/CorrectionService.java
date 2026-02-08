@@ -102,14 +102,42 @@ public class CorrectionService {
     /**
      * 문서 상세 조회
      */
+    @Transactional(readOnly = true)
     public CorrectionResponseDTO.MyCorrectionDto getCorrectionDetail(Long correctionId){
         validateNativeAccess();
 
         Long userId = SecurityUtils.getCurrentUserId();
 
+        boolean isBookmarked =
+                correctionBookmarkRepository.existsByUserIdAndCorrectionId(userId, correctionId);
+
+
         Correction correction = findOwnedCorrectionDetailOrThrow(userId, correctionId);
 
-        return CorrectionConverter.toMyCorrectionDTO(correction, null, null);
+        var latestFeedback = correctionFeedbackRepository
+                .findTopByCorrectionIdOrderByCreatedAtDesc(correctionId)
+                .orElse(null);
+
+        CorrectorType correctorType = latestFeedback != null
+                ? latestFeedback.getCorrectorType()
+                : null;
+
+        String correctorName = null;
+        if (latestFeedback != null) {
+            if (latestFeedback.getCorrectorType() == CorrectorType.AI_ASSISTANT) {
+                correctorName = "AI Assistant";
+            } else if (latestFeedback.getCorrectorType() == CorrectorType.NATIVE_SPEAKER
+                    && latestFeedback.getCorrector() != null) {
+                correctorName = latestFeedback.getCorrector().getNickname();
+            }
+        }
+
+        return CorrectionConverter.toMyCorrectionDTO(
+                correction,
+                correctorType,
+                correctorName,
+                isBookmarked
+        );
     }
 
 
@@ -158,7 +186,7 @@ public class CorrectionService {
      * 문서 수정
      */
     @Transactional
-    public CorrectionResponseDTO.MyCorrectionDto updateCorrection(Long correctionId, CorrectionRequestDTO.UpdateDTO requestDTO) {
+    public CorrectionResponseDTO.CreateCorrectionResponseDTO updateCorrection(Long correctionId, CorrectionRequestDTO.UpdateDTO requestDTO) {
         validateNativeAccess();
 
         Long userId = SecurityUtils.getCurrentUserId();
@@ -175,12 +203,13 @@ public class CorrectionService {
         boolean tagsRequested = (requestDTO.getTags() != null);
 
         if (!contentChanged && !tagsRequested) {
-            return CorrectionConverter.toMyCorrectionDTO(correction, null, null);
+            return CorrectionResponseDTO.CreateCorrectionResponseDTO.builder()
+                    .correctionId(correction.getId())
+                    .postId(post.getId())
+                    .build();
         }
 
         if (contentChanged) {
-
-
             post.update(newTitle, newContent);
             postRepository.save(post);
 
@@ -192,7 +221,10 @@ public class CorrectionService {
             applyTags(post, requestDTO.getTags());
         }
 
-        return CorrectionConverter.toMyCorrectionDTO(correction, null, null);
+        return CorrectionResponseDTO.CreateCorrectionResponseDTO.builder()
+                .correctionId(correction.getId())
+                .postId(post.getId())
+                .build();
     }
 
     /**
@@ -334,7 +366,7 @@ public class CorrectionService {
     private void validateNativeAccess() {
         User currentUser = SecurityUtils.getCurrentUser();
 
-        if (currentUser == null || !"kr".equalsIgnoreCase(currentUser.getNativeLang())) {
+        if (currentUser == null || !"ko".equalsIgnoreCase(currentUser.getNativeLang())) {
             throw new CorrectionHandler(ErrorStatus.CORRECTION_NATIVE_ACCESS_DENIED);
         }
     }

@@ -63,13 +63,6 @@ public enum ErrorStatus implements BaseErrorCode {
     POST_ALREADY_LIKED(HttpStatus.CONFLICT, "POST4091", "이미 좋아요를 누른 포스트입니다"),
     POST_TAG_NOT_VALIDATE(HttpStatus.BAD_REQUEST, "POST4003", "태그가 유효하지 않습니다. (최대 50자, 공백 불가)"),
 
-    // Folder 관련 에러
-    FOLDER_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLDER4001", "폴더를 찾을 수 없습니다."),
-    FOLDER_NAME_NOT_EXIST(HttpStatus.BAD_REQUEST, "FOLDER4002", "폴더명은 필수입니다."),
-    FOLDER_NAME_TOO_LONG(HttpStatus.BAD_REQUEST, "FOLDER4003", "폴더명은 50자 이하만 가능합니다."),
-    FOLDER_NAME_DUPLICATE(HttpStatus.CONFLICT, "FOLDER4091", "이미 존재하는 폴더명입니다."),
-
-
     // 통계 관련 에러
     STATS_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATS4001", "사용자 통계 정보가 존재하지 않습니다."),
 

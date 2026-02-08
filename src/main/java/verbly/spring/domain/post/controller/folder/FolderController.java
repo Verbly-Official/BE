@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Correction", description = "Correction 탭 API")
 @RequestMapping("/api/correction/folders")
 public class FolderController {
 

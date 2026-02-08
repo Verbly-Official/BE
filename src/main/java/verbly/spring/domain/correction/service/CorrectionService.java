@@ -317,7 +317,7 @@ public class CorrectionService {
     private void validateNativeAccess() {
         User currentUser = SecurityUtils.getCurrentUser();
 
-        if (currentUser == null || !"ko".equalsIgnoreCase(currentUser.getNativeLang())) {
+        if (currentUser == null || !"kr".equalsIgnoreCase(currentUser.getNativeLang())) {
             throw new CorrectionHandler(ErrorStatus.CORRECTION_NATIVE_ACCESS_DENIED);
         }
     }
@@ -337,9 +337,7 @@ public class CorrectionService {
                 .toList();
 
         for (String name : tags) {
-            if (name.length() > MAX_TAG_LENGTH) {
-                throw new CorrectionHandler(ErrorStatus.POST_TAG_NOT_VALIDATE);
-            }
+            validateTag(name);
 
             Tag tag = tagRepository.findByName(name)
                     .orElseGet(() -> tagRepository.save(Tag.builder().name(name).build()));
@@ -354,9 +352,20 @@ public class CorrectionService {
         }
     }
 
-    private String normalizeTag(String tag) {
-        return tag == null ? "" : tag.trim();
+    private void validateTag(String tag) {
+        if (tag == null || tag.isBlank()) {
+            throw new CorrectionHandler(ErrorStatus.POST_TAG_NOT_VALIDATE);
+        }
+
+        if (tag.matches(".*\\s+.*")) {
+            throw new CorrectionHandler(ErrorStatus.POST_TAG_NOT_VALIDATE);
+        }
+
+        if (tag.length() > MAX_TAG_LENGTH) {
+            throw new CorrectionHandler(ErrorStatus.POST_TAG_NOT_VALIDATE);
+        }
     }
+
 
     private CorrectionResponseDTO.CreateCorrectionResponseDTO getCreateCorrectionResponseDTO(CorrectionRequestDTO.CreateDTO requestDTO, Post post) {
         Post savedPost = postRepository.save(post);

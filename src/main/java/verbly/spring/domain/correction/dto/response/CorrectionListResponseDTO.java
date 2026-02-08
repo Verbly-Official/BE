@@ -13,5 +13,5 @@ import java.util.List;
 @NoArgsConstructor
 public class CorrectionListResponseDTO {
     private long totalRequest;
-    private List<CorrectionResponseDTO.MyCorrectionDto> corrections;
+    private List<CorrectionResponseDTO.MyCorrectionListDto> corrections;
 }

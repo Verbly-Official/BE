@@ -174,7 +174,7 @@ public class CorrectionController {
                                     {
                                         "title": "수정된 제목",
                                         "content": "수정된 내용",
-                                        "tags": ["변경할 태그 1", "변경할 태그 2"]
+                                        "tags": ["MODIFY_TAG_1", "MODIFY_TAG_2"]
                                     }
                                     """
                     )

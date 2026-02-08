@@ -61,7 +61,7 @@ public enum ErrorStatus implements BaseErrorCode {
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "해당 포스트가 존재하지 않습니다"),
     POST_NOT_LIKED(HttpStatus.BAD_REQUEST, "POST4002", "좋아요를 누르지 않은 상태라 취소할 수 없습니다."),
     POST_ALREADY_LIKED(HttpStatus.CONFLICT, "POST4091", "이미 좋아요를 누른 포스트입니다"),
-    POST_TAG_NOT_VALIDATE(HttpStatus.BAD_REQUEST, "POST4003", "태그는 최대 30자까지 가능합니다."),
+    POST_TAG_NOT_VALIDATE(HttpStatus.BAD_REQUEST, "POST4003", "태그가 유효하지 않습니다. (최대 50자, 공백 불가)"),
 
     // Folder 관련 에러
     FOLDER_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLDER4001", "폴더를 찾을 수 없습니다."),

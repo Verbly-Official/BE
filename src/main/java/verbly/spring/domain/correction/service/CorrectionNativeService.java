@@ -62,6 +62,34 @@ public class CorrectionNativeService {
                         safePageable
                 );
 
+        List<Long> correctionIds = pageResult.getContent().stream()
+                .map(CorrectionResponseDTO.MyCorrectionDto::getCorrectionId)
+                .distinct()
+                .toList();
+
+        Map<Long, Integer> wordCountMap = correctionWordRepository.countWordsByCorrectionIds(correctionIds).stream()
+                .collect(Collectors.toMap(
+                        CorrectionWordRepository.CorrectionCountRow::getCorrectionId,
+                        r -> r.getCnt().intValue()
+                ));
+
+        Page<CorrectionResponseDTO.MyCorrectionDto> enriched =
+                pageResult.map(dto -> CorrectionResponseDTO.MyCorrectionDto.builder()
+                        .correctionId(dto.getCorrectionId())
+                        .postId(dto.getPostId())
+                        .title(dto.getTitle())
+                        .status(dto.getStatus())
+                        .bookmark(dto.getBookmark())
+                        .content(dto.getContent())
+                        .tags(dto.getTags())
+                        .correctorType(dto.getCorrectorType())
+                        .correctorName(dto.getCorrectorName())
+                        .correctionCreatedAt(dto.getCorrectionCreatedAt())
+                        .correctionUpdatedAt(dto.getCorrectionUpdatedAt())
+                        .wordCount(wordCountMap.getOrDefault(dto.getCorrectionId(), 0))
+                        .build()
+                );
+
         long totalRequest =
                 correctionQueryRepository.countNativeCorrectionRequests(
                         userId,
@@ -69,7 +97,7 @@ public class CorrectionNativeService {
                         status
                 );
 
-        return CorrectionResponseDTO.NativeCorrectionDTO.from(pageResult, totalRequest);
+        return CorrectionResponseDTO.NativeCorrectionDTO.from(enriched, totalRequest);
     }
 
     @Transactional(readOnly = true)

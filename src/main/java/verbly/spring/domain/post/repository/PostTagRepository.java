@@ -24,4 +24,21 @@ public interface PostTagRepository extends JpaRepository<PostTag, Long> {
     );
 
     void deleteByPost(Post post);
+
+    interface PostIdTagRow {
+        Long getPostId();
+        Long getPostTagId();
+        String getTagName();
+    }
+
+    @Query("""
+        select pt.post.id as postId,
+               pt.id as postTagId,
+               t.name as tagName
+        from PostTag pt
+        join pt.tag t
+        where pt.post.id in :postIds
+        order by pt.post.id asc, pt.id asc
+    """)
+    List<PostIdTagRow> findPostIdTagRows(@Param("postIds") List<Long> postIds);
 }

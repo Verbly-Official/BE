@@ -22,18 +22,20 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
-public class NotificationRestController {
+public class NotificationRestController implements NotificationControllerDocs {
 
     private final NotificationService notificationService;
     private final NotificationQueryService notificationQueryService;
     private final NotificationCommandService notificationCommandService;
 
+    @Override
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe() {
         Long userId = SecurityUtils.getCurrentUserId();
         return notificationService.subscribe(userId);
     }
 
+    @Override
     @GetMapping()
     public ApiResponse<List<NotificationsResponseDTO.NotificationDTO>> getNotifications(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
@@ -42,6 +44,7 @@ public class NotificationRestController {
         return ApiResponse.onSuccess(notificationQueryService.getNotifications(userId, pageable));
     }
 
+    @Override
     @PatchMapping()
     public ApiResponse<List<NotificationsResponseDTO.NotificationDTO>> patchNotifications(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable

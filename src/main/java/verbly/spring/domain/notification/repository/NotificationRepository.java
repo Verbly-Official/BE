@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     List<Notification> findTop4ByReceiver_IdOrderByCreatedAtDesc(Long receiverId);
+    List<Notification> findTop10ByReceiver_IdOrderByCreatedAtDesc(Long receiverId);
 }

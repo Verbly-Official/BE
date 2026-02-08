@@ -26,4 +26,12 @@ public class NotificationQueryServiceImpl implements NotificationQueryService{
                 .map(NotificationConverter::toNotificationDTO)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<NotificationsResponseDTO.NotificationDTO> getNotifications10(Long userId) {
+        List<Notification> notifications = notificationRepository.findTop10ByReceiver_IdOrderByCreatedAtDesc(userId);
+        return notifications.stream()
+                .map(NotificationConverter::toNotificationDTO)
+                .collect(Collectors.toList());
+    }
 }

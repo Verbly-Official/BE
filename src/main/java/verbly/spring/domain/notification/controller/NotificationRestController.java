@@ -3,6 +3,7 @@ package verbly.spring.domain.notification.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -32,5 +33,11 @@ public class NotificationRestController {
     public ApiResponse<List<NotificationsResponseDTO.NotificationDTO>> getNotifications() {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.onSuccess(notificationQueryService.getNotifications(userId));
+    }
+
+    @GetMapping("/all")
+    public ApiResponse<List<NotificationsResponseDTO.NotificationDTO>> getAllNotifications() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(notificationQueryService.getNotifications10(userId));
     }
 }

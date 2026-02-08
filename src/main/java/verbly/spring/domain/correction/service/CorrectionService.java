@@ -24,6 +24,7 @@ import verbly.spring.domain.post.repository.PostTagRepository;
 import verbly.spring.domain.post.repository.TagRepository;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.code.ErrorStatus;
+import verbly.spring.global.common.utils.RelativeTimeUtils;
 import verbly.spring.global.security.utils.SecurityUtils;
 
 import java.util.List;
@@ -59,7 +60,7 @@ public class CorrectionService {
 
         Long userId = SecurityUtils.getCurrentUserId();
 
-        List<CorrectionResponseDTO.MyCorrectionDto> corrections =
+        List<CorrectionResponseDTO.MyCorrectionListDto> raw =
                 correctionQueryRepository.findMyCorrections(
                         userId,
                         bookmark,
@@ -67,6 +68,22 @@ public class CorrectionService {
                         status,
                         correctorType
                 );
+
+        List<CorrectionResponseDTO.MyCorrectionListDto> corrections = raw.stream()
+                .map(dto -> CorrectionResponseDTO.MyCorrectionListDto.builder()
+                        .correctionId(dto.getCorrectionId())
+                        .postId(dto.getPostId())
+                        .title(dto.getTitle())
+                        .status(dto.getStatus())
+                        .bookmark(dto.getBookmark())
+                        .correctorType(dto.getCorrectorType())
+                        .correctorName(dto.getCorrectorName())
+                        .correctionCreatedAt(dto.getCorrectionCreatedAt())
+                        .correctionUpdatedAt(dto.getCorrectionUpdatedAt())
+                        .relativeTime(RelativeTimeUtils.toRelative(dto.getCorrectionCreatedAt()))
+                        .build()
+                )
+                .toList();
 
         long totalRequest =
                 correctionQueryRepository.countMyCorrections(

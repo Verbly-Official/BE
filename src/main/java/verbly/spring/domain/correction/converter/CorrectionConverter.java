@@ -6,6 +6,7 @@ import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.post.entity.PostTag;
 import verbly.spring.domain.post.entity.Tag;
+import verbly.spring.global.common.utils.RelativeTimeUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +49,28 @@ public class CorrectionConverter {
                 .correctionCreatedAt(correction.getCreatedAt())
                 .correctionUpdatedAt(correction.getUpdatedAt())
                 .status(post.getStatus())
+                .build();
+    }
+
+    public static CorrectionResponseDTO.MyCorrectionListDto toMyCorrectionListDTO(
+            Correction correction,
+            CorrectorType latestCorrectorType,
+            String latestCorrectorName,
+            boolean isBookmarked
+    ) {
+        Post post = correction.getPost();
+
+        return CorrectionResponseDTO.MyCorrectionListDto.builder()
+                .correctionId(correction.getId())
+                .postId(post.getId())
+                .title(post.getTitle())
+                .status(post.getStatus())
+                .bookmark(isBookmarked)
+                .correctorType(latestCorrectorType)
+                .correctorName(latestCorrectorName)
+                .correctionCreatedAt(correction.getCreatedAt())
+                .correctionUpdatedAt(correction.getUpdatedAt())
+                .relativeTime(RelativeTimeUtils.toRelative(correction.getCreatedAt()))
                 .build();
     }
 }

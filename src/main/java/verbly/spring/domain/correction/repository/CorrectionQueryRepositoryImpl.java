@@ -1,6 +1,7 @@
 package verbly.spring.domain.correction.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Repository;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.post.enums.PostStatus;
+import static com.querydsl.core.types.dsl.Expressions.*;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +37,7 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<CorrectionResponseDTO.MyCorrectionDto> findMyCorrections(
+    public List<CorrectionResponseDTO.MyCorrectionListDto> findMyCorrections(
             Long authorId,
             Boolean bookmark,
             Boolean sort,
@@ -45,11 +48,14 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
         if (status == PostStatus.TEMP) {
             return queryFactory
                     .select(Projections.fields(
-                            CorrectionResponseDTO.MyCorrectionDto.class,
+                            CorrectionResponseDTO.MyCorrectionListDto.class,
+                            ExpressionUtils.as(nullExpression(Long.class), "correctionId"),
                             post.id.as("postId"),
                             post.title.as("title"),
-                            post.content.as("content"),
                             post.status.as("status"),
+                            ExpressionUtils.as(FALSE, "bookmark"),
+                            ExpressionUtils.as(nullExpression(CorrectorType.class), "correctorType"),
+                            ExpressionUtils.as(nullExpression(String.class), "correctorName"),
                             post.createdAt.as("correctionCreatedAt"),
                             post.updatedAt.as("correctionUpdatedAt")
                     ))
@@ -89,12 +95,11 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
 
         var baseQuery = queryFactory
                 .select(Projections.fields(
-                        CorrectionResponseDTO.MyCorrectionDto.class,
+                        CorrectionResponseDTO.MyCorrectionListDto.class,
                         correction.id.as("correctionId"),
                         post.id.as("postId"),
                         post.title.as("title"),
                         post.status.as("status"),
-                        post.content.as("content"),
                         bookmarkedExpr.as("bookmark"),
                         latestFeedback.correctorType.as("correctorType"),
                         correctorNameExpr.as("correctorName"),

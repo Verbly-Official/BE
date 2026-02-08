@@ -15,6 +15,29 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class CorrectionResponseDTO {
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MyCorrectionListDto {
+
+        private Long correctionId;
+        private Long postId;
+
+        private String title;
+        private PostStatus status;
+        private Boolean bookmark;
+
+        private CorrectorType correctorType;
+        private String correctorName;
+
+        // UI 반환용 상대 시간
+        private String relativeTime;
+
+        private LocalDateTime correctionCreatedAt;
+        private LocalDateTime correctionUpdatedAt;
+
+    }
 
     @Getter
     @Builder

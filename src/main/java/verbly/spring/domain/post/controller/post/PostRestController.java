@@ -16,6 +16,7 @@ import verbly.spring.domain.post.service.comment.CommentCommandService;
 import verbly.spring.domain.post.service.comment.CommentQueryService;
 import verbly.spring.domain.post.service.post.PostCommandService;
 import verbly.spring.domain.post.service.post.PostQueryService;
+import verbly.spring.domain.stats.service.StatsCommandService;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.auth.CustomUserDetails;
@@ -31,6 +32,8 @@ public class PostRestController implements PostControllerDocs {
     private final PostCommandService postCommandService;
     private final CommentQueryService commentQueryService;
     private final CommentCommandService commentCommandService;
+
+    private final StatsCommandService statsCommandService;
 
     @Override
     @GetMapping()

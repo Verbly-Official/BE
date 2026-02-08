@@ -16,7 +16,6 @@ public class NotificationRestController {
 
     private final NotificationService notificationService;
 
-    // 구독 (Connect)
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe() {
         Long userId = SecurityUtils.getCurrentUserId();

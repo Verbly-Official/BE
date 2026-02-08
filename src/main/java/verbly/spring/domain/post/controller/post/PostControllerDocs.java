@@ -17,6 +17,7 @@ import verbly.spring.domain.post.dto.response.PostResponseDTO;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.auth.CustomUserDetails;
 
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Post", description = "게시글 및 댓글 관련 API")
@@ -95,8 +96,7 @@ public interface PostControllerDocs {
             )
     })
     ApiResponse<Slice<PostResponseDTO.HomePosts>> getHomePosts(
-            Pageable pageable,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            Pageable pageable
     );
 
     @Operation( summary = "특정 유저 포스트 조회",
@@ -172,8 +172,7 @@ public interface PostControllerDocs {
     })
     ApiResponse<Slice<PostResponseDTO.UserPosts>> getUserPosts(
             Pageable pageable,
-            UUID uuid,
-            CustomUserDetails userDetails
+            UUID uuid
     );
 
     @Operation( summary = "특정 포스트에 좋아요 추가",
@@ -206,8 +205,7 @@ public interface PostControllerDocs {
             )
     })
     ApiResponse<PostResponseDTO.AddPostLike> addPostLike(
-            Long postId,
-            CustomUserDetails userDetails
+            Long postId
     );
 
     @Operation( summary = "특정 포스트에 좋아요 제거",
@@ -240,8 +238,7 @@ public interface PostControllerDocs {
             )
     })
     ApiResponse<PostResponseDTO.AddPostLike> deletePostLike(
-            Long postId,
-            CustomUserDetails userDetails
+            Long postId
     );
 
     @Operation( summary = "특정 포스트 댓글 조회",
@@ -371,7 +368,6 @@ public interface PostControllerDocs {
             )
     })
     ApiResponse<CommentResponseDTO.getMyComment> makeComment(
-            CustomUserDetails userDetails,
             Long postId,
             CommentRequestDTO.makeComment dto
     );
@@ -426,9 +422,48 @@ public interface PostControllerDocs {
             )
     })
     ApiResponse<PostResponseDTO.HomeWritePost> writeHomePost(
-            CustomUserDetails userDetails,
             PostRequestDTO.HomeWritePost dto
     );
+
+    @Operation( summary = "핫 포스트 리스트 반환 API",
+            security = @SecurityRequirement(name = "JWT TOKEN"),
+            description = "핫 포스트 리스트 반환\n\n"
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                                "isSuccess": true,
+                                                "code": "COMMON2000",
+                                                "message": "성공입니다.",
+                                                "result": [
+                                                    {
+                                                       "userImageUrl": "http://k.kakaocdn.net/dn/cZzX2j/btsLx7TX3Gx/QMDTWrOkMpg46aWkufLcQ1/img_640x640.jpg",
+                                                       "nickname": "박시윤",
+                                                       "isFollowing": false,
+                                                       "uuid": "f44c7ef2-1ee4-48db-ad8c-aa7d7884e160",
+                                                       "postId": 1,
+                                                       "content": "내용",
+                                                       "status": "COMPLETED",
+                                                       "likesCount": 100,
+                                                       "commentsCount": 0,
+                                                       "createdAt": "2026-02-03T23:26:46.038337",
+                                                       "tags": [],
+                                                       "isLiked": false
+                                                    }
+                                                ]
+                                            }
+                                        """
+                            )
+                    )
+            )
+    })
+    ApiResponse<List<PostResponseDTO.hotPost>> getHotPosts();
 }
 
 

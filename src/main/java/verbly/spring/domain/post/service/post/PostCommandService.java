@@ -9,5 +9,5 @@ public interface PostCommandService {
 
     PostResponseDTO.AddPostLike deletePostLike(Long postId, Long userId);
 
-    PostResponseDTO.HomeWritePost writeHomePost(PostRequestDTO.HomeWritePost dto, User user);
+    PostResponseDTO.HomeWritePost writeHomePost(PostRequestDTO.HomeWritePost dto, Long userId);
 }

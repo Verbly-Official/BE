@@ -1,4 +1,4 @@
-package verbly.spring.domain.user.controller;
+package verbly.spring.domain.home.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -7,17 +7,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import verbly.spring.domain.user.dto.response.UserResponseDTO;
+import verbly.spring.domain.home.dto.response.HomeResponseDTO;
 import verbly.spring.global.common.response.ApiResponse;
-import verbly.spring.global.security.auth.CustomUserDetails;
 
 import java.util.UUID;
 
 @Tag(name = "Home-User", description = "홈 화면 유저 관련 API")
-public interface UserControllerDocs {
+public interface HomeControllerDocs {
 
     @Operation(
             summary = "홈 화면 유저 정보 조회",
@@ -50,7 +48,7 @@ public interface UserControllerDocs {
                     )
             )
     })
-    ApiResponse<UserResponseDTO.HomeViewerInfoDTO> getHomeViewerInfo(
+    ApiResponse<HomeResponseDTO.HomeViewerInfoDTO> getHomeViewerInfo(
     );
 
     @Operation(
@@ -89,7 +87,7 @@ public interface UserControllerDocs {
                     )
             )
     })
-    ApiResponse<UserResponseDTO.HomeUserInfoDTO> getUserProfileInfo(
+    ApiResponse<HomeResponseDTO.HomeUserInfoDTO> getUserProfileInfo(
             @PathVariable(name = "uuid") UUID uuid
     );
 

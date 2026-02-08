@@ -1,10 +1,12 @@
-package verbly.spring.domain.user.service.userhome;
+package verbly.spring.domain.home.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.correction.repository.CorrectionFeedbackRepository;
 import verbly.spring.domain.follow.repository.FollowRepository;
+import verbly.spring.domain.home.converter.HomeConverter;
+import verbly.spring.domain.home.dto.response.HomeResponseDTO;
 import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.post.repository.PostRepository;
 import verbly.spring.domain.stats.service.StatsCommandService;
@@ -14,7 +16,6 @@ import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.exception.UserHandler;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
-import verbly.spring.global.security.auth.CustomUserDetails;
 import verbly.spring.global.security.utils.SecurityUtils;
 
 import java.util.UUID;
@@ -31,19 +32,19 @@ public class UserHomeQueryServiceImpl implements UserHomeQueryService {
 
     private final StatsCommandService statsCommandService;
 
-    private final UserConverter userConverter;
+    private final HomeConverter homeConverter;
 
     @Override
-    public UserResponseDTO.HomeViewerInfoDTO getHomeViewerInfo() {
+    public HomeResponseDTO.HomeViewerInfoDTO getHomeViewerInfo() {
         Long userId = SecurityUtils.getCurrentUserId();
         User viewer = userRepository.findById(userId).orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
         long correctionReceived = postRepository.countByAuthorIdAndStatus(viewer.getId(), PostStatus.COMPLETED);
         long following = followRepository.countByFollowerId(viewer.getId());
-        return userConverter.toHomeViewerInfoDTO(viewer, following, correctionReceived);
+        return homeConverter.toHomeViewerInfoDTO(viewer, following, correctionReceived);
     }
 
     @Override
-    public UserResponseDTO.HomeUserInfoDTO getUserProfileInfo(UUID uuid){
+    public HomeResponseDTO.HomeUserInfoDTO getUserProfileInfo(UUID uuid){
         Long userId = SecurityUtils.getCurrentUserId();
         User viewer = userRepository.findById(userId).orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
         User target = userRepository.findByUuid(uuid);
@@ -53,6 +54,6 @@ public class UserHomeQueryServiceImpl implements UserHomeQueryService {
         boolean isFollowing = followRepository.existsFollowByFollowerIdAndFolloweeId(viewer.getId(), target.getId());
         long correctionReceived = postRepository.countByAuthorIdAndStatus(viewer.getId(), PostStatus.COMPLETED);
         long correctionGiven = correctionFeedbackRepository.countDistinctCorrectionByCorrectorId(target.getId());
-        return userConverter.toHomeUserInfoDTO(target, totalPosts, following, follower, isFollowing, correctionReceived, correctionGiven);
+        return homeConverter.toHomeUserInfoDTO(target, totalPosts, following, follower, isFollowing, correctionReceived, correctionGiven);
     }
 }

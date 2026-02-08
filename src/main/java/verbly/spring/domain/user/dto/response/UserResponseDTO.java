@@ -81,35 +81,4 @@ public class UserResponseDTO {
                     .build();
         }
     }
-
-    @Builder
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class HomeViewerInfoDTO {
-        String imageUrl;
-        String nickname;
-        Integer following;
-        Integer streak;
-        Long point;
-        Integer correctionReceived;
-        Level level;
-    }
-
-    @Builder
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class HomeUserInfoDTO {
-        String imageUrl;
-        String nickname;
-        String nativeLang;
-        String description;
-        Integer totalPosts;
-        Integer follower;
-        Integer following;
-        Boolean isFollowing;
-        Integer correctionReceived;
-        Integer correctionGiven;
-    }
 }

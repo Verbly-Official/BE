@@ -18,7 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "post",
         indexes = {
-        @Index(name = "idx_post_status_like", columnList = "status, likesCount"),
+        @Index(name = "idx_post_status_like", columnList = "status, likes_count"),
         @Index(name = "idx_post_author_id", columnList = "author_id")
 
 })

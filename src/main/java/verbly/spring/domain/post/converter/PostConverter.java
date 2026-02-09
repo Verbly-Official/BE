@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class PostConverter {
     private PostConverter() {}
 
-    public PostResponseDTO.HomePosts toHomePosts(Post post, Boolean isLiked) {
+    public PostResponseDTO.HomePosts toHomePosts(Post post, Boolean isLiked, Boolean isFollowing) {
         List<String> tags = post.getPostTags().stream()
                 .map(postTag -> postTag.getTag().getName())
                 .collect(Collectors.toList());
@@ -29,13 +29,12 @@ public class PostConverter {
                 .userImageUrl(post.getAuthor().getProfileImage().getImageUrl().toString())
                 .uuid(post.getAuthor().getUuid())
                 .nickname(post.getAuthor().getNickname())
-                .isFollowing(false)
-                //Follow 구현 후 수정 예정
+                .isFollowing(isFollowing)
                 .isLiked(isLiked)
                 .build();
     }
 
-    public PostResponseDTO.UserPosts toUserPosts(Post post, Boolean isLiked) {
+    public PostResponseDTO.UserPosts toUserPosts(Post post, Boolean isLiked, Boolean isFollowing) {
         List<String> tags = post.getPostTags().stream()
                 .map(postTag -> postTag.getTag().getName())
                 .collect(Collectors.toList());
@@ -50,8 +49,7 @@ public class PostConverter {
                 .userImageUrl(post.getAuthor().getProfileImage().getImageUrl().toString())
                 .uuid(post.getAuthor().getUuid())
                 .nickname(post.getAuthor().getNickname())
-                .isFollowing(false)
-                //Follow 구현 후 수정 예정
+                .isFollowing(isFollowing)
                 .isLiked(isLiked)
                 .build();
     }
@@ -102,6 +100,26 @@ public class PostConverter {
                 .status(post.getStatus())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
+                .build();
+    }
+
+    public static PostResponseDTO.hotPost toHotPost(Post post, Boolean isLiked, Boolean isFollowing){
+        List<String> tags = post.getPostTags().stream()
+                .map(postTag -> postTag.getTag().getName())
+                .collect(Collectors.toList());
+        return PostResponseDTO.hotPost.builder()
+                .postId(post.getId())
+                .content(post.getContent())
+                .commentsCount(post.getCommentsCount())
+                .status(post.getStatus())
+                .likesCount(post.getLikesCount())
+                .createdAt(post.getCreatedAt())
+                .tags(tags)
+                .userImageUrl(post.getAuthor().getProfileImage().getImageUrl().toString())
+                .uuid(post.getAuthor().getUuid())
+                .nickname(post.getAuthor().getNickname())
+                .isFollowing(isFollowing)
+                .isLiked(isLiked)
                 .build();
     }
 }

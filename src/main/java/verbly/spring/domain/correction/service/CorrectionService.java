@@ -74,27 +74,11 @@ public class CorrectionService {
                 .distinct()
                 .toList();
 
-        List<Long> postIds = raw.stream()
-                .map(CorrectionResponseDTO.MyCorrectionListDto::getPostId)
-                .distinct()
-                .toList();
-
         var wordCountMap = correctionWordRepository.countWordsByCorrectionIds(correctionIds).stream()
                 .collect(java.util.stream.Collectors.toMap(
                         CorrectionWordRepository.CorrectionCountRow::getCorrectionId,
                         r -> r.getCnt().intValue()
                 ));
-
-        var changeCountMap = correctionWordRepository.countChangedWordsByCorrectionIds(correctionIds).stream()
-                .collect(java.util.stream.Collectors.toMap(
-                        CorrectionWordRepository.CorrectionCountRow::getCorrectionId,
-                        CorrectionWordRepository.CorrectionCountRow::getCnt
-                ));
-
-        java.util.Map<Long, String> firstTagMap = new java.util.HashMap<>();
-        for (var row : postTagRepository.findPostIdTagRows(postIds)) {
-            firstTagMap.putIfAbsent(row.getPostId(), row.getTagName());
-        }
 
         List<CorrectionResponseDTO.MyCorrectionListDto> corrections = raw.stream()
                 .map(dto -> CorrectionResponseDTO.MyCorrectionListDto.builder()
@@ -108,10 +92,7 @@ public class CorrectionService {
                         .correctionCreatedAt(dto.getCorrectionCreatedAt())
                         .correctionUpdatedAt(dto.getCorrectionUpdatedAt())
                         .relativeTime(RelativeTimeUtils.toRelative(dto.getCorrectionCreatedAt()))
-                        .firstTag(firstTagMap.getOrDefault(dto.getPostId(), null))
                         .wordCount(wordCountMap.getOrDefault(dto.getCorrectionId(), 0))
-                        .changeCount(changeCountMap.getOrDefault(dto.getCorrectionId(), 0L))
-
                         .build()
                 )
                 .toList();

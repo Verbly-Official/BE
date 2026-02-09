@@ -31,9 +31,7 @@ public class CorrectionResponseDTO {
         private CorrectorType correctorType;
         private String correctorName;
 
-        private String firstTag;
         private Integer wordCount;
-        private Long changeCount;
 
         // UI 반환용 상대 시간
         private String relativeTime;

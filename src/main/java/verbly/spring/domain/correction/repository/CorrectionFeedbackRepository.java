@@ -10,5 +10,6 @@ public interface CorrectionFeedbackRepository extends JpaRepository<CorrectionFe
     long countByCorrector_Id(Long correctorId);
     long countDistinctCorrectionByCorrectorId(Long correctorId);
     Optional<CorrectionFeedback> findTopByCorrectionIdOrderByCreatedAtDesc(Long correctionId);
+    boolean existsByCorrectionId(Long correctionId);
 
 }

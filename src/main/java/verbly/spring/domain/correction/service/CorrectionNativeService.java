@@ -143,7 +143,8 @@ public class CorrectionNativeService {
 
         Correction correction = findCorrectionOrThrow(correctionId);
 
-        markInProgressIfPending(correction);
+        boolean isFirstWordEdit = !correctionWordRepository.existsByCorrectionId(correctionId);
+        takeIfFirstActionOrVerifyOwner(correction, isFirstWordEdit);
 
         applyWordIdEditsOrThrow(correction, request.getEdits());
     }
@@ -159,7 +160,8 @@ public class CorrectionNativeService {
 
         validateSentenceIdx(correction.getPost().getContent(), request.getSentenceIdx());
 
-        markInProgressIfPending(correction);
+        boolean isFirstFeedback = !correctionFeedbackRepository.existsByCorrectionId(correctionId);
+        takeIfFirstActionOrVerifyOwner(correction, isFirstFeedback);
 
         User corrector = SecurityUtils.getCurrentUser();
 
@@ -219,10 +221,10 @@ public class CorrectionNativeService {
     ) {
         validateNativeAccess();
 
-        findBaseOrThrow(correctionId);
+        Correction correction = findCorrectionOrThrow(correctionId);
+        takeIfFirstActionOrVerifyOwner(correction, false);
 
         CorrectionFeedback feedback = findFeedbackOrThrow(feedbackId);
-
         validateFeedbackBelongsToCorrection(correctionId, feedback);
         validateFeedbackOwner(feedback);
 
@@ -232,10 +234,10 @@ public class CorrectionNativeService {
     public void deleteFeedback(Long correctionId, Long feedbackId) {
         validateNativeAccess();
 
-        findBaseOrThrow(correctionId);
+        Correction correction = findCorrectionOrThrow(correctionId);
+        takeIfFirstActionOrVerifyOwner(correction, false);
 
         CorrectionFeedback feedback = findFeedbackOrThrow(feedbackId);
-
         validateFeedbackBelongsToCorrection(correctionId, feedback);
         validateFeedbackOwner(feedback);
 
@@ -404,4 +406,43 @@ public class CorrectionNativeService {
             word.update(newCorrected, word.getStartIdx(), word.getEndIdx());
         }
     }
+    private void requirePendingForFirstAction(Correction correction) {
+        if (correction.getPost().getStatus() != PostStatus.PENDING) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_FIRST_ACTION_ONLY_PENDING);
+        }
+    }
+
+    private void requireInProgressAndOwner(Correction correction) {
+        if (correction.getPost().getStatus() != PostStatus.IN_PROGRESS) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_EDIT_ONLY_IN_PROGRESS);
+        }
+
+        User current = SecurityUtils.getCurrentUser();
+        if (current == null || correction.getCorrector() == null ||
+                !correction.getCorrector().getId().equals(current.getId())) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_NOT_THE_CORRECTOR);
+        }
+    }
+
+    private void takeIfFirstActionOrVerifyOwner(Correction correction, boolean isFirstAction) {
+        User current = SecurityUtils.getCurrentUser();
+
+        if (isFirstAction) {
+            requirePendingForFirstAction(correction);
+
+            if (correction.getCorrector() != null &&
+                    !correction.getCorrector().getId().equals(current.getId())) {
+                throw new CorrectionHandler(ErrorStatus.CORRECTION_NOT_THE_CORRECTOR);
+            }
+
+            if (correction.getCorrector() == null) {
+                correction.assignCorrector(current);
+            }
+
+            markInProgressIfPending(correction);
+        } else {
+            requireInProgressAndOwner(correction);
+        }
+    }
+
 }

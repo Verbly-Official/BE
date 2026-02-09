@@ -35,4 +35,7 @@ public interface CorrectionWordRepository extends JpaRepository<CorrectionWord, 
         group by cw.correction.id
     """)
     List<CorrectionCountRow> countChangedWordsByCorrectionIds(@Param("correctionIds") List<Long> correctionIds);
+
+    boolean existsByCorrectionId(Long correctionId);
+
 }

@@ -56,6 +56,10 @@ public enum ErrorStatus implements BaseErrorCode {
     CORRECTION_FEEDBACK_NOT_FOUND(HttpStatus.BAD_REQUEST, "CORRECTION4009", "해당 Feedback을 찾을 수 없습니다."),
     CORRECTION_FEEDBACK_ACCESS_DENIED(HttpStatus.BAD_REQUEST, "CORRECTION4010", "Correction Native - Feedback 접근 권한이 없습니다."),
     CORRECTION_SENTENCE_INDEX_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "CORRECTION4011", "index가 문장의 범위를 넘어섭니다."),
+    CORRECTION_FIRST_ACTION_ONLY_PENDING(HttpStatus.BAD_REQUEST, "CORRECTION4012", "첫 첨삭/피드백은 PENDING 상태에서만 가능합니다."),
+    CORRECTION_EDIT_ONLY_IN_PROGRESS(HttpStatus.BAD_REQUEST, "CORRECTION4013", "수정/추가는 자신이 corrector인 IN_PROGRESS 글에서만 가능합니다."),
+    CORRECTION_NOT_THE_CORRECTOR(HttpStatus.FORBIDDEN, "CORRECTION4014", "해당 글의 첨삭자가 아닙니다."),
+
 
     // Post 관련 에러
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "해당 포스트가 존재하지 않습니다"),

@@ -18,13 +18,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/payment")
 @RequiredArgsConstructor
-public class PaymentController {
+public class PaymentController implements PaymentControllerDocs {
 
     private final SubscriptionService subscriptionService;
     private final PaymentQueryService paymentQueryService;
 
+    @Override
     @PostMapping("/ready")
-    public KakaoPayDTO.ReadyResponse ready(@RequestParam Long planId, HttpSession session) {
+    public ApiResponse<KakaoPayDTO.ReadyResponse> ready(@RequestParam Long planId, HttpSession session) {
         Long userId = SecurityUtils.getCurrentUserId();
         String orderId = "order_" + userId + "_" + System.currentTimeMillis();
 
@@ -35,7 +36,7 @@ public class PaymentController {
         session.setAttribute("userId", String.valueOf(userId));
         session.setAttribute("orderId", orderId);
 
-        return response;
+        return ApiResponse.onSuccess(response);
     }
 
     @Hidden
@@ -71,6 +72,7 @@ public class PaymentController {
         //https://www.verbly.kr/mypage/subscription?status=fail ?
     }
 
+    @Override
     @GetMapping("/plan")
     public ApiResponse<List<PaymentResponseDTO.PaymentPlan>> paymentPlan(){
         return ApiResponse.onSuccess(paymentQueryService.getAllPaymentPlan());

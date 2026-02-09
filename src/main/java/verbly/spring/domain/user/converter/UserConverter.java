@@ -37,6 +37,10 @@ public class UserConverter {
                 .map(ProfileImage::getImageUrl)
                 .orElse("default_profile_url");
 
+        String timezone = Optional.ofNullable(user.getTimezone())
+                .filter(tz -> !tz.isBlank())
+                .orElse("Asia/Seoul");
+
         return UserResponseDTO.UserInfoDTO.builder()
                 .userId(user.getId())
                 .learningLang(user.getLearningLang())
@@ -48,8 +52,8 @@ public class UserConverter {
                 .phoneNumber(user.getPhoneNumber())
                 .streakDays(user.getStats().getStreakDays())
                 .lastActiveTime(user.getStats().getLastActiveTime() != null
-                        ? user.getStats().getLastActiveTime().atZone(ZoneId.of(user.getTimezone())).toEpochSecond()
-                        : null)
+                        ? user.getStats().getLastActiveTime().atZone(ZoneId.of(timezone)).toEpochSecond()
+                        : 0)
                 .point(user.getStats().getPoint())
                 .level(user.getStats().getLevel().getValue())
                 .followCount(followingCount)

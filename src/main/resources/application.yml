@@ -102,3 +102,9 @@ cloud:
     credentials:
       accessKey: ${AWS_ACCESS_KEY}
       secretKey: ${AWS_SECRET_KEY}
+kakao:
+  pay:
+    admin-key: ${KAKAO_ADMIN_KEY}
+
+app:
+  backend-domain: https://api.verbly.kr

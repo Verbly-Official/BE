@@ -5,6 +5,7 @@ import lombok.*;
 import verbly.spring.domain.payment.enums.BillingCycle;
 import verbly.spring.domain.payment.enums.SubscriptionStatus;
 import verbly.spring.domain.user.entity.User;
+import verbly.spring.global.common.entity.BaseEntity;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Subscription {
+public class Subscription extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

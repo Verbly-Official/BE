@@ -5,11 +5,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import verbly.spring.domain.payment.dto.PaymentResponseDTO;
+import verbly.spring.domain.payment.service.PaymentQueryService;
 import verbly.spring.domain.payment.service.SubscriptionService;
+import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.utils.SecurityUtils;
 import verbly.spring.infrastructure.kakao.dto.KakaoPayDTO;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -17,6 +21,7 @@ import java.io.IOException;
 public class PaymentController {
 
     private final SubscriptionService subscriptionService;
+    private final PaymentQueryService paymentQueryService;
 
     @PostMapping("/ready")
     public KakaoPayDTO.ReadyResponse ready(@RequestParam Long planId, HttpSession session) {
@@ -64,5 +69,10 @@ public class PaymentController {
     public void fail(HttpServletResponse response) throws IOException {
         response.sendRedirect("http://localhost:3000/mypage/subscription?status=fail");
         //https://www.verbly.kr/mypage/subscription?status=fail ?
+    }
+
+    @GetMapping("/plan")
+    public ApiResponse<List<PaymentResponseDTO.PaymentPlan>> paymentPlan(){
+        return ApiResponse.onSuccess(paymentQueryService.getAllPaymentPlan());
     }
 }

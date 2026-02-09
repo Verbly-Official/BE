@@ -21,6 +21,8 @@ import verbly.spring.global.security.auth.CustomOAuth2User;
 import verbly.spring.global.security.oauth.userinfo.OAuth2UserInfo;
 import verbly.spring.global.security.oauth.userinfo.OAuth2UserInfoFactory;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -100,6 +102,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
                 .point(100) // 가입 보너스 100P
                 .streakDays(0)
                 .lastActiveDate(null)
+                .lastActiveTime(LocalDateTime.now(ZoneId.of(user.getTimezone())))
                 .reviewCount(0L)
                 .reviewAverage(0.0)
                 .build();

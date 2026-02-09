@@ -47,6 +47,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         User user = oAuth2User.getUser();
         log.info("🙋‍♂️ 로그인한 유저 ID: {}, 온보딩 상태: {}", user.getId(), user.getStatus());
 
+        if (user.getStats() != null) {
+            user.getStats().updateLastActive(user.getTimezone());
+        }
+
         // JWT 발급
         String accessToken = jwtTokenProvider.generateAccessToken(authentication); // kakao_12345
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getSocialId());

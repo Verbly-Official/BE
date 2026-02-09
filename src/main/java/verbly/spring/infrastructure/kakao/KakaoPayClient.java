@@ -66,12 +66,13 @@ public class KakaoPayClient {
         );
     }
 
-    public KakaoPayDTO.ApproveResponse recurring(String sid, String orderId, String userId, int totalAmount) {
+    public KakaoPayDTO.ApproveResponse recurring(String sid, String userId, int totalAmount) {
         HttpHeaders headers = getHeaders();
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        String orderId = "order_" + userId + "_" + System.currentTimeMillis();
 
         params.add("cid", CID);
-        params.add("sid", sid); // ⭐️ 저장된 SID 사용
+        params.add("sid", sid);
         params.add("partner_order_id", orderId);
         params.add("partner_user_id", userId);
         params.add("quantity", "1");

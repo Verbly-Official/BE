@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.payment.entity.Subscription;
 import verbly.spring.domain.payment.entity.SubscriptionPlan;
+import verbly.spring.domain.payment.enums.BillingCycle;
 import verbly.spring.domain.payment.enums.SubscriptionStatus;
 import verbly.spring.domain.payment.repository.PlanRepository;
 import verbly.spring.domain.payment.repository.SubscriptionRepository;
@@ -47,15 +48,25 @@ public class SubscriptionService {
         User user = userRepository.findById(userId).orElseThrow();
         SubscriptionPlan plan = planRepository.findById(planId).orElseThrow();
 
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextDate = calculateNextDate(now, plan.getBillingCycle());
+
         Subscription subscription = Subscription.builder()
                 .user(user)
                 .plan(plan)
                 .sid(response.getSid())
                 .status(SubscriptionStatus.ACTIVE)
-                .lastPaymentDate(LocalDateTime.now())
-                .nextPaymentDate(LocalDateTime.now().plusMonths(1))
+                .lastPaymentDate(now)
+                .nextPaymentDate(nextDate)
                 .build();
 
         subscriptionRepository.save(subscription);
+    }
+
+    private LocalDateTime calculateNextDate(LocalDateTime now, BillingCycle period) {
+        if (period == BillingCycle.YEARLY) {
+            return now.plusYears(1);
+        }
+        return now.plusMonths(1);
     }
 }

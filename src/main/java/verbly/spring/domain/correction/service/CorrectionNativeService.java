@@ -158,7 +158,9 @@ public class CorrectionNativeService {
 
         Correction correction = findCorrectionOrThrow(correctionId);
 
-        validateSentenceIdx(correction.getPost().getContent(), request.getSentenceIdx());
+        if (request.getSentenceIdx() != null) {
+            validateSentenceIdx(correction.getPost().getContent(), request.getSentenceIdx());
+        }
 
         boolean isFirstFeedback = !correctionFeedbackRepository.existsByCorrectionId(correctionId);
         takeIfFirstActionOrVerifyOwner(correction, isFirstFeedback);

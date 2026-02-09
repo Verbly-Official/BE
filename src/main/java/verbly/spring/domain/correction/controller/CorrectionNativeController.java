@@ -119,7 +119,10 @@ public class CorrectionNativeController {
      */
     @Operation(
             summary = "커렉션 피드백 작성",
-            description = "특정 교정 단어에 대한 피드백을 작성합니다.",
+            description = "특정 교정 단어에 대한 피드백을 작성합니다.\n" +
+                    "`sentenceIdx`가 null일 경우는 전체에 대한 피드백 코멘트 입니다."
+
+            ,
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     @Parameters({
@@ -147,7 +150,9 @@ public class CorrectionNativeController {
      */
     @Operation(
             summary = "커렉션 피드백 목록 조회",
-            description = "해당 커렉션 문서에 달린 모든 피드백을 조회합니다.",
+            description = "해당 커렉션 문서에 달린 모든 피드백을 조회합니다.\n" +
+                    "`sentenceIdx`가 null일 경우는 전체에 대한 피드백 코멘트 입니다."
+            ,
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     @Parameters({

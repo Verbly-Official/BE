@@ -2,7 +2,6 @@ package verbly.spring.domain.follow.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 import verbly.spring.domain.user.entity.User;
 
 import java.time.LocalDateTime;

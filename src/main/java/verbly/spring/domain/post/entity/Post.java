@@ -2,10 +2,10 @@ package verbly.spring.domain.post.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Check;
 import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.entity.BaseEntity;
-import org.hibernate.annotations.Check;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,12 +16,12 @@ import java.util.List;
 @Builder
 @Getter
 @Entity
-@Table(
-        name = "post",
+@Table(name = "post",
         indexes = {
-                @Index(name = "idx_post_author_id", columnList = "author_id")
-        }
-)
+        @Index(name = "idx_post_status_like", columnList = "status, likes_count"),
+        @Index(name = "idx_post_author_id", columnList = "author_id")
+
+})
 @Check(constraints = "likes_count >= 0 AND comments_count >= 0")
 public class Post extends BaseEntity {
 

@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import verbly.spring.domain.chat.entity.ChatroomUser;
 
 import java.util.List;
 

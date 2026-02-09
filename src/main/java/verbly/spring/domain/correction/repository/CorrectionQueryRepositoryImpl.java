@@ -17,13 +17,13 @@ import org.springframework.stereotype.Repository;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.post.enums.PostStatus;
-import static com.querydsl.core.types.dsl.Expressions.*;
-
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.querydsl.core.types.dsl.Expressions.FALSE;
+import static com.querydsl.core.types.dsl.Expressions.nullExpression;
 import static verbly.spring.domain.correction.entity.QCorrection.correction;
 import static verbly.spring.domain.correction.entity.QCorrectionBookmark.correctionBookmark;
 import static verbly.spring.domain.correction.entity.QCorrectionFeedback.correctionFeedback;

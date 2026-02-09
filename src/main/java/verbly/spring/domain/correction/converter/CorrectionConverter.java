@@ -4,13 +4,9 @@ import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.entity.Correction;
 import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.post.entity.Post;
-import verbly.spring.domain.post.entity.PostTag;
-import verbly.spring.domain.post.entity.Tag;
 import verbly.spring.global.common.utils.RelativeTimeUtils;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 public class CorrectionConverter {
     private CorrectionConverter() {}

@@ -17,21 +17,21 @@ public class PostResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class HomePosts{
-        String userImageUrl;
-        String nickname;
-        Boolean isFollowing;
-        UUID uuid;
+        private String userImageUrl;
+        private String nickname;
+        private Boolean isFollowing;
+        private UUID uuid;
 
-        Long postId;
-        String content;
-        PostStatus status;
-        Integer likesCount;
-        Integer commentsCount;
-        LocalDateTime createdAt;
+        private Long postId;
+        private String content;
+        private PostStatus status;
+        private Integer likesCount;
+        private Integer commentsCount;
+        private LocalDateTime createdAt;
 
-        List<String> tags;
+        private List<String> tags;
 
-        Boolean isLiked;
+        private Boolean isLiked;
     }
 
     @Builder
@@ -39,9 +39,9 @@ public class PostResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AddPostLike{
-        Long postId;
-        Integer likesCount;
-        Boolean isLiked;
+        private Long postId;
+        private Integer likesCount;
+        private Boolean isLiked;
     }
 
     @Builder
@@ -49,21 +49,21 @@ public class PostResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserPosts{
-        String userImageUrl;
-        String nickname;
-        Boolean isFollowing;
-        UUID uuid;
+        private String userImageUrl;
+        private String nickname;
+        private Boolean isFollowing;
+        private UUID uuid;
 
-        Long postId;
-        String content;
-        PostStatus status;
-        Integer likesCount;
-        Integer commentsCount;
-        LocalDateTime createdAt;
+        private Long postId;
+        private String content;
+        private PostStatus status;
+        private Integer likesCount;
+        private Integer commentsCount;
+        private LocalDateTime createdAt;
 
-        List<String> tags;
+        private List<String> tags;
 
-        Boolean isLiked;
+        private Boolean isLiked;
     }
 
     @Builder
@@ -71,8 +71,8 @@ public class PostResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class HomeWritePost{
-        Long postId;
-        LocalDateTime createdAt;
+        private Long postId;
+        private LocalDateTime createdAt;
     }
 
     @Getter
@@ -96,5 +96,25 @@ public class PostResponseDTO {
         private String authorNickname;
         private String title;
         private LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Builder
+    public static class hotPost {
+        private String userImageUrl;
+        private String nickname;
+        private Boolean isFollowing;
+        private UUID uuid;
+
+        private Long postId;
+        private String content;
+        private PostStatus status;
+        private Integer likesCount;
+        private Integer commentsCount;
+        private LocalDateTime createdAt;
+
+        private List<String> tags;
+
+        private Boolean isLiked;
     }
 }

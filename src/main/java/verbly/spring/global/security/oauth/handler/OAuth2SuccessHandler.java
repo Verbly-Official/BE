@@ -6,26 +6,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import verbly.spring.domain.auth.dto.response.AuthResponseDTO;
+import org.springframework.stereotype.Component;
 import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.code.SuccessStatus;
-import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.common.utils.CookieUtils;
 import verbly.spring.global.security.auth.CustomOAuth2User;
 import verbly.spring.global.security.jwt.JwtTokenProvider;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j

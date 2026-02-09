@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.post.dto.request.CommentRequestDTO;
 import verbly.spring.domain.post.dto.request.PostRequestDTO;
@@ -14,12 +13,14 @@ import verbly.spring.domain.post.dto.response.CommentResponseDTO;
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
 import verbly.spring.domain.post.service.comment.CommentCommandService;
 import verbly.spring.domain.post.service.comment.CommentQueryService;
+import verbly.spring.domain.post.service.hotpost.HotPostScheduler;
 import verbly.spring.domain.post.service.post.PostCommandService;
 import verbly.spring.domain.post.service.post.PostQueryService;
-import verbly.spring.domain.user.entity.User;
+import verbly.spring.domain.stats.service.StatsCommandService;
 import verbly.spring.global.common.response.ApiResponse;
-import verbly.spring.global.security.auth.CustomUserDetails;
+import verbly.spring.global.security.utils.SecurityUtils;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,46 +32,47 @@ public class PostRestController implements PostControllerDocs {
     private final PostCommandService postCommandService;
     private final CommentQueryService commentQueryService;
     private final CommentCommandService commentCommandService;
+    private final StatsCommandService statsCommandService;
+    //test
+    private final HotPostScheduler scheduler;
+
+
 
     @Override
     @GetMapping()
     public ApiResponse<Slice<PostResponseDTO.HomePosts>> getHomePosts(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(postQueryService.getHomePosts(pageable, viewer));
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(postQueryService.getHomePosts(pageable, userId));
     }
 
     @Override
     @GetMapping("/{uuid}")
     public ApiResponse<Slice<PostResponseDTO.UserPosts>> getUserPosts(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-            @PathVariable(name = "uuid") UUID uuid,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @PathVariable(name = "uuid") UUID uuid
     ) {
-        User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(postQueryService.getUserPosts(pageable,uuid, viewer));
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(postQueryService.getUserPosts(pageable,uuid, userId));
     }
 
     @Override
     @PostMapping("/{postId}/like")
     public ApiResponse<PostResponseDTO.AddPostLike> addPostLike(
-            @PathVariable(name = "postId") Long postId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @PathVariable(name = "postId") Long postId
     ) {
-        User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(postCommandService.addPostLike(postId, viewer.getId()));
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(postCommandService.addPostLike(postId, userId));
     }
 
     @Override
     @DeleteMapping("/{postId}/like")
     public ApiResponse<PostResponseDTO.AddPostLike> deletePostLike(
-            @PathVariable(name = "postId") Long postId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @PathVariable(name = "postId") Long postId
     ) {
-        User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(postCommandService.deletePostLike(postId, viewer.getId()));
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(postCommandService.deletePostLike(postId, userId));
     }
 
     @Override
@@ -85,21 +87,26 @@ public class PostRestController implements PostControllerDocs {
     @Override
     @PostMapping("{postId}/comments")
     public ApiResponse<CommentResponseDTO.getMyComment> makeComment(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable(name = "postId") Long postId,
             @RequestBody @Valid CommentRequestDTO.makeComment dto
             ){
-        User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(commentCommandService.getMyComment(viewer, postId, dto));
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(commentCommandService.getMyComment(userId, postId, dto));
     }
 
     @Override
     @PostMapping("/home")
     public ApiResponse<PostResponseDTO.HomeWritePost> writeHomePost(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid PostRequestDTO.HomeWritePost dto
             ){
-        User viewer = userDetails != null ? userDetails.getUser() : null;
-        return ApiResponse.onSuccess(postCommandService.writeHomePost(dto, viewer));
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(postCommandService.writeHomePost(dto, userId));
+    }
+
+    @Override
+    @GetMapping("/hot")
+    public ApiResponse<List<PostResponseDTO.hotPost>> getHotPosts(){
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(postQueryService.getHotPosts(userId));
     }
 }

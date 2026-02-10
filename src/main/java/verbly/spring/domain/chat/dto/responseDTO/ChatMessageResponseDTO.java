@@ -1,12 +1,10 @@
 package verbly.spring.domain.chat.dto.responseDTO;
 
-import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import verbly.spring.domain.chat.entity.ChatMessage;
-import verbly.spring.domain.chat.entity.Chatroom;
 import verbly.spring.domain.user.entity.User;
 
 import java.time.LocalDateTime;

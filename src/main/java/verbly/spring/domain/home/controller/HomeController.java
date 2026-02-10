@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.home.dto.response.HomeResponseDTO;
-import verbly.spring.domain.stats.service.StatsCommandService;
 import verbly.spring.domain.home.service.UserHomeQueryService;
+import verbly.spring.domain.stats.service.StatsCommandService;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.utils.SecurityUtils;
 

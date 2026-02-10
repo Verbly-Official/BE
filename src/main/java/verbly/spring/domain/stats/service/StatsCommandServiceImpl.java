@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.stats.entity.Stats;
 import verbly.spring.domain.stats.exception.StatsHandler;
 import verbly.spring.domain.stats.repository.StatsRepository;
-import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.code.ErrorStatus;
 
 import java.time.ZoneId;

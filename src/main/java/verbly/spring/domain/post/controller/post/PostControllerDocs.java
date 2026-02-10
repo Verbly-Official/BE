@@ -9,13 +9,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import verbly.spring.domain.post.dto.request.CommentRequestDTO;
 import verbly.spring.domain.post.dto.request.PostRequestDTO;
 import verbly.spring.domain.post.dto.response.CommentResponseDTO;
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
 import verbly.spring.global.common.response.ApiResponse;
-import verbly.spring.global.security.auth.CustomUserDetails;
 
 import java.util.List;
 import java.util.UUID;

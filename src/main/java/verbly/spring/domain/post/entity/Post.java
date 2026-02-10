@@ -2,10 +2,10 @@ package verbly.spring.domain.post.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Check;
 import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.entity.BaseEntity;
-import org.hibernate.annotations.Check;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -69,6 +69,7 @@ public class Post extends BaseEntity {
     private Boolean hotPosted = false;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<PostTag> postTags = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -94,5 +95,4 @@ public class Post extends BaseEntity {
     public void changeTemp(boolean temp) {
         this.temp = temp;
     }
-
-}
+    }

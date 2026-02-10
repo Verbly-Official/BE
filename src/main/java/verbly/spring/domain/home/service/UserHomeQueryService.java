@@ -1,7 +1,6 @@
 package verbly.spring.domain.home.service;
 
 import verbly.spring.domain.home.dto.response.HomeResponseDTO;
-import verbly.spring.domain.user.dto.response.UserResponseDTO;
 
 import java.util.UUID;
 

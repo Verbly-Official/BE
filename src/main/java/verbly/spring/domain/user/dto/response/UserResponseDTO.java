@@ -5,6 +5,8 @@ import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.enums.Level;
 
+import java.time.LocalDateTime;
+
 public class UserResponseDTO {
     @Getter
     @Builder
@@ -37,6 +39,7 @@ public class UserResponseDTO {
 
         // 통계
         private int streakDays;
+        private long lastActiveTime;
         private long point;
         private int level;
 

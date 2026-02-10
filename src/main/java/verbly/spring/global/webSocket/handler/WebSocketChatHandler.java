@@ -7,26 +7,19 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import verbly.spring.domain.chat.entity.ChatMessage;
-import verbly.spring.domain.chat.entity.Chatroom;
 import verbly.spring.domain.chat.entity.ChatroomUser;
-import verbly.spring.domain.chat.exception.ChatHandler;
-import verbly.spring.domain.chat.repo.ChatMessageRepository;
-import verbly.spring.domain.chat.repo.ChatroomRepository;
 import verbly.spring.domain.chat.repo.ChatroomUserRepository;
 import verbly.spring.domain.chat.service.ChatMessageService;
 import verbly.spring.domain.chat.service.ChatUtilService;
-import verbly.spring.domain.chat.service.ChatroomService;
-import verbly.spring.domain.chat.service.ChatroomUserService;
-import verbly.spring.domain.user.entity.User;
-import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.webSocket.exception.WebSocketExceptionHandler;
 import verbly.spring.global.webSocket.util.WebSocketUtil;
 
-import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Component

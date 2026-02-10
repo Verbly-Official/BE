@@ -4,7 +4,9 @@ import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.entity.Correction;
 import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.post.entity.Post;
+import verbly.spring.global.common.utils.RelativeTimeUtils;
 
+import java.util.List;
 
 public class CorrectionConverter {
     private CorrectionConverter() {}
@@ -18,20 +20,50 @@ public class CorrectionConverter {
 
     public static CorrectionResponseDTO.MyCorrectionDto toMyCorrectionDTO(
             Correction correction,
-            CorrectorType latestCorrectorType,
-            String latestCorrectorName
+            CorrectorType correctorType,
+            String correctorName,
+            boolean isBookmarked
     ) {
         Post post = correction.getPost();
+
+        List<String> tags = post.getPostTags().stream()
+                .map(pt -> pt.getTag().getName())
+                .toList();
 
         return CorrectionResponseDTO.MyCorrectionDto.builder()
                 .correctionId(correction.getId())
                 .postId(post.getId())
                 .title(post.getTitle())
+                .status(post.getStatus())
+                .bookmark(isBookmarked)
+                .content(post.getContent())
+                .tags(tags)
+                .correctorType(correctorType)
+                .correctorName(correctorName)
+                .correctionCreatedAt(correction.getCreatedAt())
+                .correctionUpdatedAt(correction.getUpdatedAt())
+                .build();
+    }
+
+    public static CorrectionResponseDTO.MyCorrectionListDto toMyCorrectionListDTO(
+            Correction correction,
+            CorrectorType latestCorrectorType,
+            String latestCorrectorName,
+            boolean isBookmarked
+    ) {
+        Post post = correction.getPost();
+
+        return CorrectionResponseDTO.MyCorrectionListDto.builder()
+                .correctionId(correction.getId())
+                .postId(post.getId())
+                .title(post.getTitle())
+                .status(post.getStatus())
+                .bookmark(isBookmarked)
                 .correctorType(latestCorrectorType)
                 .correctorName(latestCorrectorName)
                 .correctionCreatedAt(correction.getCreatedAt())
                 .correctionUpdatedAt(correction.getUpdatedAt())
-                .status(post.getStatus())
+                .relativeTime(RelativeTimeUtils.toRelative(correction.getCreatedAt()))
                 .build();
     }
 }

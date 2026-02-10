@@ -1,16 +1,13 @@
 package verbly.spring.domain.user.service;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import verbly.spring.domain.user.converter.UserConverter;
 import verbly.spring.domain.user.dto.request.UserRequestDTO;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
-import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.domain.user.exception.UserHandler;
@@ -21,9 +18,7 @@ import verbly.spring.domain.uuid.repository.UuidRepository;
 import verbly.spring.global.common.aws.s3.AmazonS3Manager;
 import verbly.spring.global.common.code.ErrorStatus;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -119,9 +114,11 @@ public class UserCommandServiceImpl implements UserCommandService {
         String profileImageUrl = s3Manager.uploadFile(s3Manager.generateUserKeyName(uuid), profileImage);
 
         if (user.getProfileImage() != null) {
-            // 기존 이미지의 키 추출 및 삭제
+            // 기존 URL이 S3일 때만 기존 이미지의 키 추출 및 삭제
             String oldKey = s3Manager.extractS3KeyFromUrl(user.getProfileImage().getImageUrl());
-            s3Manager.deleteFile(oldKey);
+            if (oldKey != null) {
+                s3Manager.deleteFile(oldKey);
+            }
 
             // update: 기존 엔티티에 새로운 URL만 set
             user.getProfileImage().updateImageUrl(profileImageUrl);

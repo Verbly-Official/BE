@@ -3,6 +3,7 @@ package verbly.spring.domain.post.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import verbly.spring.global.common.entity.BaseEntity;
+
 import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

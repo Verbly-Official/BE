@@ -5,14 +5,14 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import verbly.spring.domain.post.entity.Post;
 import org.springframework.data.repository.query.Param;
+import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.post.enums.PostStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying(clearAutomatically = true)
@@ -54,4 +54,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     );
 
     List<Post> findByStatusAndLikesCountGreaterThanEqual(PostStatus postStatus, int i);
+    Optional<Post> findByIdAndAuthorId(Long postId, Long authorId);
 }

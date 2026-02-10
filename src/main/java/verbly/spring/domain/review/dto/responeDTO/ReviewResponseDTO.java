@@ -1,6 +1,9 @@
 package verbly.spring.domain.review.dto.responeDTO;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import verbly.spring.domain.review.entity.Review;
 import verbly.spring.domain.user.entity.User;
 

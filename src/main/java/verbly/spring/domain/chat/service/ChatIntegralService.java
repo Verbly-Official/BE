@@ -3,7 +3,6 @@ package verbly.spring.domain.chat.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import verbly.spring.domain.chat.dto.responseDTO.ChatMessageResponseDTO;
 import verbly.spring.domain.chat.dto.responseDTO.ChatProfileResponseDTO;
 import verbly.spring.domain.chat.dto.responseDTO.OuterChatroomInfoResponseDTO;
 import verbly.spring.domain.chat.dto.responseDTO.SearchResponseDTO;

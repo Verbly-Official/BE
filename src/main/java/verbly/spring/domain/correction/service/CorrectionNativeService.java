@@ -13,6 +13,7 @@ import verbly.spring.domain.correction.dto.response.CorrectionEditorQueryDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionEditorResponseDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.entity.Correction;
+import verbly.spring.domain.correction.entity.CorrectionBookmark;
 import verbly.spring.domain.correction.entity.CorrectionFeedback;
 import verbly.spring.domain.correction.entity.CorrectionWord;
 import verbly.spring.domain.correction.enums.CorrectorType;
@@ -40,16 +41,69 @@ public class CorrectionNativeService {
     private final CorrectionWordRepository correctionWordRepository;
     private final CorrectionFeedbackRepository correctionFeedbackRepository;
     private final CorrectionEditorQueryRepository correctionEditorQueryRepository;
+    private final CorrectionBookmarkRepository correctionBookmarkRepository;
 
-    public Page<CorrectionResponseDTO.MyCorrectionDto> getNativeCorrectionRequests(PostStatus status, Pageable pageable) {
+    public CorrectionResponseDTO.NativeCorrectionDTO getNativeCorrectionRequests(
+            Boolean bookmark,
+            PostStatus status,
+            Pageable pageable
+    ) {
         validateNativeAccess();
 
+        Long userId = SecurityUtils.getCurrentUserId();
+
         Pageable safePageable = normalize(pageable);
-        return correctionQueryRepository.findNativeCorrectionRequests(status, safePageable);
+
+        Page<CorrectionResponseDTO.MyCorrectionDto> pageResult =
+                correctionQueryRepository.findNativeCorrectionRequests(
+                        userId,
+                        bookmark,
+                        status,
+                        safePageable
+                );
+
+        List<Long> correctionIds = pageResult.getContent().stream()
+                .map(CorrectionResponseDTO.MyCorrectionDto::getCorrectionId)
+                .distinct()
+                .toList();
+
+        Map<Long, Integer> wordCountMap = correctionWordRepository.countWordsByCorrectionIds(correctionIds).stream()
+                .collect(Collectors.toMap(
+                        CorrectionWordRepository.CorrectionCountRow::getCorrectionId,
+                        r -> r.getCnt().intValue()
+                ));
+
+        Page<CorrectionResponseDTO.MyCorrectionDto> enriched =
+                pageResult.map(dto -> CorrectionResponseDTO.MyCorrectionDto.builder()
+                        .correctionId(dto.getCorrectionId())
+                        .postId(dto.getPostId())
+                        .title(dto.getTitle())
+                        .status(dto.getStatus())
+                        .bookmark(dto.getBookmark())
+                        .content(dto.getContent())
+                        .tags(dto.getTags())
+                        .correctorType(dto.getCorrectorType())
+                        .correctorName(dto.getCorrectorName())
+                        .correctionCreatedAt(dto.getCorrectionCreatedAt())
+                        .correctionUpdatedAt(dto.getCorrectionUpdatedAt())
+                        .wordCount(wordCountMap.getOrDefault(dto.getCorrectionId(), 0))
+                        .build()
+                );
+
+        long total =
+                correctionQueryRepository.countNativeCorrectionRequests(
+                        userId,
+                        bookmark,
+                        status
+                );
+
+        return CorrectionResponseDTO.NativeCorrectionDTO.from(enriched, total);
     }
 
     @Transactional(readOnly = true)
     public CorrectionEditorResponseDTO.Detail getDetail(Long correctionId) {
+        validateNativeAccess();
+
         CorrectionEditorQueryDTO.CorrectionBaseRow base = findBaseOrThrow(correctionId);
 
         List<CorrectionWord> words =
@@ -77,6 +131,7 @@ public class CorrectionNativeService {
         return CorrectionEditorResponseDTO.Detail.builder()
                 .correctionId(base.getCorrectionId())
                 .postId(base.getPostId())
+                .status(base.getStatus())
                 .sentences(sentences)
                 .words(wordResponses)
                 .feedback(feedback)
@@ -84,9 +139,12 @@ public class CorrectionNativeService {
     }
 
     public void upsertWords(Long correctionId, CorrectionEditorRequestDTO.UpsertWords request) {
+        validateNativeAccess();
+
         Correction correction = findCorrectionOrThrow(correctionId);
 
-        markInProgressIfPending(correction);
+        boolean isFirstWordEdit = !correctionWordRepository.existsByCorrectionId(correctionId);
+        takeIfFirstActionOrVerifyOwner(correction, isFirstWordEdit);
 
         applyWordIdEditsOrThrow(correction, request.getEdits());
     }
@@ -96,11 +154,16 @@ public class CorrectionNativeService {
             CorrectorType correctorType,
             CorrectionEditorRequestDTO.WriteFeedback request
     ) {
+        validateNativeAccess();
+
         Correction correction = findCorrectionOrThrow(correctionId);
 
-        validateSentenceIdx(correction.getPost().getContent(), request.getSentenceIdx());
+        if (request.getSentenceIdx() != null) {
+            validateSentenceIdx(correction.getPost().getContent(), request.getSentenceIdx());
+        }
 
-        markInProgressIfPending(correction);
+        boolean isFirstFeedback = !correctionFeedbackRepository.existsByCorrectionId(correctionId);
+        takeIfFirstActionOrVerifyOwner(correction, isFirstFeedback);
 
         User corrector = SecurityUtils.getCurrentUser();
 
@@ -121,6 +184,8 @@ public class CorrectionNativeService {
 
     @Transactional(readOnly = true)
     public List<CorrectionEditorResponseDTO.Feedback> getFeedback(Long correctionId) {
+        validateNativeAccess();
+
         findBaseOrThrow(correctionId);
         return CorrectionEditorConverter.toFeedbackResponses(
                 correctionEditorQueryRepository.findFeedback(correctionId)
@@ -128,6 +193,8 @@ public class CorrectionNativeService {
     }
 
     public void submitCorrection(Long correctionId) {
+        validateNativeAccess();
+
         Correction correction = findCorrectionOrThrow(correctionId);
 
         if (correction.getPost().getStatus() == PostStatus.COMPLETED) {
@@ -156,10 +223,10 @@ public class CorrectionNativeService {
     ) {
         validateNativeAccess();
 
-        findBaseOrThrow(correctionId);
+        Correction correction = findCorrectionOrThrow(correctionId);
+        takeIfFirstActionOrVerifyOwner(correction, false);
 
         CorrectionFeedback feedback = findFeedbackOrThrow(feedbackId);
-
         validateFeedbackBelongsToCorrection(correctionId, feedback);
         validateFeedbackOwner(feedback);
 
@@ -169,17 +236,41 @@ public class CorrectionNativeService {
     public void deleteFeedback(Long correctionId, Long feedbackId) {
         validateNativeAccess();
 
-        findBaseOrThrow(correctionId);
+        Correction correction = findCorrectionOrThrow(correctionId);
+        takeIfFirstActionOrVerifyOwner(correction, false);
 
         CorrectionFeedback feedback = findFeedbackOrThrow(feedbackId);
-
         validateFeedbackBelongsToCorrection(correctionId, feedback);
         validateFeedbackOwner(feedback);
 
         correctionFeedbackRepository.delete(feedback);
     }
 
+    public void addBookmark(Long correctionId) {
+        validateNativeAccess();
 
+        User user = SecurityUtils.getCurrentUser();
+
+        Correction correction = findCorrectionOrThrow(correctionId);
+
+        if (correctionBookmarkRepository.existsByUserIdAndCorrectionId(user.getId(), correctionId)) {
+            return;
+        }
+
+        correctionBookmarkRepository.save(
+                CorrectionBookmark.builder()
+                        .user(user)
+                        .correction(correction)
+                        .build()
+        );
+    }
+
+    public void removeBookmark(Long correctionId) {
+        validateNativeAccess();
+
+        Long userId = SecurityUtils.getCurrentUserId();
+        correctionBookmarkRepository.deleteByUserIdAndCorrectionId(userId, correctionId);
+    }
 
 
     private Pageable normalize(Pageable pageable) {
@@ -193,6 +284,7 @@ public class CorrectionNativeService {
         return PageRequest.of(page, size, sort);
     }
 
+    // nativeLang == "en"
     private void validateNativeAccess() {
         User currentUser = SecurityUtils.getCurrentUser();
 
@@ -316,4 +408,43 @@ public class CorrectionNativeService {
             word.update(newCorrected, word.getStartIdx(), word.getEndIdx());
         }
     }
+    private void requirePendingForFirstAction(Correction correction) {
+        if (correction.getPost().getStatus() != PostStatus.PENDING) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_FIRST_ACTION_ONLY_PENDING);
+        }
+    }
+
+    private void requireInProgressAndOwner(Correction correction) {
+        if (correction.getPost().getStatus() != PostStatus.IN_PROGRESS) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_EDIT_ONLY_IN_PROGRESS);
+        }
+
+        User current = SecurityUtils.getCurrentUser();
+        if (current == null || correction.getCorrector() == null ||
+                !correction.getCorrector().getId().equals(current.getId())) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_NOT_THE_CORRECTOR);
+        }
+    }
+
+    private void takeIfFirstActionOrVerifyOwner(Correction correction, boolean isFirstAction) {
+        User current = SecurityUtils.getCurrentUser();
+
+        if (isFirstAction) {
+            requirePendingForFirstAction(correction);
+
+            if (correction.getCorrector() != null &&
+                    !correction.getCorrector().getId().equals(current.getId())) {
+                throw new CorrectionHandler(ErrorStatus.CORRECTION_NOT_THE_CORRECTOR);
+            }
+
+            if (correction.getCorrector() == null) {
+                correction.assignCorrector(current);
+            }
+
+            markInProgressIfPending(correction);
+        } else {
+            requireInProgressAndOwner(correction);
+        }
+    }
+
 }

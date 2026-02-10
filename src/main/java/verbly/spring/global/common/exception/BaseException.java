@@ -1,6 +1,5 @@
 package verbly.spring.global.common.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import verbly.spring.global.common.code.BaseErrorCode;
 import verbly.spring.global.common.dto.ErrorReasonDTO;

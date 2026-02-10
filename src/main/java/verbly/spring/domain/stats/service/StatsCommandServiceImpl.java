@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.stats.entity.Stats;
 import verbly.spring.domain.stats.exception.StatsHandler;
 import verbly.spring.domain.stats.repository.StatsRepository;
-import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.code.ErrorStatus;
 
 import java.time.ZoneId;
@@ -20,7 +19,7 @@ public class StatsCommandServiceImpl implements StatsCommandService {
 
     @Override
     @Transactional
-    public void markAttendance(Long userId, String timezone) {
+    public void checkAttendance(Long userId, String timezone) {
         Stats stats = statsRepository.findByUserId(userId)
                 .orElseThrow(() -> new StatsHandler(ErrorStatus.STATS_NOT_FOUND));
         try {
@@ -33,6 +32,7 @@ public class StatsCommandServiceImpl implements StatsCommandService {
             timezone = "Asia/Seoul"; // 에러 나면 무조건 서울로
         }
         stats.markAttendance(timezone);
+        stats.updateLastActive(timezone);
     }
 
     @Override

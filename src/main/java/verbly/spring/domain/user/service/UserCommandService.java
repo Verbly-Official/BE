@@ -1,9 +1,9 @@
 package verbly.spring.domain.user.service;
 
 import org.springframework.web.multipart.MultipartFile;
-import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.dto.request.UserRequestDTO;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
+import verbly.spring.domain.user.entity.User;
 
 public interface UserCommandService {
     User onboardingUser(Long userId, UserRequestDTO.OnboardingDTO request);

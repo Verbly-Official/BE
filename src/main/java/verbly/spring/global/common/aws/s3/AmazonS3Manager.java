@@ -43,7 +43,7 @@ public class AmazonS3Manager {
 
         String bucketUrlPrefix = "https://" + amazonConfig.getBucket() + ".s3." + amazonConfig.getRegion() + ".amazonaws.com/";
 
-        if (imageUrl.startsWith(bucketUrlPrefix)) {
+        if (!imageUrl.startsWith(bucketUrlPrefix)) {
             log.info("S3가 아닌 외부 프로필 URL이므로 삭제 대상에서 제외합니다. url={}", imageUrl);
             return null;
         } //else {

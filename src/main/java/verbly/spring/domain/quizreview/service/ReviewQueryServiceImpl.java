@@ -18,7 +18,10 @@ import verbly.spring.domain.quizreview.repository.ReviewSessionRepository;
 import verbly.spring.domain.quizreview.repository.ReviewTaskRepository;
 import verbly.spring.global.common.code.ErrorStatus;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor

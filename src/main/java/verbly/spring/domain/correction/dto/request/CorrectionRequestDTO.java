@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 public class CorrectionRequestDTO {
 
     @Data
@@ -14,6 +16,8 @@ public class CorrectionRequestDTO {
     @AllArgsConstructor
     public static class CreateDTO{
         private Long tempPostId;
+
+        private List<String> tags;
 
         @NotBlank(message = "글 제목은 필수입니다.")
         private String title;
@@ -27,6 +31,8 @@ public class CorrectionRequestDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateDTO{
+        private List<String> tags;
+
         private String title;
         private String content;
     }

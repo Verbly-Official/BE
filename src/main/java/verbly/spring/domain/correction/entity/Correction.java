@@ -3,6 +3,7 @@ package verbly.spring.domain.correction.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import verbly.spring.domain.post.entity.Post;
+import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.entity.BaseEntity;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,16 +21,11 @@ public class Correction extends BaseEntity {
     @JoinColumn(name = "post_id", nullable = false, unique = true)
     private Post post;
 
-    // 즐겨찾기
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean bookmark = false;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "corrector_id")
+    private User corrector;
 
-    public void addBookmark() {
-        this.bookmark = true;
-    }
-
-    public void removeBookmark() {
-        this.bookmark = false;
+    public void assignCorrector(User user) {
+        this.corrector = user;
     }
 }

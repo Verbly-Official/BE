@@ -1,6 +1,5 @@
 package verbly.spring.domain.post.converter;
 
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 import verbly.spring.domain.post.dto.request.CommentRequestDTO;
 import verbly.spring.domain.post.dto.response.CommentResponseDTO;

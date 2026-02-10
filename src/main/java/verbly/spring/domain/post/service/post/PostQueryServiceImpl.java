@@ -18,7 +18,6 @@ import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.exception.UserHandler;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
-import verbly.spring.global.security.auth.CustomUserDetails;
 
 import java.util.List;
 import java.util.UUID;

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import verbly.spring.domain.follow.entity.Follow;
 import verbly.spring.domain.user.entity.User;
+
 import java.util.List;
 
 @Repository

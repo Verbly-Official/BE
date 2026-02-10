@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.post.dto.request.CommentRequestDTO;
 import verbly.spring.domain.post.dto.request.PostRequestDTO;
@@ -18,9 +17,7 @@ import verbly.spring.domain.post.service.hotpost.HotPostScheduler;
 import verbly.spring.domain.post.service.post.PostCommandService;
 import verbly.spring.domain.post.service.post.PostQueryService;
 import verbly.spring.domain.stats.service.StatsCommandService;
-import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.response.ApiResponse;
-import verbly.spring.global.security.auth.CustomUserDetails;
 import verbly.spring.global.security.utils.SecurityUtils;
 
 import java.util.List;

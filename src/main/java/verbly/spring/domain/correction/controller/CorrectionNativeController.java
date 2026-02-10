@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -43,20 +42,24 @@ public class CorrectionNativeController {
                     "미선택시(GET `/api/correction-native`) 모든 문서가 조회됩니다.\n\n" +
                     "| 쿼리 파라미터 | 종류 | 기능 |\n" +
                     "| --- | --- | --- |\n" +
-                    "| status | COMPLETED, IN_PROGRESS, PENDING | 상단 상태 탭 |\n",
+                    "| status | COMPLETED, IN_PROGRESS, PENDING | 상단 상태 탭 |\n" +
+                    "| bookmark | true/false | 즐겨찾기 필터(내 기준) |\n",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     @Parameters({
             @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
-            @Parameter(name = "size", description = "페이지 크기", example = "10")
+            @Parameter(name = "size", description = "페이지 크기", example = "10"),
+            @Parameter(name = "status", description = "문서 상태", example = "PENDING"),
+            @Parameter(name = "bookmark", description = "즐겨찾기 필터(내 기준)", example = "true")
     })
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<CorrectionResponseDTO.MyCorrectionDto>>> getNativeCorrectionRequests(
+    public ResponseEntity<ApiResponse<CorrectionResponseDTO.NativeCorrectionDTO>> getNativeCorrectionRequests(
             @RequestParam(required = false) PostStatus status,
+            @RequestParam(required = false) Boolean bookmark,
             @PageableDefault(size = 10) Pageable pageable
     ) {
-        Page<CorrectionResponseDTO.MyCorrectionDto> result =
-                correctionNativeService.getNativeCorrectionRequests(status, pageable);
+        CorrectionResponseDTO.NativeCorrectionDTO result =
+                correctionNativeService.getNativeCorrectionRequests(bookmark, status, pageable);
 
         return ResponseEntity
                 .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())
@@ -116,7 +119,10 @@ public class CorrectionNativeController {
      */
     @Operation(
             summary = "커렉션 피드백 작성",
-            description = "특정 교정 단어에 대한 피드백을 작성합니다.",
+            description = "특정 교정 단어에 대한 피드백을 작성합니다.\n" +
+                    "`sentenceIdx`가 null일 경우는 전체에 대한 피드백 코멘트 입니다."
+
+            ,
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     @Parameters({
@@ -144,7 +150,9 @@ public class CorrectionNativeController {
      */
     @Operation(
             summary = "커렉션 피드백 목록 조회",
-            description = "해당 커렉션 문서에 달린 모든 피드백을 조회합니다.",
+            description = "해당 커렉션 문서에 달린 모든 피드백을 조회합니다.\n" +
+                    "`sentenceIdx`가 null일 경우는 전체에 대한 피드백 코멘트 입니다."
+            ,
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     @Parameters({
@@ -225,5 +233,41 @@ public class CorrectionNativeController {
                 .body(ApiResponse.of(SuccessStatus.CORRECTION_DELETE_SUCCESS, null));
     }
 
+    /**
+     * 즐겨찾기 추가(외국인 기준)
+     */
+    @Operation(
+            summary = "외국인(네이티브) 즐겨찾기 추가",
+            description = "외국인(네이티브) 유저가 커렉션 요청을 즐겨찾기에 추가합니다.",
+            security = {@SecurityRequirement(name = "JWT TOKEN")}
+    )
+    @PostMapping("/{correctionId}/bookmark")
+    public ResponseEntity<ApiResponse<Void>> addBookmark(
+            @PathVariable Long correctionId
+    ) {
+        correctionNativeService.addBookmark(correctionId);
 
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_UPDATE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_UPDATE_SUCCESS, null));
+    }
+
+    /**
+     * 즐겨찾기 삭제(외국인 기준)
+     */
+    @Operation(
+            summary = "외국인(네이티브) 즐겨찾기 삭제",
+            description = "외국인(네이티브) 유저가 커렉션 요청 즐겨찾기를 해제합니다.",
+            security = {@SecurityRequirement(name = "JWT TOKEN")}
+    )
+    @DeleteMapping("/{correctionId}/bookmark")
+    public ResponseEntity<ApiResponse<Void>> removeBookmark(
+            @PathVariable Long correctionId
+    ) {
+        correctionNativeService.removeBookmark(correctionId);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_UPDATE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_UPDATE_SUCCESS, null));
+    }
 }

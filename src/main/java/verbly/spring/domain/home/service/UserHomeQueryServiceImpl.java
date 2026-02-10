@@ -10,8 +10,6 @@ import verbly.spring.domain.home.dto.response.HomeResponseDTO;
 import verbly.spring.domain.post.enums.PostStatus;
 import verbly.spring.domain.post.repository.PostRepository;
 import verbly.spring.domain.stats.service.StatsCommandService;
-import verbly.spring.domain.user.converter.UserConverter;
-import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.exception.UserHandler;
 import verbly.spring.domain.user.repository.UserRepository;

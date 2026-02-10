@@ -1,9 +1,9 @@
 package verbly.spring.domain.quizreview.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.AccessLevel;
 import org.hibernate.annotations.CreationTimestamp;
 import verbly.spring.domain.quizreview.enums.ReviewSessionStatus;
 

@@ -31,7 +31,6 @@ public class CorrectionEditorRequestDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class WriteFeedback {
-        @NotNull
         private Integer sentenceIdx;
 
         @NotBlank

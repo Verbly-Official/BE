@@ -37,13 +37,19 @@ public class AmazonS3Manager {
     }
 
     public String extractS3KeyFromUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) {
+            return null;
+        }
+
         String bucketUrlPrefix = "https://" + amazonConfig.getBucket() + ".s3." + amazonConfig.getRegion() + ".amazonaws.com/";
 
-        if (imageUrl != null && imageUrl.startsWith(bucketUrlPrefix)) {
-            return imageUrl.substring(bucketUrlPrefix.length());
-        } else {
-            throw new IllegalArgumentException("S3 URL에서 key를 추출할 수 없습니다: " + imageUrl);
-        }
+        if (imageUrl.startsWith(bucketUrlPrefix)) {
+            log.info("S3가 아닌 외부 프로필 URL이므로 삭제 대상에서 제외합니다. url={}", imageUrl);
+            return null;
+        } //else {
+//            throw new IllegalArgumentException("S3 URL에서 key를 추출할 수 없습니다: " + imageUrl);
+//        }
+        return imageUrl.substring(bucketUrlPrefix.length());
     }
 
     public void deleteFile(String keyName) {

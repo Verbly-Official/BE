@@ -83,7 +83,7 @@ public class CorrectionResponseDTO {
     public static class NativeCorrectionDTO {
         private List<MyCorrectionDto> corrections;
 
-        private long totalRequest;
+        private long total;
         private int page;
         private int size;
         private int totalPages;
@@ -91,11 +91,11 @@ public class CorrectionResponseDTO {
 
         public static NativeCorrectionDTO from(
                 Page<MyCorrectionDto> pageResult,
-                long totalRequest
+                long total
         ) {
             return NativeCorrectionDTO.builder()
                     .corrections(pageResult.getContent())
-                    .totalRequest(totalRequest)
+                    .total(total)
                     .page(pageResult.getNumber() + 1)
                     .size(pageResult.getSize())
                     .totalPages(pageResult.getTotalPages())

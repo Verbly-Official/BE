@@ -97,7 +97,7 @@ public class CorrectionService {
                 )
                 .toList();
 
-        long totalRequest =
+        long total =
                 correctionQueryRepository.countMyCorrections(
                         userId,
                         bookmark,
@@ -106,7 +106,7 @@ public class CorrectionService {
                 );
 
         return CorrectionListResponseDTO.builder()
-                .totalRequest(totalRequest)
+                .total(total)
                 .corrections(corrections)
                 .build();
     }

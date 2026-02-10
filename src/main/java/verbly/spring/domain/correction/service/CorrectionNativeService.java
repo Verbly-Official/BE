@@ -90,14 +90,14 @@ public class CorrectionNativeService {
                         .build()
                 );
 
-        long totalRequest =
+        long total =
                 correctionQueryRepository.countNativeCorrectionRequests(
                         userId,
                         bookmark,
                         status
                 );
 
-        return CorrectionResponseDTO.NativeCorrectionDTO.from(enriched, totalRequest);
+        return CorrectionResponseDTO.NativeCorrectionDTO.from(enriched, total);
     }
 
     @Transactional(readOnly = true)

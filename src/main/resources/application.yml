@@ -105,6 +105,3 @@ cloud:
 kakao:
   pay:
     admin-key: ${KAKAO_ADMIN_KEY}
-
-app:
-  backend-domain: http://localhost:8080   # https://api.verbly.kr

@@ -38,9 +38,9 @@ public class KakaoPayClient {
         params.add("total_amount", String.valueOf(totalAmount));
         params.add("tax_free_amount", "0");
 
-        params.add("approval_url", backendDomain + "/api/payment/success");
-        params.add("cancel_url", backendDomain + "/api/payment/cancel");
-        params.add("fail_url", backendDomain + "/api/payment/fail");
+        params.add("approval_url", "http://localhost:8080/api/payment/success");
+        params.add("cancel_url", "http://localhost:8080/api/payment/cancel");
+        params.add("fail_url", "http://localhost:8080/api/payment/fail");
 
         return restTemplate.postForObject(
                 "https://kapi.kakao.com/v1/payment/ready",

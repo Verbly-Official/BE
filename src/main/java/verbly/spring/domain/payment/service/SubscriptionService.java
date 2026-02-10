@@ -7,10 +7,12 @@ import verbly.spring.domain.payment.entity.Subscription;
 import verbly.spring.domain.payment.entity.SubscriptionPlan;
 import verbly.spring.domain.payment.enums.BillingCycle;
 import verbly.spring.domain.payment.enums.SubscriptionStatus;
+import verbly.spring.domain.payment.exception.PaymentHandler;
 import verbly.spring.domain.payment.repository.PlanRepository;
 import verbly.spring.domain.payment.repository.SubscriptionRepository;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.repository.UserRepository;
+import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.infrastructure.kakao.KakaoPayClient;
 import verbly.spring.infrastructure.kakao.dto.KakaoPayDTO;
 
@@ -29,8 +31,10 @@ public class SubscriptionService {
     public KakaoPayDTO.ReadyResponse ready(Long userId, Long planId, String orderId) {
 
         User user = userRepository.findById(userId).orElseThrow();
-        SubscriptionPlan plan = planRepository.findById(planId).orElseThrow();
-
+        SubscriptionPlan plan = planRepository.findById(planId).orElseThrow(()->new PaymentHandler(ErrorStatus.PAYMENTPLAN_NOT_FOUND));
+        if(!plan.getIsActive()){
+            throw new PaymentHandler(ErrorStatus.PAYMENTPLAN_NOT_ACTIVE);
+        }
         return kakaoPayClient.ready(
                 orderId,
                 String.valueOf(userId),

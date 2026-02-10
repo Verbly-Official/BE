@@ -20,11 +20,17 @@ public class KakaoPayClient {
 
     private static final String CID = "TCSUBSCRIP";
 
-    @Value("${kakao.pay.admin-key}")
+    @Value("${pay.kakao.admin-key}")
     private String adminKey;
 
-    @Value("${app.backend-domain}")
-    private String backendDomain;
+    @Value("${pay.kakao.full-urls.backend.success}")
+    private String successUrl;
+
+    @Value("${pay.kakao.full-urls.backend.cancel}")
+    private String cancelUrl;
+
+    @Value("${pay.kakao.full-urls.backend.fail}")
+    private String failUrl;
 
     public KakaoPayDTO.ReadyResponse ready(String orderId, String userId, String itemName, int quantity, int totalAmount) {
         HttpHeaders headers = getHeaders();
@@ -38,9 +44,9 @@ public class KakaoPayClient {
         params.add("total_amount", String.valueOf(totalAmount));
         params.add("tax_free_amount", "0");
 
-        params.add("approval_url", "http://localhost:8080/api/payment/success");
-        params.add("cancel_url", "http://localhost:8080/api/payment/cancel");
-        params.add("fail_url", "http://localhost:8080/api/payment/fail");
+        params.add("approval_url", successUrl);
+        params.add("cancel_url", cancelUrl);
+        params.add("fail_url", failUrl);
 
         return restTemplate.postForObject(
                 "https://kapi.kakao.com/v1/payment/ready",

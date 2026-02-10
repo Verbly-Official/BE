@@ -102,6 +102,15 @@ cloud:
     credentials:
       accessKey: ${AWS_ACCESS_KEY}
       secretKey: ${AWS_SECRET_KEY}
-kakao:
-  pay:
+pay:
+  kakao:
     admin-key: ${KAKAO_ADMIN_KEY}
+    full-urls:
+      backend:
+        success: ${KAKAO_PAY_REDIRECT_URL_SUCCESS_B}
+        cancel: ${KAKAO_PAY_REDIRECT_URL_CANCEL_B}
+        fail: ${KAKAO_PAY_REDIRECT_URL_FAIL_B}
+      frontend:
+        success: ${KAKAO_PAY_REDIRECT_URL_SUCCESS_F}
+        cancel: ${KAKAO_PAY_REDIRECT_URL_CANCEL_F}
+        fail: ${KAKAO_PAY_REDIRECT_URL_FAIL_F}

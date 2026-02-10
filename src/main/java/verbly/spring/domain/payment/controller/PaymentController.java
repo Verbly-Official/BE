@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.payment.dto.PaymentResponseDTO;
 import verbly.spring.domain.payment.service.PaymentQueryService;
@@ -22,6 +23,15 @@ public class PaymentController implements PaymentControllerDocs {
 
     private final SubscriptionService subscriptionService;
     private final PaymentQueryService paymentQueryService;
+
+    @Value("${pay.kakao.full-urls.frontend.success}")
+    private String successUrl;
+
+    @Value("${pay.kakao.full-urls.frontend.cancel}")
+    private String cancelUrl;
+
+    @Value("${pay.kakao.full-urls.frontend.fail}")
+    private String failUrl;
 
     @Override
     @PostMapping("/ready")
@@ -54,22 +64,19 @@ public class PaymentController implements PaymentControllerDocs {
 
         subscriptionService.approve(pgToken, tid, orderId, userId, planId);
 
-        response.sendRedirect("http://localhost:3000/mypage/subscription?status=success");
-        //https://www.verbly.kr/mypage/subscription?status=success ?
+        response.sendRedirect(successUrl);
     }
 
     @Hidden
     @GetMapping("/cancel")
     public void cancel(HttpServletResponse response) throws IOException {
-        response.sendRedirect("http://localhost:3000/mypage/subscription?status=cancel");
-        //https://www.verbly.kr/mypage/subscription?status=cancel ?
+        response.sendRedirect(cancelUrl);
     }
 
     @Hidden
     @GetMapping("/fail")
     public void fail(HttpServletResponse response) throws IOException {
-        response.sendRedirect("http://localhost:3000/mypage/subscription?status=fail");
-        //https://www.verbly.kr/mypage/subscription?status=fail ?
+        response.sendRedirect(failUrl);
     }
 
     @Override

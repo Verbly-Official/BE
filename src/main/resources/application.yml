@@ -108,9 +108,7 @@ pay:
     full-urls:
       backend:
         success: ${KAKAO_PAY_REDIRECT_URL_SUCCESS_B}
-        cancel: ${KAKAO_PAY_REDIRECT_URL_CANCEL_B}
         fail: ${KAKAO_PAY_REDIRECT_URL_FAIL_B}
       frontend:
         success: ${KAKAO_PAY_REDIRECT_URL_SUCCESS_F}
-        cancel: ${KAKAO_PAY_REDIRECT_URL_CANCEL_F}
         fail: ${KAKAO_PAY_REDIRECT_URL_FAIL_F}

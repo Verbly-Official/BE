@@ -26,9 +26,6 @@ public class KakaoPayClient {
     @Value("${pay.kakao.full-urls.backend.success}")
     private String successUrl;
 
-    @Value("${pay.kakao.full-urls.backend.cancel}")
-    private String cancelUrl;
-
     @Value("${pay.kakao.full-urls.backend.fail}")
     private String failUrl;
 
@@ -45,7 +42,7 @@ public class KakaoPayClient {
         params.add("tax_free_amount", "0");
 
         params.add("approval_url", successUrl);
-        params.add("cancel_url", cancelUrl);
+        params.add("cancel_url", failUrl);
         params.add("fail_url", failUrl);
 
         return restTemplate.postForObject(

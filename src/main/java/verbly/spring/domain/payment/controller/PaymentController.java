@@ -27,9 +27,6 @@ public class PaymentController implements PaymentControllerDocs {
     @Value("${pay.kakao.full-urls.frontend.success}")
     private String successUrl;
 
-    @Value("${pay.kakao.full-urls.frontend.cancel}")
-    private String cancelUrl;
-
     @Value("${pay.kakao.full-urls.frontend.fail}")
     private String failUrl;
 
@@ -70,7 +67,7 @@ public class PaymentController implements PaymentControllerDocs {
     @Hidden
     @GetMapping("/cancel")
     public void cancel(HttpServletResponse response) throws IOException {
-        response.sendRedirect(cancelUrl);
+        response.sendRedirect(failUrl);
     }
 
     @Hidden

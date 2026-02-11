@@ -27,14 +27,16 @@ public class Correction extends BaseEntity {
     private User corrector;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column
     private CorrectorType correctorType;
 
-    public void assignCorrector(User user) {
-        this.corrector = user;
+    public void markAiAssistant() {
+        this.corrector = null;
+        this.correctorType = CorrectorType.AI_ASSISTANT;
     }
 
-    public void changeCorrectorType(CorrectorType correctorType) {
-        this.correctorType = correctorType;
+    public void takeoverByNative(User nativeUser) {
+        this.corrector = nativeUser;
+        this.correctorType = CorrectorType.NATIVE_SPEAKER;
     }
 }

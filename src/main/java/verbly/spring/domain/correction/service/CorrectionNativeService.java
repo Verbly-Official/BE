@@ -273,8 +273,7 @@ public class CorrectionNativeService {
                 throw new CorrectionHandler(ErrorStatus.CORRECTION_AI_FIRST);
             }
 
-            correction.assignCorrector(current);
-            correction.changeCorrectorType(CorrectorType.NATIVE_SPEAKER);
+            correction.takeoverByNative(current);
             markInProgressIfPending(correction);
         } else {
             requireInProgressAndOwner(correction);

@@ -25,25 +25,35 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class CorrectionAiAssistService {
+
     private static final String SYSTEM_PROMPT = """
             You are an English writing assistant.
             Generate a helper panel for the user.
             Return ONLY valid JSON (no markdown, no extra text).
 
+            JSON schema:
+            {
+              "toneManner": {
+                "grade": "GOOD|OK|BAD",
+                "casualToFormal": 0-100,
+                "commentKo": "Korean one-sentence comment"
+              },
+              "suggestions": [
+                { "original": "...", "revised": "...", "reasonKo": "..." }
+              ],
+              "recommendedPhrases": ["...", "..."]
+            }
+
             Rules:
-            - commentKo and reasonKo MUST be Korean.
-            - revised keeps meaning but improves grammar/clarity/tone.
-            - suggestions up to 3 items.
-            - recommendedPhrases are short chips.
+            - suggestions should be up to 3 items.
+            - reasonKo and commentKo MUST be Korean.
+            - revised must keep meaning but improve grammar/clarity/tone.
+            - recommendedPhrases: short useful phrases/snippets (chips).
             """;
 
     private final CorrectionRepository correctionRepository;
-    private final UserRepository userRepository;
     private final OpenAIClient openAIClient;
     private final ObjectMapper objectMapper;
-
-    @Value("${app.ai-user-id}")
-    private Long aiUserId;
 
     public CorrectionAiAssistResponseDTO.Result runAiAssist(Long correctionId) {
         Correction correction = correctionRepository.findById(correctionId)
@@ -51,34 +61,34 @@ public class CorrectionAiAssistService {
 
         validateAuthor(correction);
 
-        // PENDING만 AI 첨삭하기 가능
-        if (correction.getPost().getStatus() != PostStatus.PENDING) {
-            throw new CorrectionHandler(ErrorStatus.CORRECTION_FIRST_ACTION_ONLY_PENDING);
-        }
-
-        if (correction.getCorrectorType() == CorrectorType.NATIVE_SPEAKER) {
-            throw new CorrectionHandler(ErrorStatus.CORRECTION_EDIT_ONLY_IN_PROGRESS);
-        }
-
-        applyAiCorrector(correction);
-
         String content = correction.getPost().getContent();
         if (content == null || content.isBlank()) {
             throw new CorrectionHandler(ErrorStatus.CORRECTION_NOT_VALIDATE);
         }
 
-        String userPrompt = """
-                TEXT:
-                %s
-                """.formatted(content);
+        correction.markAiAssistant();
 
-        OpenAIResponseDTO res = openAIClient.getAiHelperPanel(SYSTEM_PROMPT, userPrompt);
+        String userPrompt = buildUserPrompt(content);
+
+        OpenAIResponseDTO res = openAIClient.getChatCompletionWithJsonSchema(
+                SYSTEM_PROMPT,
+                userPrompt,
+                OpenAIClient.JsonSchemaKind.AI_ASSIST_PANEL
+        );
 
         String json = extractContentOrThrow(res);
-
         AiAssistPanelJson parsed = parseJsonOrThrow(json);
 
         return toResponse(parsed);
+    }
+
+    private String buildUserPrompt(String content) {
+        return """
+                TEXT:
+                %s
+
+                Output the helper panel JSON.
+                """.formatted(content);
     }
 
     private void validateAuthor(Correction correction) {
@@ -90,14 +100,6 @@ public class CorrectionAiAssistService {
         }
     }
 
-    private void applyAiCorrector(Correction correction) {
-        User aiUser = userRepository.findById(aiUserId)
-                .orElseThrow(() -> new CorrectionHandler(ErrorStatus.USER_NOT_FOUND));
-
-        correction.assignCorrector(aiUser);
-        correction.changeCorrectorType(CorrectorType.AI_ASSISTANT);
-    }
-
     private AiAssistPanelJson parseJsonOrThrow(String json) {
         try {
             return objectMapper.readValue(json, AiAssistPanelJson.class);
@@ -107,10 +109,10 @@ public class CorrectionAiAssistService {
     }
 
     private CorrectionAiAssistResponseDTO.Result toResponse(AiAssistPanelJson parsed) {
-        var tm = CorrectionAiAssistResponseDTO.ToneManner.builder()
-                .grade(parsed.getToneManner().getGrade())
-                .casualToFormal(parsed.getToneManner().getCasualToFormal())
-                .commentKo(parsed.getToneManner().getCommentKo())
+        CorrectionAiAssistResponseDTO.ToneManner tm = CorrectionAiAssistResponseDTO.ToneManner.builder()
+                .grade(parsed.getToneManner() == null ? null : parsed.getToneManner().getGrade())
+                .casualToFormal(parsed.getToneManner() == null ? null : parsed.getToneManner().getCasualToFormal())
+                .commentKo(parsed.getToneManner() == null ? null : parsed.getToneManner().getCommentKo())
                 .build();
 
         List<CorrectionAiAssistResponseDTO.Suggestion> suggestions =
@@ -123,12 +125,11 @@ public class CorrectionAiAssistService {
                                 .build())
                         .toList();
 
-        List<String> phrases =
-                parsed.getRecommendedPhrases() == null ? List.of()
-                        : parsed.getRecommendedPhrases().stream()
-                        .filter(p -> p != null && !p.isBlank())
-                        .distinct()
-                        .toList();
+        List<String> phrases = parsed.getRecommendedPhrases() == null ? List.of()
+                : parsed.getRecommendedPhrases().stream()
+                .filter(p -> p != null && !p.isBlank())
+                .distinct()
+                .toList();
 
         return CorrectionAiAssistResponseDTO.Result.builder()
                 .toneManner(tm)

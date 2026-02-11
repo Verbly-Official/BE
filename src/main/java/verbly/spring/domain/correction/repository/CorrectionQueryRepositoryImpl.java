@@ -35,16 +35,21 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
 
     // 내 문서 목록 조회
     @Override
-    public List<CorrectionResponseDTO.MyCorrectionListDto> findMyCorrections(
+    public Page<CorrectionResponseDTO.MyCorrectionListDto> findMyCorrections(
             Long authorId,
             Boolean bookmark,
             Boolean sort,
             PostStatus status,
-            CorrectorType correctorType
+            CorrectorType correctorType,
+            Pageable pageable
     ) {
         // TEMP일 경우
         if (status == PostStatus.TEMP) {
-            return queryFactory
+            BooleanBuilder where = new BooleanBuilder();
+            where.and(post.author.id.eq(authorId));
+            where.and(post.status.eq(PostStatus.TEMP));
+
+            List<CorrectionResponseDTO.MyCorrectionListDto> content = queryFactory
                     .select(Projections.fields(
                             CorrectionResponseDTO.MyCorrectionListDto.class,
                             ExpressionUtils.as(nullExpression(Long.class), "correctionId"),
@@ -58,12 +63,19 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
                             post.updatedAt.as("correctionUpdatedAt")
                     ))
                     .from(post)
-                    .where(
-                            post.author.id.eq(authorId),
-                            post.status.eq(PostStatus.TEMP)
-                    )
+                    .where(where)
                     .orderBy(Boolean.TRUE.equals(sort) ? post.createdAt.desc() : post.id.desc())
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize())
                     .fetch();
+
+            Long total = queryFactory
+                    .select(post.id.countDistinct())
+                    .from(post)
+                    .where(where)
+                    .fetchOne();
+
+            return new PageImpl<>(content, pageable, total == null ? 0 : total);
         }
 
         var correctorUser = new verbly.spring.domain.user.entity.QUser("correctorUser");
@@ -90,7 +102,7 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
                 .then(correctorUser.nickname)
                 .otherwise((String) null);
 
-        return queryFactory
+        List<CorrectionResponseDTO.MyCorrectionListDto> content = queryFactory
                 .select(Projections.fields(
                         CorrectionResponseDTO.MyCorrectionListDto.class,
                         correction.id.as("correctionId"),
@@ -112,7 +124,22 @@ public class CorrectionQueryRepositoryImpl implements CorrectionQueryRepository 
                 )
                 .where(where)
                 .orderBy(Boolean.TRUE.equals(sort) ? correction.createdAt.desc() : correction.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
+
+        Long total = queryFactory
+                .select(correction.id.countDistinct())
+                .from(correction)
+                .join(correction.post, post)
+                .leftJoin(correctionBookmark).on(
+                        correctionBookmark.correction.eq(correction)
+                                .and(correctionBookmark.user.id.eq(authorId))
+                )
+                .where(where)
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total == null ? 0 : total);
     }
 
     // native 요청 리스트 조회

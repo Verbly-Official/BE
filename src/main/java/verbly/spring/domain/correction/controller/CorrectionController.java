@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.correction.dto.request.CorrectionRequestDTO;
@@ -109,17 +111,20 @@ public class CorrectionController {
             @Parameter(name = "bookmark", description = "즐겨찾기 필터 (true일 때만 필터 적용)", example = "true"),
             @Parameter(name = "sort", description = "최신순 정렬 (true일 때만 필터 적용)", example = "true"),
             @Parameter(name = "status", description = "상태 탭 필터", example = "COMPLETED"),
-            @Parameter(name = "correctorType", description = "correctorType 필터", example = "AI_ASSISTANT")
+            @Parameter(name = "correctorType", description = "correctorType 필터", example = "AI_ASSISTANT"),
+            @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
+            @Parameter(name = "size", description = "페이지 크기", example = "10"),
     })
     @GetMapping
     public ResponseEntity<ApiResponse<CorrectionListResponseDTO>> getMyCorrections(
             @RequestParam(required = false) Boolean bookmark,
             @RequestParam(required = false) Boolean sort,
             @RequestParam(required = false) PostStatus status,
-            @RequestParam(required = false) CorrectorType correctorType
+            @RequestParam(required = false) CorrectorType correctorType,
+            @PageableDefault(size = 10) Pageable pageable
     ) {
         CorrectionListResponseDTO result =
-                correctionService.getMyCorrections(bookmark, sort, status, correctorType);
+                correctionService.getMyCorrections(bookmark, sort, status, correctorType, pageable);
 
         return ResponseEntity
                 .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())

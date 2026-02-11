@@ -1,6 +1,7 @@
 package verbly.spring.domain.correction.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.correction.converter.CorrectionConverter;
@@ -54,27 +55,33 @@ public class CorrectionService {
             Boolean bookmark,
             Boolean sort,
             PostStatus status,
-            CorrectorType correctorType
+            CorrectorType correctorType,
+            Pageable pageable
     ) {
         validateNativeAccess();
 
         Long userId = SecurityUtils.getCurrentUserId();
 
-        List<CorrectionResponseDTO.MyCorrectionListDto> raw =
-                correctionQueryRepository.findMyCorrections(
-                        userId,
-                        bookmark,
-                        sort,
-                        status,
-                        correctorType
-                );
+        var pageResult = correctionQueryRepository.findMyCorrections(
+                userId,
+                bookmark,
+                sort,
+                status,
+                correctorType,
+                pageable
+        );
+
+        List<CorrectionResponseDTO.MyCorrectionListDto> raw = pageResult.getContent();
 
         List<Long> correctionIds = raw.stream()
                 .map(CorrectionResponseDTO.MyCorrectionListDto::getCorrectionId)
+                .filter(java.util.Objects::nonNull)
                 .distinct()
                 .toList();
 
-        var wordCountMap = correctionWordRepository.countWordsByCorrectionIds(correctionIds).stream()
+        var wordCountMap = correctionIds.isEmpty()
+                ? java.util.Collections.<Long, Integer>emptyMap()
+                : correctionWordRepository.countWordsByCorrectionIds(correctionIds).stream()
                 .collect(java.util.stream.Collectors.toMap(
                         CorrectionWordRepository.CorrectionCountRow::getCorrectionId,
                         r -> r.getCnt().intValue()
@@ -92,21 +99,15 @@ public class CorrectionService {
                         .correctionCreatedAt(dto.getCorrectionCreatedAt())
                         .correctionUpdatedAt(dto.getCorrectionUpdatedAt())
                         .relativeTime(RelativeTimeUtils.toRelative(dto.getCorrectionCreatedAt()))
-                        .wordCount(wordCountMap.getOrDefault(dto.getCorrectionId(), 0))
+                        .wordCount(dto.getCorrectionId() == null
+                                ? 0
+                                : wordCountMap.getOrDefault(dto.getCorrectionId(), 0))
                         .build()
                 )
                 .toList();
 
-        long total =
-                correctionQueryRepository.countMyCorrections(
-                        userId,
-                        bookmark,
-                        status,
-                        correctorType
-                );
-
         return CorrectionListResponseDTO.builder()
-                .total(total)
+                .total(pageResult.getTotalElements())
                 .corrections(corrections)
                 .build();
     }

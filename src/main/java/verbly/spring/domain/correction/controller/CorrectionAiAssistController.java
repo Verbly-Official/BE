@@ -102,4 +102,5 @@ public class CorrectionAiAssistController {
                 .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.CORRECTION_READ_SUCCESS, result));
     }
+
 }

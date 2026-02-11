@@ -2,21 +2,16 @@ package verbly.spring.domain.correction.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.correction.ai.AiAssistPanelJson;
-import verbly.spring.domain.correction.ai.OpenAIClient;
+import verbly.spring.domain.correction.ai.AiClientRouter;
+import verbly.spring.domain.correction.ai.AiJsonSchemaKind;
 import verbly.spring.domain.correction.dto.response.CorrectionAiAssistResponseDTO;
 import verbly.spring.domain.correction.entity.Correction;
-import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.correction.exception.CorrectionHandler;
 import verbly.spring.domain.correction.repository.CorrectionRepository;
-import verbly.spring.domain.post.enums.PostStatus;
-import verbly.spring.domain.user.entity.User;
-import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
-import verbly.spring.global.common.dto.openAI.OpenAIResponseDTO;
 import verbly.spring.global.security.utils.SecurityUtils;
 
 import java.util.List;
@@ -49,10 +44,31 @@ public class CorrectionAiAssistService {
             - reasonKo and commentKo MUST be Korean.
             - revised must keep meaning but improve grammar/clarity/tone.
             - recommendedPhrases: short useful phrases/snippets (chips).
+            - recommendedPhrases MUST be complete (no truncation).
+
+            recommendedPhrases requirements (IMPORTANT):
+            - recommendedPhrases are NOT full sentences.
+            - Output short phrase chunks/idiomatic expressions like "Best regards", "Looking forward to", "As soon as possible".
+            - Each item must be 1–4 words (max 5 words).
+            - Do NOT include subject + verb full sentence forms (e.g., "I will submit it by Friday" is forbidden).
+            - Do NOT include personal pronouns starting a full sentence ("I", "We", "She", "He", "They") unless it's a fixed phrase.
+            - No ellipsis "...", "…", "~".
+            - No ending punctuation like "." "!" "?"
+            - Keep them practical and reusable in daily writing.
+            
+            recommendedPhrases Examples:
+            Bad: "I will submit it by Friday"
+            Bad: "The deadline is approaching"
+            Good: "By Friday"
+            Good: "In progress"
+            Good: "Ahead of schedule"
+            Good: "Meeting canceled"
+            Good: "Looking forward to"
+            Good: "Best regards"
             """;
 
     private final CorrectionRepository correctionRepository;
-    private final OpenAIClient openAIClient;
+    private final AiClientRouter aiClientRouter;
     private final ObjectMapper objectMapper;
 
     public CorrectionAiAssistResponseDTO.Result runAiAssist(Long correctionId) {
@@ -70,15 +86,13 @@ public class CorrectionAiAssistService {
 
         String userPrompt = buildUserPrompt(content);
 
-        OpenAIResponseDTO res = openAIClient.getChatCompletionWithJsonSchema(
+        String json = aiClientRouter.current().generateJson(
                 SYSTEM_PROMPT,
                 userPrompt,
-                OpenAIClient.JsonSchemaKind.AI_ASSIST_PANEL
+                AiJsonSchemaKind.AI_ASSIST_PANEL
         );
 
-        String json = extractContentOrThrow(res);
         AiAssistPanelJson parsed = parseJsonOrThrow(json);
-
         return toResponse(parsed);
     }
 
@@ -104,16 +118,18 @@ public class CorrectionAiAssistService {
         try {
             return objectMapper.readValue(json, AiAssistPanelJson.class);
         } catch (Exception e) {
-            throw new CorrectionHandler(ErrorStatus.OPENAI_RESPONSE_INVALID);
+            throw new CorrectionHandler(ErrorStatus.AI_RESPONSE_INVALID);
         }
     }
 
     private CorrectionAiAssistResponseDTO.Result toResponse(AiAssistPanelJson parsed) {
-        CorrectionAiAssistResponseDTO.ToneManner tm = CorrectionAiAssistResponseDTO.ToneManner.builder()
-                .grade(parsed.getToneManner() == null ? null : parsed.getToneManner().getGrade())
-                .casualToFormal(parsed.getToneManner() == null ? null : parsed.getToneManner().getCasualToFormal())
-                .commentKo(parsed.getToneManner() == null ? null : parsed.getToneManner().getCommentKo())
-                .build();
+        CorrectionAiAssistResponseDTO.ToneManner tm =
+                parsed.getToneManner() == null ? null
+                        : CorrectionAiAssistResponseDTO.ToneManner.builder()
+                        .grade(parsed.getToneManner().getGrade())
+                        .casualToFormal(parsed.getToneManner().getCasualToFormal())
+                        .commentKo(parsed.getToneManner().getCommentKo())
+                        .build();
 
         List<CorrectionAiAssistResponseDTO.Suggestion> suggestions =
                 parsed.getSuggestions() == null ? List.of()
@@ -128,25 +144,30 @@ public class CorrectionAiAssistService {
         List<String> phrases = parsed.getRecommendedPhrases() == null ? List.of()
                 : parsed.getRecommendedPhrases().stream()
                 .filter(p -> p != null && !p.isBlank())
+                .map(this::sanitizeRecommendedPhrase)
+                .filter(p -> !p.isBlank())
                 .distinct()
                 .toList();
 
         return CorrectionAiAssistResponseDTO.Result.builder()
                 .toneManner(tm)
                 .suggestions(suggestions)
+                .suggestionCount(suggestions.size())
                 .recommendedPhrases(phrases)
                 .build();
     }
 
-    private String extractContentOrThrow(OpenAIResponseDTO res) {
-        if (res == null || res.getChoices() == null || res.getChoices().isEmpty()
-                || res.getChoices().get(0).getMessage() == null) {
-            throw new CorrectionHandler(ErrorStatus.OPENAI_RESPONSE_INVALID);
+    private String sanitizeRecommendedPhrase(String p) {
+        // 말줄임표,생략 기호 제거
+        String s = p.replace("...", "")
+                .replace("…", "")
+                .replace("~", "")
+                .trim();
+
+        // 문장 끝 기호 제거
+        while (s.endsWith(".") || s.endsWith(",") || s.endsWith(";") || s.endsWith(":")) {
+            s = s.substring(0, s.length() - 1).trim();
         }
-        String content = res.getChoices().get(0).getMessage().getContent();
-        if (content == null || content.isBlank()) {
-            throw new CorrectionHandler(ErrorStatus.OPENAI_RESPONSE_INVALID);
-        }
-        return content;
+        return s;
     }
 }

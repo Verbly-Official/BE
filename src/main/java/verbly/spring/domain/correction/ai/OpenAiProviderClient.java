@@ -1,8 +1,8 @@
 package verbly.spring.domain.correction.ai;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -17,15 +17,10 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class OpenAIClient {
-
-    public enum JsonSchemaKind {
-        AI_ASSIST_PANEL,
-        WORD_EDITS
-    }
+@ConditionalOnProperty(name = "ai.provider", havingValue = "openai")
+public class OpenAiProviderClient implements AiProviderClient{
 
     private final RestTemplate openAiRestTemplate;
-    private final ObjectMapper objectMapper;
 
     @Value("${openai.api-url}")
     private String apiUrl;
@@ -33,11 +28,13 @@ public class OpenAIClient {
     @Value("${openai.model:gpt-4o-mini}")
     private String model;
 
-    public OpenAIResponseDTO getChatCompletionWithJsonSchema(
-            String systemPrompt,
-            String userPrompt,
-            JsonSchemaKind kind
-    ) {
+    @Override
+    public AiProvider provider() {
+        return AiProvider.OPENAI;
+    }
+
+    @Override
+    public String generateJson(String systemPrompt, String userPrompt, AiJsonSchemaKind kind) {
         OpenAIRequestDTO req = buildRequest(systemPrompt, userPrompt, kind);
 
         ResponseEntity<OpenAIResponseDTO> res = openAiRestTemplate.postForEntity(
@@ -47,15 +44,13 @@ public class OpenAIClient {
         );
 
         if (!res.getStatusCode().is2xxSuccessful() || res.getBody() == null) {
-            throw new CorrectionHandler(ErrorStatus.OPENAI_API_CALL_FAILED);
+            throw new CorrectionHandler(ErrorStatus.AI_API_CALL_FAILED);
         }
-        return res.getBody();
+
+        return extractContentOrThrow(res.getBody());
     }
 
-    private OpenAIRequestDTO buildRequest(String systemPrompt, String userPrompt, JsonSchemaKind kind) {
-        OpenAIMessage system = new OpenAIMessage("system", systemPrompt);
-        OpenAIMessage user = new OpenAIMessage("user", userPrompt);
-
+    private OpenAIRequestDTO buildRequest(String systemPrompt, String userPrompt, AiJsonSchemaKind kind) {
         Map<String, Object> responseFormat = switch (kind) {
             case AI_ASSIST_PANEL -> buildAiAssistPanelJsonSchema();
             case WORD_EDITS -> buildWordEditsJsonSchema();
@@ -63,10 +58,25 @@ public class OpenAIClient {
 
         return new OpenAIRequestDTO(
                 model,
-                List.of(system, user),
+                List.of(
+                        new OpenAIMessage("system", systemPrompt),
+                        new OpenAIMessage("user", userPrompt)
+                ),
                 0.0,
                 responseFormat
         );
+    }
+
+    private String extractContentOrThrow(OpenAIResponseDTO res) {
+        if (res.getChoices() == null || res.getChoices().isEmpty()
+                || res.getChoices().get(0).getMessage() == null) {
+            throw new CorrectionHandler(ErrorStatus.AI_RESPONSE_INVALID);
+        }
+        String content = res.getChoices().get(0).getMessage().getContent();
+        if (content == null || content.isBlank()) {
+            throw new CorrectionHandler(ErrorStatus.AI_RESPONSE_INVALID);
+        }
+        return content;
     }
 
     private Map<String, Object> buildAiAssistPanelJsonSchema() {

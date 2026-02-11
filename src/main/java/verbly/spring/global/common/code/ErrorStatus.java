@@ -87,10 +87,10 @@ public enum ErrorStatus implements BaseErrorCode {
     QUIZ_NO_MISTAKES(HttpStatus.BAD_REQUEST, "QUIZ4007", "오답이 없어 재도전할 수 없습니다."),
     QUIZ_NO_HINTS_REMAINING(HttpStatus.BAD_REQUEST, "QUIZ4008", "남은 힌트가 없습니다."),
 
-    // OpenAI 관련 에러
-    OPENAI_API_CALL_FAILED(HttpStatus.BAD_GATEWAY, "OPENAI5001", "OpenAI API 호출에 실패했습니다."),
-    OPENAI_RESPONSE_INVALID(HttpStatus.BAD_GATEWAY, "OPENAI5002", "OpenAI 응답 형식이 올바르지 않습니다."),
-    OPENAI_MODEL_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "OPENAI5003", "OpenAI model 설정이 비어있습니다."),
+    // AI 관련 에러
+    AI_API_CALL_FAILED(HttpStatus.BAD_GATEWAY, "OPENAI5001", "AI API 호출에 실패했습니다."),
+    AI_RESPONSE_INVALID(HttpStatus.BAD_GATEWAY, "OPENAI5002", "AI 응답 형식이 올바르지 않습니다."),
+    AI_MODEL_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "OPENAI5003", "AI model 설정이 비어있습니다."),
 
 
     ;

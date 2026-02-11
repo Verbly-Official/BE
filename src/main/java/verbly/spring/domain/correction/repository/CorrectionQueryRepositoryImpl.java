@@ -6,7 +6,6 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,7 +25,6 @@ import static com.querydsl.core.types.dsl.Expressions.FALSE;
 import static com.querydsl.core.types.dsl.Expressions.nullExpression;
 import static verbly.spring.domain.correction.entity.QCorrection.correction;
 import static verbly.spring.domain.correction.entity.QCorrectionBookmark.correctionBookmark;
-import static verbly.spring.domain.correction.entity.QCorrectionFeedback.correctionFeedback;
 import static verbly.spring.domain.post.entity.QPost.post;
 
 @Repository

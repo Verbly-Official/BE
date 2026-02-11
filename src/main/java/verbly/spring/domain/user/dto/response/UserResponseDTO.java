@@ -3,8 +3,6 @@ package verbly.spring.domain.user.dto.response;
 import lombok.*;
 import verbly.spring.domain.user.entity.User;
 
-import java.time.LocalDateTime;
-
 public class UserResponseDTO {
     @Getter
     @Builder

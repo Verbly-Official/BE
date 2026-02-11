@@ -91,7 +91,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     public void broadcastMessage(Long chatroomId, Object payload) {
 
         Set<WebSocketSession> nowChatroomUser = nowChatroom.get(chatroomId);
-        if(nowChatroomUser.isEmpty())
+        if(nowChatroomUser == null || nowChatroomUser.isEmpty())
             return;
 
         final String text;
@@ -106,7 +106,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
         try {
             for (WebSocketSession webSocketSession : nowChatroomUser) {
-                if (webSocketSession.isOpen()) {
+                if (webSocketSession == null || webSocketSession.isOpen()) {
                         webSocketSession.sendMessage(textMessage);
                 }
             }

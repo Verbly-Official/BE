@@ -59,6 +59,7 @@ public enum ErrorStatus implements BaseErrorCode {
     CORRECTION_FIRST_ACTION_ONLY_PENDING(HttpStatus.BAD_REQUEST, "CORRECTION4012", "첫 첨삭/피드백은 PENDING 상태에서만 가능합니다."),
     CORRECTION_EDIT_ONLY_IN_PROGRESS(HttpStatus.BAD_REQUEST, "CORRECTION4013", "수정/추가는 자신이 corrector인 IN_PROGRESS 글에서만 가능합니다."),
     CORRECTION_NOT_THE_CORRECTOR(HttpStatus.FORBIDDEN, "CORRECTION4014", "해당 글의 첨삭자가 아닙니다."),
+    CORRECTION_AI_FIRST(HttpStatus.FORBIDDEN, "CORRECTION4015", "AI 첨삭이 완료된 후 native 유저의 첨삭이 가능합니다."),
 
 
     // Post 관련 에러
@@ -84,7 +85,13 @@ public enum ErrorStatus implements BaseErrorCode {
     QUIZ_OUT_OF_ORDER(HttpStatus.BAD_REQUEST, "QUIZ4005", "현재 순서의 문제만 풀 수 있습니다."),
     QUIZ_NO_PENDING_ITEMS(HttpStatus.BAD_REQUEST, "QUIZ4006", "리뷰할 항목이 없습니다."),
     QUIZ_NO_MISTAKES(HttpStatus.BAD_REQUEST, "QUIZ4007", "오답이 없어 재도전할 수 없습니다."),
-    QUIZ_NO_HINTS_REMAINING(HttpStatus.BAD_REQUEST, "QUIZ4008", "남은 힌트가 없습니다.");
+    QUIZ_NO_HINTS_REMAINING(HttpStatus.BAD_REQUEST, "QUIZ4008", "남은 힌트가 없습니다."),
+
+    // OpenAI 관련 에러
+    OPENAI_API_CALL_FAILED(HttpStatus.BAD_GATEWAY, "OPENAI5001", "OpenAI API 호출에 실패했습니다."),
+    OPENAI_RESPONSE_INVALID(HttpStatus.BAD_GATEWAY, "OPENAI5002", "OpenAI 응답 형식이 올바르지 않습니다."),
+
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;

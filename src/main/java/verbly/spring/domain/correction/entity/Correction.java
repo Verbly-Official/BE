@@ -2,6 +2,7 @@ package verbly.spring.domain.correction.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.entity.BaseEntity;
@@ -25,7 +26,15 @@ public class Correction extends BaseEntity {
     @JoinColumn(name = "corrector_id")
     private User corrector;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CorrectorType correctorType;
+
     public void assignCorrector(User user) {
         this.corrector = user;
+    }
+
+    public void changeCorrectorType(CorrectorType correctorType) {
+        this.correctorType = correctorType;
     }
 }

@@ -4,10 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import verbly.spring.domain.chat.dto.requestDTO.ChatMessageRequestDTO;
 import verbly.spring.domain.chat.dto.responseDTO.*;
 import verbly.spring.domain.chat.service.ChatIntegralService;
 import verbly.spring.domain.chat.service.ChatMessageService;
@@ -15,6 +17,7 @@ import verbly.spring.domain.chat.service.ChatroomUserService;
 import verbly.spring.global.common.code.SuccessStatus;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.auth.CustomUserDetails;
+import verbly.spring.global.security.utils.SecurityUtils;
 
 import java.util.List;
 
@@ -53,6 +56,21 @@ public class ChatController {
         return ResponseEntity
                 .status(SuccessStatus.CHATROOM_PARTICIPATE_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.CHATROOM_PARTICIPATE_SUCCESS, chatroomEnterResponseDTO));
+    }
+
+    @PostMapping("/{chatroomId}/messages")
+    public ResponseEntity<ApiResponse<Void>> saveChatMessage(
+            @Parameter(required = true, name = "chatroomId", description = "입장한 채팅방 id", example = "1")
+            @PathVariable Long chatroomId,
+            @Parameter
+            @RequestBody @Valid ChatMessageRequestDTO chatMessageRequestDTO) {
+
+        Long userId = SecurityUtils.getCurrentUserId();
+        chatMessageService.saveAndSendChatMessage(userId, chatroomId, chatMessageRequestDTO.getContent());
+
+        return ResponseEntity
+                .status(SuccessStatus.CHAT_MESSAGE_SAVE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CHAT_MESSAGE_SAVE_SUCCESS, null));
     }
 
     @Operation(

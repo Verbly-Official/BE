@@ -1,8 +1,11 @@
 package verbly.spring.domain.chat.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import verbly.spring.domain.chat.dto.ChatMessageBroadcastDTO;
 import verbly.spring.domain.chat.dto.responseDTO.ChatMessageResponseDTO;
 import verbly.spring.domain.chat.entity.ChatMessage;
 import verbly.spring.domain.chat.entity.Chatroom;
@@ -14,6 +17,7 @@ import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.webSocket.exception.WebSocketExceptionHandler;
+import verbly.spring.global.webSocket.handler.WebSocketChatHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,10 +31,11 @@ public class ChatMessageService {
     private final UserRepository userRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatroomUserRepository chatroomUserRepository;
+    private final WebSocketChatHandler webSocketChatHandler;
 
     //save chatMessage
     @Transactional
-    public void saveChatMessage(Long senderId, Long chatroomId, String text) {
+    public void saveAndSendChatMessage(Long senderId, Long chatroomId, String text) {
 
         // sender
         Optional<User> optionalSender = userRepository.findById(senderId);
@@ -46,6 +51,22 @@ public class ChatMessageService {
 
         // save
         chatMessageRepository.save(chatMessage);
+
+        ChatMessageBroadcastDTO payload = ChatMessageBroadcastDTO.builder()
+                .messageId(chatMessage.getId())
+                .chatroomId(chatroomId)
+                .senderId(senderId)
+                .chatContent(chatMessage.getChatContent())
+                .createdAt(chatMessage.getCreatedAt())
+                .build();
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+
+            @Override
+            public void afterCommit() {
+                webSocketChatHandler.broadcastMessage(chatroomId, payload);
+            }
+        });
     }
 
     // get certain room messages
@@ -70,6 +91,4 @@ public class ChatMessageService {
 
         return chatMessageResponseDTOList;
     }
-
-
 }

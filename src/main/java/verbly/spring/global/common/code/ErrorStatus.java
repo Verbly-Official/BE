@@ -43,6 +43,7 @@ public enum ErrorStatus implements BaseErrorCode {
     CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT4003", "채팅방이 없습니다."),
     NOT_CHATROOM_MEMBER(HttpStatus.FORBIDDEN, "CHAT4004", "채팅방 입장 권한이 없습니다."),
     CANT_SELF_CHAT(HttpStatus.BAD_REQUEST, "CHAT4004", "스스로 채팅할 수 없습니다."),
+    JSON_PROCESS_FAIL(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "CHAT4005", "페이로드 형태 변환에 실패했습니다."),
 
     // Correction 관련 에러
     CORRECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "CORRECTION4001", "문서를 찾을 수 없습니다."),
@@ -85,7 +86,6 @@ public enum ErrorStatus implements BaseErrorCode {
     QUIZ_NO_PENDING_ITEMS(HttpStatus.BAD_REQUEST, "QUIZ4006", "리뷰할 항목이 없습니다."),
     QUIZ_NO_MISTAKES(HttpStatus.BAD_REQUEST, "QUIZ4007", "오답이 없어 재도전할 수 없습니다."),
     QUIZ_NO_HINTS_REMAINING(HttpStatus.BAD_REQUEST, "QUIZ4008", "남은 힌트가 없습니다.");
-
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;

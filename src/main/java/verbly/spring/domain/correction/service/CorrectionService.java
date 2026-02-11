@@ -374,11 +374,11 @@ public class CorrectionService {
         }
     }
 
-    // nativeLang == "ko"
+    // nativeLang == "kr"
     private void validateNativeAccess() {
         User currentUser = SecurityUtils.getCurrentUser();
 
-        if (currentUser == null || !"ko".equalsIgnoreCase(currentUser.getNativeLang())) {
+        if (currentUser == null || !"kr".equalsIgnoreCase(currentUser.getNativeLang())) {
             throw new CorrectionHandler(ErrorStatus.CORRECTION_NATIVE_ACCESS_DENIED);
         }
     }

@@ -90,6 +90,8 @@ public enum ErrorStatus implements BaseErrorCode {
     // OpenAI 관련 에러
     OPENAI_API_CALL_FAILED(HttpStatus.BAD_GATEWAY, "OPENAI5001", "OpenAI API 호출에 실패했습니다."),
     OPENAI_RESPONSE_INVALID(HttpStatus.BAD_GATEWAY, "OPENAI5002", "OpenAI 응답 형식이 올바르지 않습니다."),
+    OPENAI_MODEL_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "OPENAI5003", "OpenAI model 설정이 비어있습니다."),
+
 
     ;
 

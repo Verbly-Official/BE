@@ -18,7 +18,7 @@ import verbly.spring.domain.correction.service.CorrectionAiAssistService;
 import verbly.spring.global.common.code.SuccessStatus;
 import verbly.spring.global.common.response.ApiResponse;
 
-@Tag(name = "Correction-AI", description = "AI 도우미 API")
+@Tag(name = "Correction-AI", description = "AI 첨삭하기 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/correction")

@@ -114,9 +114,11 @@ public class UserCommandServiceImpl implements UserCommandService {
         String profileImageUrl = s3Manager.uploadFile(s3Manager.generateUserKeyName(uuid), profileImage);
 
         if (user.getProfileImage() != null) {
-            // 기존 이미지의 키 추출 및 삭제
+            // 기존 URL이 S3일 때만 기존 이미지의 키 추출 및 삭제
             String oldKey = s3Manager.extractS3KeyFromUrl(user.getProfileImage().getImageUrl());
-            s3Manager.deleteFile(oldKey);
+            if (oldKey != null) {
+                s3Manager.deleteFile(oldKey);
+            }
 
             // update: 기존 엔티티에 새로운 URL만 set
             user.getProfileImage().updateImageUrl(profileImageUrl);

@@ -42,7 +42,7 @@ public class HomeController implements HomeControllerDocs {
             @RequestParam String timezone
     ){
         Long userId = SecurityUtils.getCurrentUserId();
-        statsCommandService.markAttendance(userId, timezone);
+        statsCommandService.checkAttendance(userId, timezone);
         return ResponseEntity.noContent().build();
     }
 }

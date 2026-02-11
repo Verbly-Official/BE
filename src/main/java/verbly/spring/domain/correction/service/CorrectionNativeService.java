@@ -139,6 +139,8 @@ public class CorrectionNativeService {
 
         Correction correction = findCorrectionOrThrow(correctionId);
 
+        requireAiFinishedPendingForNativeStart(correction);
+
         boolean firstAction = isFirstNativeAction(correction);
         takeIfFirstNativeActionOrVerifyOwner(correction, firstAction);
 
@@ -153,6 +155,8 @@ public class CorrectionNativeService {
         validateNativeAccess();
 
         Correction correction = findCorrectionOrThrow(correctionId);
+
+        requireAiFinishedPendingForNativeStart(correction);
 
         if (request.getSentenceIdx() != null) {
             validateSentenceIdx(correction.getPost().getContent(), request.getSentenceIdx());
@@ -393,6 +397,16 @@ public class CorrectionNativeService {
         if (current == null || feedback.getCorrector() == null
                 || !feedback.getCorrector().getId().equals(current.getId())) {
             throw new CorrectionHandler(ErrorStatus.CORRECTION_FEEDBACK_ACCESS_DENIED);
+        }
+    }
+
+    private void requireAiFinishedPendingForNativeStart(Correction correction) {
+        if (correction.getPost().getStatus() != PostStatus.PENDING) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_FIRST_ACTION_ONLY_PENDING);
+        }
+        if (correction.getCorrectorType() != CorrectorType.AI_ASSISTANT) {
+
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_AI_FIRST);
         }
     }
 }

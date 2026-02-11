@@ -84,9 +84,11 @@ public class ChatMessageService {
                 .map(ChatMessageResponseDTO::from)
                 .toList();
 
-        LocalDateTime lastReadMessageTime = chatMessageList.get(chatMessageList.size() -1).getCreatedAt();
-        if (lastReadMessageTime.isAfter(chatroomUser.getLastReadAt())) {
-            chatroomUser.updateLastReadAt(lastReadMessageTime);
+        if(!chatMessageResponseDTOList.isEmpty()) {
+            LocalDateTime lastReadMessageTime = chatMessageList.get(chatMessageList.size() - 1).getCreatedAt();
+            if (lastReadMessageTime.isAfter(chatroomUser.getLastReadAt())) {
+                chatroomUser.updateLastReadAt(lastReadMessageTime);
+            }
         }
 
         return chatMessageResponseDTOList;

@@ -13,9 +13,9 @@ public class CookieUtils {
                 .httpOnly(httpOnly)
                 .secure(true) // 운영환경에서는 true (HTTPS)
                 .path("/")
-                .domain("verbly.kr")
+//                .domain("verbly.kr")
                 .maxAge(maxAgeInSeconds)
-                .sameSite("Lax")
+                .sameSite("None") // Lax // None
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
@@ -27,9 +27,9 @@ public class CookieUtils {
                 .httpOnly(httpOnly)
                 .secure(true)
                 .path("/")
-                .domain("verbly.kr")
+//                .domain("verbly.kr")
                 .maxAge(0)
-                .sameSite("Lax") // Lax // None
+                .sameSite("None") // Lax // None
                 .build();
 
         response.addHeader("Set-Cookie", deleteTokenCookie.toString());

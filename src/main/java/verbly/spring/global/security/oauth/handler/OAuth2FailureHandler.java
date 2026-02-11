@@ -37,7 +37,7 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
         cookieUtils.clearJsessionCookie(response);
 
         // 2. 실패용 브릿지 페이지로 리다이렉트
-        response.sendRedirect("https://www.verbly.kr/login/callback"); // localhost:5173/login/callback
+        response.sendRedirect("http://localhost:5173/login/callback"); // http://localhost:5173/login/callback // https://www.verbly.kr/login/callback
 
     }
 }

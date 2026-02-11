@@ -2,6 +2,8 @@ package verbly.spring.domain.chat.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -58,11 +60,37 @@ public class ChatController {
                 .body(ApiResponse.of(SuccessStatus.CHATROOM_PARTICIPATE_SUCCESS, chatroomEnterResponseDTO));
     }
 
+
+    @Operation(
+            summary = "채팅 저장 및 브로드캐스팅",
+            security = @SecurityRequirement(name = "JWT TOKEN"),
+            description = """
+                    채팅을 저장하고 채팅방에 접속 중인 사용자에게 전달 합니다.\n\n
+            """
+
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "메세지 본문",
+            required = true,
+            content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(
+                                    name = "메세지 본문",
+                                    value = """
+                                            {
+                                                "content" : "메세지 본문입니다."
+                                            }
+                                            """
+                            )
+                    }
+            )
+
+    )
     @PostMapping("/{chatroomId}/messages")
     public ResponseEntity<ApiResponse<Void>> saveChatMessage(
             @Parameter(required = true, name = "chatroomId", description = "입장한 채팅방 id", example = "1")
             @PathVariable Long chatroomId,
-            @Parameter
             @RequestBody @Valid ChatMessageRequestDTO chatMessageRequestDTO) {
 
         Long userId = SecurityUtils.getCurrentUserId();

@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 import verbly.spring.domain.post.dto.response.TagResponseDTO;
 import verbly.spring.domain.post.entity.TrendingTag;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -1,4 +1,4 @@
-package verbly.spring.domain.user.controller;
+package verbly.spring.domain.home.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -6,16 +6,16 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import verbly.spring.domain.user.dto.response.UserResponseDTO;
+import org.springframework.web.bind.annotation.RequestParam;
+import verbly.spring.domain.home.dto.response.HomeResponseDTO;
 import verbly.spring.global.common.response.ApiResponse;
-import verbly.spring.global.security.auth.CustomUserDetails;
 
 import java.util.UUID;
 
 @Tag(name = "Home-User", description = "홈 화면 유저 관련 API")
-public interface UserControllerDocs {
+public interface HomeControllerDocs {
 
     @Operation(
             summary = "홈 화면 유저 정보 조회",
@@ -48,8 +48,7 @@ public interface UserControllerDocs {
                     )
             )
     })
-    ApiResponse<UserResponseDTO.HomeViewerInfoDTO> getHomeViewerInfo(
-            @AuthenticationPrincipal CustomUserDetails userDetails
+    ApiResponse<HomeResponseDTO.HomeViewerInfoDTO> getHomeViewerInfo(
     );
 
     @Operation(
@@ -88,8 +87,17 @@ public interface UserControllerDocs {
                     )
             )
     })
-    ApiResponse<UserResponseDTO.HomeUserInfoDTO> getUserProfileInfo(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+    ApiResponse<HomeResponseDTO.HomeUserInfoDTO> getUserProfileInfo(
             @PathVariable(name = "uuid") UUID uuid
+    );
+
+    @Operation(
+            summary = "출석 확인 API",
+            security = @SecurityRequirement(name = "JWT TOKEN"),
+            description = "✅ **query string:**\n" +
+                    "- timezone: 사용자 위치 timezone (String/ 부적절한 timezone 입력 시 seoul로 고정)\n"
+    )
+    ResponseEntity<Void> homeApi(
+            @RequestParam String timezone
     );
 }

@@ -50,18 +50,23 @@ public enum ErrorStatus implements BaseErrorCode {
     CORRECTION_NOT_VALIDATE(HttpStatus.BAD_REQUEST, "CORRECTION4003", "제목과 내용은 필수 입력 항목입니다."),
     CORRECTION_TEMP_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "CORRECTION4004", "임시저장 문서를 찾을 수 없습니다."),
     CORRECTION_TEMP_POST_ALREADY_SUBMITTED(HttpStatus.BAD_REQUEST, "CORRECTION4005", "이미 Correction 요청한 문서입니다."),
-    CORRECTION_NATIVE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "CORRECTION4006", "Correction Native - 접근 권한이 없습니다."),
+    CORRECTION_NATIVE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "CORRECTION4006", "Correction - 접근 권한이 없습니다."),
     CORRECTION_WORD_NOT_FOUND(HttpStatus.NOT_FOUND, "CORRECTION4007", "교정 대상 단어를 찾을 수 없습니다."),
     CORRECTION_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "CORRECTION4008", "이미 Correction 첨삭 완료한 문서입니다."),
     CORRECTION_FEEDBACK_NOT_FOUND(HttpStatus.BAD_REQUEST, "CORRECTION4009", "해당 Feedback을 찾을 수 없습니다."),
     CORRECTION_FEEDBACK_ACCESS_DENIED(HttpStatus.BAD_REQUEST, "CORRECTION4010", "Correction Native - Feedback 접근 권한이 없습니다."),
     CORRECTION_SENTENCE_INDEX_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "CORRECTION4011", "index가 문장의 범위를 넘어섭니다."),
+    CORRECTION_FIRST_ACTION_ONLY_PENDING(HttpStatus.BAD_REQUEST, "CORRECTION4012", "첫 첨삭/피드백은 PENDING 상태에서만 가능합니다."),
+    CORRECTION_EDIT_ONLY_IN_PROGRESS(HttpStatus.BAD_REQUEST, "CORRECTION4013", "수정/추가는 자신이 corrector인 IN_PROGRESS 글에서만 가능합니다."),
+    CORRECTION_NOT_THE_CORRECTOR(HttpStatus.FORBIDDEN, "CORRECTION4014", "해당 글의 첨삭자가 아닙니다."),
+    CORRECTION_AI_FIRST(HttpStatus.FORBIDDEN, "CORRECTION4015", "AI 첨삭이 완료된 후 native 유저의 첨삭이 가능합니다."),
+
 
     // Post 관련 에러
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "해당 포스트가 존재하지 않습니다"),
     POST_NOT_LIKED(HttpStatus.BAD_REQUEST, "POST4002", "좋아요를 누르지 않은 상태라 취소할 수 없습니다."),
     POST_ALREADY_LIKED(HttpStatus.CONFLICT, "POST4091", "이미 좋아요를 누른 포스트입니다"),
-
+    POST_TAG_NOT_VALIDATE(HttpStatus.BAD_REQUEST, "POST4003", "태그가 유효하지 않습니다. (최대 50자, 공백 불가)"),
 
     // 통계 관련 에러
     STATS_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATS4001", "사용자 통계 정보가 존재하지 않습니다."),
@@ -80,7 +85,15 @@ public enum ErrorStatus implements BaseErrorCode {
     QUIZ_OUT_OF_ORDER(HttpStatus.BAD_REQUEST, "QUIZ4005", "현재 순서의 문제만 풀 수 있습니다."),
     QUIZ_NO_PENDING_ITEMS(HttpStatus.BAD_REQUEST, "QUIZ4006", "리뷰할 항목이 없습니다."),
     QUIZ_NO_MISTAKES(HttpStatus.BAD_REQUEST, "QUIZ4007", "오답이 없어 재도전할 수 없습니다."),
-    QUIZ_NO_HINTS_REMAINING(HttpStatus.BAD_REQUEST, "QUIZ4008", "남은 힌트가 없습니다.");
+    QUIZ_NO_HINTS_REMAINING(HttpStatus.BAD_REQUEST, "QUIZ4008", "남은 힌트가 없습니다."),
+
+    // AI 관련 에러
+    AI_API_CALL_FAILED(HttpStatus.BAD_GATEWAY, "OPENAI5001", "AI API 호출에 실패했습니다."),
+    AI_RESPONSE_INVALID(HttpStatus.BAD_GATEWAY, "OPENAI5002", "AI 응답 형식이 올바르지 않습니다."),
+    AI_MODEL_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "OPENAI5003", "AI model 설정이 비어있습니다."),
+
+
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;

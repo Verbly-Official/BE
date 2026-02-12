@@ -7,7 +7,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import verbly.spring.global.common.code.ErrorStatus;
-import verbly.spring.global.common.dto.ErrorReasonDTO;
 import verbly.spring.global.common.response.ApiResponse;
 
 import java.io.IOException;

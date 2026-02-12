@@ -33,6 +33,7 @@ public class CorrectionEditorQueryRepositoryImpl implements CorrectionEditorQuer
                                 CorrectionEditorQueryDTO.CorrectionBaseRow.class,
                                 correction.id,
                                 post.id,
+                                post.status,
                                 post.content
                         ))
                         .from(correction)

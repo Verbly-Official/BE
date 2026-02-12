@@ -15,6 +15,8 @@ import verbly.spring.domain.post.exception.PostHandler;
 import verbly.spring.domain.post.repository.CommentRepository;
 import verbly.spring.domain.post.repository.PostRepository;
 import verbly.spring.domain.user.entity.User;
+import verbly.spring.domain.user.exception.UserHandler;
+import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
 
 @Service
@@ -26,11 +28,13 @@ public class CommentCommandServiceImpl implements CommentCommandService{
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
     private final CommentConverter commentConverter;
 
     @Override
-    public CommentResponseDTO.getMyComment getMyComment(User user, Long postId, CommentRequestDTO.makeComment dto) {
+    public CommentResponseDTO.getMyComment getMyComment(Long userId, Long postId, CommentRequestDTO.makeComment dto) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
         Comment comment = commentConverter.toComment(dto, user, post);
         commentRepository.save(comment);
         postRepository.increaseCommentCount(postId);

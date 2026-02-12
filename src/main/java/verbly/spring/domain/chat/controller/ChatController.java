@@ -1,7 +1,5 @@
 package verbly.spring.domain.chat.controller;
 
-import java.lang.Void;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,6 +15,7 @@ import verbly.spring.domain.chat.service.ChatroomUserService;
 import verbly.spring.global.common.code.SuccessStatus;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.auth.CustomUserDetails;
+
 import java.util.List;
 
 @Tag(name = "Chat", description = "채팅 API")

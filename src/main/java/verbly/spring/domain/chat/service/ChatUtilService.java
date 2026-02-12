@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import verbly.spring.domain.chat.entity.Chatroom;
 import verbly.spring.domain.chat.entity.ChatroomUser;
-import verbly.spring.domain.chat.repo.ChatroomRepository;
 import verbly.spring.domain.chat.repo.ChatroomUserRepository;
 
 import java.util.Optional;

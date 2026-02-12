@@ -30,6 +30,8 @@ public class PayPalService {
 
     private final PaypalClient paypalClient;
     private final SubscriptionRepository subscriptionRepository;
+
+    private final PlanRepository subscriptionPlanRepository;
     private final PlanRepository planRepository;
     private final UserRepository userRepository;
 
@@ -39,7 +41,12 @@ public class PayPalService {
     @Value("${paypal.full-urls.backend.fail}") private String cancelBackend;
 
     public String ready(Long planId) {
-        String realPayPalPlanId = (planId == 1L) ? monthlyPlanId : yearlyPlanId;
+
+        SubscriptionPlan plan = subscriptionPlanRepository.findById(planId).orElseThrow(()-> new PaymentHandler(ErrorStatus.PAYMENTPLAN_NOT_FOUND));
+        if(!plan.getIsActive()){
+            throw new PaymentHandler(ErrorStatus.PAYMENTPLAN_NOT_ACTIVE);
+        }
+        String realPayPalPlanId = (plan.getBillingCycle() == BillingCycle.MONTHLY) ? monthlyPlanId : yearlyPlanId;
 
         String returnUrl = successBackend + planId;
 

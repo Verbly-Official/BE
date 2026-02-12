@@ -1,0 +1,268 @@
+package verbly.spring.domain.correction.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import verbly.spring.domain.correction.dto.request.CorrectionEditorRequestDTO;
+import verbly.spring.domain.correction.dto.response.CorrectionEditorResponseDTO;
+import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
+import verbly.spring.domain.correction.enums.CorrectorType;
+import verbly.spring.domain.correction.service.CorrectionNativeService;
+import verbly.spring.domain.post.enums.PostStatus;
+import verbly.spring.global.common.code.SuccessStatus;
+import verbly.spring.global.common.response.ApiResponse;
+
+import java.util.List;
+
+@Tag(name = "Correction-Native", description = "외국인(네이티브) 커렉션 요청 리스트 API")
+@RestController
+@RequestMapping("/api/correction-native")
+@RequiredArgsConstructor
+public class CorrectionNativeController {
+    private final CorrectionNativeService correctionNativeService;
+
+    /**
+     * 외국인(네이티브) 유저의 커렉션 요청 리스트
+     * - Post.author.learningLang == "en" 인 작성자의 Post에 연결된 Correction 목록 조회
+     */
+    @Operation(
+            summary = "외국인(네이티브) 커렉션 요청 리스트 조회",
+            description = "외국인(네이티브) 유저가 첨삭할 커렉션 요청 리스트를 조회합니다.\n\n" +
+                    "✅ Paging:\n" +
+                    "- page, size 파라미터를 지원합니다.\n\n"+
+                    "### QueryString\n"+
+                    "미선택시(GET `/api/correction-native`) 모든 문서가 조회됩니다.\n\n" +
+                    "| 쿼리 파라미터 | 종류 | 기능 |\n" +
+                    "| --- | --- | --- |\n" +
+                    "| status | COMPLETED, IN_PROGRESS, PENDING | 상단 상태 탭 |\n" +
+                    "| bookmark | true/false | 즐겨찾기 필터(내 기준) |\n",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    @GetMapping
+    public ResponseEntity<ApiResponse<CorrectionResponseDTO.NativeCorrectionDTO>> getNativeCorrectionRequests(
+            @RequestParam(required = false) PostStatus status,
+            @RequestParam(required = false) Boolean bookmark,
+            @ParameterObject @PageableDefault(size = 10) Pageable pageable
+    ) {
+        CorrectionResponseDTO.NativeCorrectionDTO result =
+                correctionNativeService.getNativeCorrectionRequests(bookmark, status, pageable);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_READ_SUCCESS, result));
+    }
+
+    /**
+     * 커렉션 문서 상세 조회
+     */
+    @Operation(
+            summary = "커렉션 문서 상세 조회",
+            description = "선택한 커렉션 문서의 원문, 교정 단어, 피드백 정보를 조회합니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    @Parameters({
+            @Parameter(name = "correctionId", description = "커렉션 ID", example = "1")
+    })
+    @GetMapping("/{correctionId}")
+    public ResponseEntity<ApiResponse<CorrectionEditorResponseDTO.Detail>> getDetail(
+            @PathVariable Long correctionId
+    ) {
+        CorrectionEditorResponseDTO.Detail result =
+                correctionNativeService.getDetail(correctionId);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_READ_SUCCESS, result));
+    }
+
+    /**
+     * 커렉션 단어(구간) 교정 저장
+     */
+    @Operation(
+            summary = "커렉션 단어 교정 저장",
+            description = "문장별 교정 단어(구간)를 저장합니다. 요청에 포함된 교정 구간만 수정되며, 나머지 교정 정보는 유지됩니다.\n\n" +
+                    "`correctedText`가 `null`인 경우, 해당 단어를 문장에서 제거합니다.\n"
+            ,
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    @Parameters({
+            @Parameter(name = "correctionId", description = "커렉션 ID", example = "1")
+    })
+    @PatchMapping("/{correctionId}/words")
+    public ResponseEntity<ApiResponse<Void>> upsertWords(
+            @PathVariable Long correctionId,
+            @RequestBody @Valid CorrectionEditorRequestDTO.UpsertWords request
+    ) {
+        correctionNativeService.upsertWords(correctionId, request);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_UPDATE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_UPDATE_SUCCESS, null));
+    }
+
+    /**
+     * 커렉션 피드백 작성
+     */
+    @Operation(
+            summary = "커렉션 피드백 작성",
+            description = "특정 교정 단어에 대한 피드백을 작성합니다.\n" +
+                    "`sentenceIdx`가 null일 경우는 전체에 대한 피드백 코멘트 입니다."
+
+            ,
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    @Parameters({
+            @Parameter(name = "correctionId", description = "커렉션 ID", example = "1")
+    })
+    @PostMapping("/{correctionId}/feedback")
+    public ResponseEntity<ApiResponse<CorrectionEditorResponseDTO.WriteFeedbackResult>> writeFeedback(
+            @PathVariable Long correctionId,
+            @RequestBody @Valid CorrectionEditorRequestDTO.WriteFeedback request
+    ) {
+        CorrectionEditorResponseDTO.WriteFeedbackResult result =
+                correctionNativeService.writeFeedback(
+                        correctionId,
+                        CorrectorType.NATIVE_SPEAKER,
+                        request
+                );
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_CREATE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_CREATE_SUCCESS, result));
+    }
+
+    /**
+     * 커렉션 피드백 목록 조회
+     */
+    @Operation(
+            summary = "커렉션 피드백 목록 조회",
+            description = "해당 커렉션 문서에 달린 모든 피드백을 조회합니다.\n" +
+                    "`sentenceIdx`가 null일 경우는 전체에 대한 피드백 코멘트 입니다."
+            ,
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    @Parameters({
+            @Parameter(name = "correctionId", description = "커렉션 ID", example = "1")
+    })
+    @GetMapping("/{correctionId}/feedback")
+    public ResponseEntity<ApiResponse<List<CorrectionEditorResponseDTO.Feedback>>> getFeedback(
+            @PathVariable Long correctionId
+    ) {
+        List<CorrectionEditorResponseDTO.Feedback> result =
+                correctionNativeService.getFeedback(correctionId);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_READ_SUCCESS, result));
+    }
+
+    /**
+     * 커렉션 첨삭 제출
+     */
+    @Operation(
+            summary = "커렉션 제출",
+            description = "커렉션 첨삭을 완료하고 커렉션 상태를 COMPLETED로 변경합니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    @Parameters({
+            @Parameter(name = "correctionId", description = "커렉션 ID", example = "1")
+    })
+    @PostMapping("/{correctionId}/submit")
+    public ResponseEntity<ApiResponse<Void>> submitCorrection(
+            @PathVariable Long correctionId
+    ) {
+        correctionNativeService.submitCorrection(correctionId);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_SUBMIT_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_SUBMIT_SUCCESS, null));
+    }
+
+    /**
+     * 커렉션 피드백 수정
+     */
+    @Operation(
+            summary = "커렉션 피드백 수정",
+            description = "피드백 작성자가 자신의 피드백 내용을 수정합니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    @PatchMapping("/{correctionId}/feedback/{feedbackId}")
+    public ResponseEntity<ApiResponse<Void>> updateFeedback(
+            @PathVariable Long correctionId,
+            @PathVariable Long feedbackId,
+            @RequestBody @Valid CorrectionEditorRequestDTO.UpdateFeedback request
+    ) {
+        correctionNativeService.updateFeedback(correctionId, feedbackId, request);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_UPDATE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_UPDATE_SUCCESS, null));
+    }
+
+    /**
+     * 커렉션 피드백 삭제
+     */
+    @Operation(
+            summary = "커렉션 피드백 삭제",
+            description = "피드백 작성자가 자신의 피드백을 삭제합니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    @DeleteMapping("/{correctionId}/feedback/{feedbackId}")
+    public ResponseEntity<ApiResponse<Void>> deleteFeedback(
+            @PathVariable Long correctionId,
+            @PathVariable Long feedbackId
+    ) {
+        correctionNativeService.deleteFeedback(correctionId, feedbackId);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_DELETE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_DELETE_SUCCESS, null));
+    }
+
+    /**
+     * 즐겨찾기 추가(외국인 기준)
+     */
+    @Operation(
+            summary = "외국인(네이티브) 즐겨찾기 추가",
+            description = "외국인(네이티브) 유저가 커렉션 요청을 즐겨찾기에 추가합니다.",
+            security = {@SecurityRequirement(name = "JWT TOKEN")}
+    )
+    @PostMapping("/{correctionId}/bookmark")
+    public ResponseEntity<ApiResponse<Void>> addBookmark(
+            @PathVariable Long correctionId
+    ) {
+        correctionNativeService.addBookmark(correctionId);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_UPDATE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_UPDATE_SUCCESS, null));
+    }
+
+    /**
+     * 즐겨찾기 삭제(외국인 기준)
+     */
+    @Operation(
+            summary = "외국인(네이티브) 즐겨찾기 삭제",
+            description = "외국인(네이티브) 유저가 커렉션 요청 즐겨찾기를 해제합니다.",
+            security = {@SecurityRequirement(name = "JWT TOKEN")}
+    )
+    @DeleteMapping("/{correctionId}/bookmark")
+    public ResponseEntity<ApiResponse<Void>> removeBookmark(
+            @PathVariable Long correctionId
+    ) {
+        correctionNativeService.removeBookmark(correctionId);
+
+        return ResponseEntity
+                .status(SuccessStatus.CORRECTION_UPDATE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.CORRECTION_UPDATE_SUCCESS, null));
+    }
+}

@@ -1,7 +1,6 @@
 package verbly.spring.domain.user.dto.response;
 
 import lombok.*;
-import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.user.entity.User;
 
 public class UserResponseDTO {
@@ -36,6 +35,7 @@ public class UserResponseDTO {
 
         // 통계
         private int streakDays;
+        private long lastActiveTime;
         private long point;
         private int level;
 

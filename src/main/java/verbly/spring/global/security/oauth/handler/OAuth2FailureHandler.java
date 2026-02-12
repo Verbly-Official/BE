@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -38,7 +37,7 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
         cookieUtils.clearJsessionCookie(response);
 
         // 2. 실패용 브릿지 페이지로 리다이렉트
-        response.sendRedirect("http://localhost:5173/login/callback"); // https://www.verbly.kr/login/callback
+        response.sendRedirect("https://www.verbly.kr/login/callback"); // http://localhost:5173/login/callback // https://www.verbly.kr/login/callback
 
     }
 }

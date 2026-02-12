@@ -1,11 +1,14 @@
 package verbly.spring.domain.user.converter;
 
+import org.springframework.stereotype.Component;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
 import verbly.spring.domain.user.entity.ProfileImage;
 import verbly.spring.domain.user.entity.User;
 
+import java.time.ZoneId;
 import java.util.Optional;
 
+@Component
 public class UserConverter {
     public static ProfileImage toProfileImage(String imageUrl, User user) {
         return ProfileImage.builder()
@@ -34,6 +37,10 @@ public class UserConverter {
                 .map(ProfileImage::getImageUrl)
                 .orElse("default_profile_url");
 
+        String timezone = Optional.ofNullable(user.getTimezone())
+                .filter(tz -> !tz.isBlank())
+                .orElse("Asia/Seoul");
+
         return UserResponseDTO.UserInfoDTO.builder()
                 .userId(user.getId())
                 .learningLang(user.getLearningLang())
@@ -44,6 +51,9 @@ public class UserConverter {
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .streakDays(user.getStats().getStreakDays())
+                .lastActiveTime(user.getStats().getLastActiveTime() != null
+                        ? user.getStats().getLastActiveTime().atZone(ZoneId.of(timezone)).toEpochSecond()
+                        : 0)
                 .point(user.getStats().getPoint())
                 .level(user.getStats().getLevel().getValue())
                 .followCount(followingCount)

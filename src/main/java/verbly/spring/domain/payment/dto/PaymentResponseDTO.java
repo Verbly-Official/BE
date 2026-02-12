@@ -18,6 +18,7 @@ public class PaymentResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class PaymentPlan{
+        private Long planId;
         private String name;
         private int price;
         BillingCycle billingCycle;

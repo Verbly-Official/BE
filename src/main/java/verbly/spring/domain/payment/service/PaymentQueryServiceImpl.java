@@ -19,6 +19,7 @@ public class PaymentQueryServiceImpl implements PaymentQueryService {
         List<SubscriptionPlan> subscriptionPlans = planRepository.findByIsActive(true);
         return subscriptionPlans.stream()
                 .map(plan -> PaymentResponseDTO.PaymentPlan.builder()
+                        .planId(plan.getId())
                         .name(plan.getName())
                         .price(plan.getPrice())
                         .billingCycle(plan.getBillingCycle())

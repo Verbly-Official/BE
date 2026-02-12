@@ -102,3 +102,19 @@ cloud:
     credentials:
       accessKey: ${AWS_ACCESS_KEY}
       secretKey: ${AWS_SECRET_KEY}
+
+paypal:
+  mode: sandbox
+  url: ${PAYPAL_URL}
+  client-id: ${PAYPAL_CLIENT_ID}
+  client-secret: ${PAYPAL_CLIENT_SECRET}
+  plan-id:
+    monthly: ${PAYPAL_PLAN_MONTHLY}
+    yearly: ${PAYPAL_PLAN_YEARLY}
+  full-urls:
+    backend:
+      success: ${PAYPAL_PAY_REDIRECT_URL_SUCCESS_B}
+      fail: ${PAYPAL_PAY_REDIRECT_URL_FAIL_B}
+    frontend:
+      success: ${KAKAO_PAY_REDIRECT_URL_SUCCESS_F}
+      fail: ${KAKAO_PAY_REDIRECT_URL_FAIL_F}

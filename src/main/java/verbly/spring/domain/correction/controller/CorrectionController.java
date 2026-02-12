@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.correction.dto.request.CorrectionRequestDTO;
@@ -94,6 +97,8 @@ public class CorrectionController {
     @Operation(
             summary = "커렉션 - 내 문서 목록 조회",
             description = "자신이 작성한 커렉션 글 목록을 조회합니다.\n\n" +
+                    "✅ Paging:\n" +
+                    "- page, size 파라미터를 지원합니다.\n\n"+
                     "### QueryString\n" +
                     "모든 쿼리 파라미터는 **선택(Optional)**입니다.\n\n" +
                     "미선택시(GET `/api/correction`) 모든 문서가 조회됩니다.\n\n" +
@@ -102,24 +107,19 @@ public class CorrectionController {
                     "| bookmark | true | 즐겨찾기 |\n" +
                     "| sort | true | 최근 항목 |\n" +
                     "| status | COMPLETED, IN_PROGRESS, PENDING | 상단 상태 탭 |\n" +
-                    "| corrector | AI_ASSISTANT, NATIVE_SPEAKER | corrector 필터 |\n",
+                    "| correctorType | AI_ASSISTANT, NATIVE_SPEAKER | correctorType 필터 |\n",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
-    @Parameters({
-            @Parameter(name = "bookmark", description = "즐겨찾기 필터 (true일 때만 필터 적용)", example = "true"),
-            @Parameter(name = "sort", description = "최신순 정렬 (true일 때만 필터 적용)", example = "true"),
-            @Parameter(name = "status", description = "상태 탭 필터", example = "COMPLETED"),
-            @Parameter(name = "correctorType", description = "correctorType 필터", example = "AI_ASSISTANT")
-    })
     @GetMapping
     public ResponseEntity<ApiResponse<CorrectionListResponseDTO>> getMyCorrections(
             @RequestParam(required = false) Boolean bookmark,
             @RequestParam(required = false) Boolean sort,
             @RequestParam(required = false) PostStatus status,
-            @RequestParam(required = false) CorrectorType correctorType
+            @RequestParam(required = false) CorrectorType correctorType,
+            @ParameterObject @PageableDefault(size = 10) Pageable pageable
     ) {
         CorrectionListResponseDTO result =
-                correctionService.getMyCorrections(bookmark, sort, status, correctorType);
+                correctionService.getMyCorrections(bookmark, sort, status, correctorType, pageable);
 
         return ResponseEntity
                 .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())

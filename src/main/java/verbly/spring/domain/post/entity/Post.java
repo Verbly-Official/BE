@@ -46,7 +46,7 @@ public class Post extends BaseEntity {
 
     // 내용
     @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     // 임시저장 유무

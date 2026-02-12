@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -46,17 +47,11 @@ public class CorrectionNativeController {
                     "| bookmark | true/false | 즐겨찾기 필터(내 기준) |\n",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
-    @Parameters({
-            @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
-            @Parameter(name = "size", description = "페이지 크기", example = "10"),
-            @Parameter(name = "status", description = "문서 상태", example = "PENDING"),
-            @Parameter(name = "bookmark", description = "즐겨찾기 필터(내 기준)", example = "true")
-    })
     @GetMapping
     public ResponseEntity<ApiResponse<CorrectionResponseDTO.NativeCorrectionDTO>> getNativeCorrectionRequests(
             @RequestParam(required = false) PostStatus status,
             @RequestParam(required = false) Boolean bookmark,
-            @PageableDefault(size = 10) Pageable pageable
+            @ParameterObject @PageableDefault(size = 10) Pageable pageable
     ) {
         CorrectionResponseDTO.NativeCorrectionDTO result =
                 correctionNativeService.getNativeCorrectionRequests(bookmark, status, pageable);

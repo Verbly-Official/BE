@@ -102,12 +102,12 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
 
         ReviewQuestion q = reviewValidator.validateQuestionWithTaskAndItem(questionId);
         reviewValidator.validateQuestionOwnership(userId, sessionId, q);
-        // ✅ 세션 전체 힌트 제한 체크
+        //  세션 전체 힌트 제한 체크
         if (session.getHintUsed() >= session.getHintTotal()) {
             throw new ReviewHandler(ErrorStatus.QUIZ_NO_HINTS_REMAINING);
         }
 
-        // ✅ 세션 힌트 사용 1회 차감
+        //  세션 힌트 사용 1회 차감
         session.useHint();
         String textHint = q.getHint();
 
@@ -391,16 +391,16 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
                     ? ReviewQuestionType.cloze
                     : ReviewQuestionType.mcq;
 
-            // ✅ 항상 예문 기반 (없거나 빈칸 못 뚫으면 더미 예문 생성)
+            //  항상 예문 기반 (없거나 빈칸 못 뚫으면 더미 예문 생성)
             ExamplePack ex = pickExampleOrDummy(item, phrase);
 
-            // ✅ 예문에서 phrase를 ____로 치환
+            //  예문에서 phrase를 ____로 치환
             String blanked = blankOutFirstOccurrenceFlexible(ex.exampleEn(), phrase);
 
-            // ✅ 정답은 phrase
+            //  정답은 phrase
             ObjectNode answerKey = objectMapper.createObjectNode().put("answer", phrase);
 
-            // ✅ 힌트는 "예문 뜻"만
+            //  힌트는 "예문 뜻"만
             String hint = !safe(ex.exampleKo()).isBlank()
                     ? safe(ex.exampleKo())
                     : safe(item.getMeaningKo()); // fallback
@@ -429,7 +429,7 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
                     answerKey
             );
 
-            // ✅ hint 세팅 (setter 있으면 setter, 없으면 reflection)
+            // hint 세팅 (setter 있으면 setter, 없으면 reflection)
             applyHint(q, hint);
 
             result.add(q);

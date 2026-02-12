@@ -16,7 +16,7 @@ public class SubscriptionPlan extends BaseEntity {
     private Double price;
 
     @Enumerated(EnumType.STRING)
-    private BillingCycle billingCycle; // MONTHLY, YEARLY
+    private BillingCycle billingCycle;
 
     Boolean isActive;
 }

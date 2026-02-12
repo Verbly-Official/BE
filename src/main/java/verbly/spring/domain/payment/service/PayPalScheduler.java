@@ -37,10 +37,8 @@ public class PayPalScheduler {
                 PaypalDTO.SubscriptionResponse info = paypalClient.getSubscriptionStatus(sub.getSid());
 
                 if ("ACTIVE".equals(info.getStatus())) {
-                    // ✅ 갱신 메서드 호출
                     sub.renew();
                 } else {
-                    // ✅ 세터 대신 "만료 처리" 메서드 호출
                     sub.expire();
                     log.info("❌ 구독 만료 처리됨: SID {}", sub.getSid());
                 }

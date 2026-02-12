@@ -43,7 +43,6 @@ public class Subscription extends BaseEntity {
 
     public void expire() {
         this.status = SubscriptionStatus.EXPIRED;
-        // 필요하다면 여기서 다음 결제일을 null로 만드는 등의 추가 로직도 넣을 수 있음
         this.nextPaymentDate = null;
     }
 

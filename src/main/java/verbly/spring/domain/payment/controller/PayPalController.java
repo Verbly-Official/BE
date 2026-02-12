@@ -1,10 +1,12 @@
 package verbly.spring.domain.payment.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.payment.service.PayPalService;
+import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.utils.SecurityUtils;
 
 import java.io.IOException;
@@ -22,17 +24,16 @@ public class PayPalController {
     @Value("${paypal.full-urls.frontend.fail}")
     private String failUrl;
 
-    // 1. Ready
     @PostMapping("/ready")
-    public String ready(@RequestParam Long planId) {
-        return payPalService.ready(planId);
+    public ApiResponse<String> ready(@RequestParam Long planId) {
+        return ApiResponse.onSuccess(payPalService.ready(planId));
     }
 
-    // 2. Success
+    @Hidden
     @GetMapping("/success")
     public void success(
             @RequestParam("subscription_id") String subscriptionId,
-            @RequestParam("planId") Long planId, // 아까 url 뒤에 붙여서 보낸거 받기
+            @RequestParam("planId") Long planId,
             HttpServletResponse response
     ) throws IOException {
 
@@ -47,7 +48,7 @@ public class PayPalController {
         }
     }
 
-    // 3. Cancel
+    @Hidden
     @GetMapping("/cancel")
     public void cancel(HttpServletResponse response) throws IOException {
         response.sendRedirect(failUrl);

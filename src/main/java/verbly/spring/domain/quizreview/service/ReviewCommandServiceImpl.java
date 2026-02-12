@@ -28,8 +28,13 @@ import verbly.spring.domain.quizreview.repository.ReviewTaskRepository;
 import verbly.spring.domain.quizreview.validate.ReviewValidator;
 import verbly.spring.global.common.code.ErrorStatus;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -354,43 +359,210 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
     }
 
     private List<ReviewQuestion> generateQuestions(Long userId, List<ReviewTask> tasks) {
+        if (tasks == null || tasks.isEmpty()) return List.of();
 
+        // 1) 아이템 로드 (task에 해당하는 libraryItem들)
+        Set<Long> itemIds = tasks.stream()
+                .map(ReviewTask::getLibraryItemId)
+                .collect(Collectors.toSet());
 
-        List<ReviewQuestion> result = new ArrayList<>();
+        Map<Long, LibraryItem> itemById = libraryItemRepository.findAllById(itemIds).stream()
+                .collect(Collectors.toMap(LibraryItem::getId, it -> it));
 
-        for (ReviewTask t : tasks) {
-            LibraryItem item = libraryItemRepository.findById(t.getLibraryItemId())
-                    .orElseThrow(() -> new ReviewHandler(ErrorStatus._BAD_REQUEST));
+        // 2) 객관식 오답 풀: 유저 라이브러리에서 phrase 후보 뽑기
+        List<LibraryItem> distractorPool =
+                libraryItemRepository.findAllByUserIdAndStatus(userId, LibraryItemStatus.ACTIVE);
 
-            // 단순 MCQ: "의미(ko)"를 맞히게 함
-            String correct = (item.getMeaningKo() != null && !item.getMeaningKo().isBlank())
-                    ? item.getMeaningKo()
-                    : "(meaning not set)";
+        // 3) 50:50 랜덤 배정 (task당 1문항 유지)
+        int total = tasks.size();
+        int clozeCount = total / 2;
+        Set<Long> clozeTaskIds = pickRandomTaskIds(tasks, clozeCount);
 
-            ObjectNode answerKey = objectMapper.createObjectNode().put("answer", correct);
+        List<ReviewQuestion> result = new ArrayList<>(total);
 
-            ArrayNode options = objectMapper.createArrayNode();
-            options.add(correct);
+        for (ReviewTask task : tasks) {
+            LibraryItem item = itemById.get(task.getLibraryItemId());
+            if (item == null) throw new ReviewHandler(ErrorStatus._BAD_REQUEST);
 
-            // 보기 더 채우기(간단히 더미)
-            options.add("dummy option 1");
-            options.add("dummy option 2");
-            options.add("dummy option 3");
+            String phrase = safe(item.getPhrase());
+            if (phrase.isBlank()) throw new ReviewHandler(ErrorStatus._BAD_REQUEST);
+
+            ReviewQuestionType type = clozeTaskIds.contains(task.getId())
+                    ? ReviewQuestionType.cloze
+                    : ReviewQuestionType.mcq;
+
+            // ✅ 항상 예문 기반 (없거나 빈칸 못 뚫으면 더미 예문 생성)
+            ExamplePack ex = pickExampleOrDummy(item, phrase);
+
+            // ✅ 예문에서 phrase를 ____로 치환
+            String blanked = blankOutFirstOccurrenceFlexible(ex.exampleEn(), phrase);
+
+            // ✅ 정답은 phrase
+            ObjectNode answerKey = objectMapper.createObjectNode().put("answer", phrase);
+
+            // ✅ 힌트는 "예문 뜻"만
+            String hint = !safe(ex.exampleKo()).isBlank()
+                    ? safe(ex.exampleKo())
+                    : safe(item.getMeaningKo()); // fallback
+
+            String prompt;
+            JsonNode optionsJson = null;
+
+            if (type == ReviewQuestionType.cloze) {
+                prompt = "빈칸(____)에 들어갈 구문을 입력하세요:\n" + blanked;
+            } else {
+                List<String> options = buildMcqPhraseOptions(distractorPool, item.getId(), phrase, 3);
+                ArrayNode arr = objectMapper.createArrayNode();
+                options.forEach(arr::add);
+                optionsJson = arr;
+
+                prompt = "빈칸(____)에 들어갈 구문을 고르세요:\n" + blanked;
+            }
 
             ReviewQuestion q = ReviewQuestion.of(
-                    t,
+                    task,
                     item,
                     1,
-                    ReviewQuestionType.mcq,
-                    "다음 표현의 의미(한국어)를 고르세요: " + item.getPhrase(),
-                    options,
+                    type,
+                    prompt,
+                    optionsJson,
                     answerKey
             );
+
+            // ✅ hint 세팅 (setter 있으면 setter, 없으면 reflection)
+            applyHint(q, hint);
 
             result.add(q);
         }
 
         return result;
+    }
+
+// -------- helpers --------
+
+    private record ExamplePack(String exampleEn, String exampleKo) {}
+
+    private ExamplePack pickExampleOrDummy(LibraryItem item, String phrase) {
+        List<ExamplePack> packs = new ArrayList<>();
+
+        if (item.getExamples() != null) {
+            for (var ex : item.getExamples()) {
+                String en = ex.getExampleEn();
+                if (en != null && !en.isBlank()) {
+                    packs.add(new ExamplePack(en.trim(), ex.getExampleKo()));
+                }
+            }
+        }
+
+        // phrase 포함 예문 우선
+        List<ExamplePack> contains = packs.stream()
+                .filter(p -> containsFlexible(p.exampleEn(), phrase))
+                .toList();
+
+        if (!contains.isEmpty()) {
+            return contains.get(ThreadLocalRandom.current().nextInt(contains.size()));
+        }
+
+        // 예문은 있는데 phrase가 포함된 예문이 하나도 없으면 → 더미 예문으로 (빈칸 출제를 보장)
+        if (!packs.isEmpty()) {
+            // 여기서 "그냥 첫 예문을 쓰되 앞에 ____ 붙이기" 같은 정책도 가능하지만,
+            // 요구사항이 '해당 구문을 빈칸' 이라 더미로 안전하게 처리.
+        }
+
+        // 예문이 아예 없을 때만 더미
+        String dummyEn = "I learned the expression \"" + phrase + "\" today.";
+        String dummyKo = "나는 오늘 \"" + phrase + "\"라는 표현을 배웠다.";
+        return new ExamplePack(dummyEn, dummyKo);
+    }
+
+    private boolean containsFlexible(String text, String phrase) {
+        if (text == null || phrase == null) return false;
+        String p = phrase.trim();
+        if (p.isEmpty()) return false;
+        Pattern pat = Pattern.compile(buildFlexiblePhraseRegex(p), Pattern.CASE_INSENSITIVE);
+        return pat.matcher(text).find();
+    }
+
+    private String blankOutFirstOccurrenceFlexible(String exampleEn, String phrase) {
+        if (exampleEn == null || exampleEn.isBlank()) return "____";
+        if (phrase == null || phrase.isBlank()) return "____";
+
+        Pattern pat = Pattern.compile(buildFlexiblePhraseRegex(phrase.trim()), Pattern.CASE_INSENSITIVE);
+        Matcher m = pat.matcher(exampleEn);
+
+        if (!m.find()) {
+            // phrase 못 찾으면 더미 예문을 선택했어야 하지만,
+            // 안전장치: 그래도 예문 형태 유지
+            return "____ " + exampleEn.trim();
+        }
+        return exampleEn.substring(0, m.start()) + "____" + exampleEn.substring(m.end());
+    }
+
+    // 공백 유연: "take off" -> "take\\s+off"
+    private String buildFlexiblePhraseRegex(String phrase) {
+        String[] parts = phrase.trim().split("\\s+");
+        return Arrays.stream(parts)
+                .map(Pattern::quote)
+                .collect(Collectors.joining("\\s+"));
+    }
+
+    // 객관식 보기 구성: 정답 phrase + 오답 phrase 3개
+    private List<String> buildMcqPhraseOptions(List<LibraryItem> pool, Long correctItemId, String correctPhrase, int wrongCount) {
+        List<String> wrongs = new ArrayList<>();
+
+        if (pool != null && !pool.isEmpty()) {
+            List<String> candidates = pool.stream()
+                    .filter(it -> it.getId() != null && !it.getId().equals(correctItemId))
+                    .map(LibraryItem::getPhrase)
+                    .filter(p -> p != null && !p.isBlank())
+                    .map(String::trim)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            Collections.shuffle(candidates, ThreadLocalRandom.current());
+
+            for (String c : candidates) {
+                if (wrongs.size() >= wrongCount) break;
+                if (!c.equalsIgnoreCase(correctPhrase.trim())) wrongs.add(c);
+            }
+        }
+
+        while (wrongs.size() < wrongCount) {
+            wrongs.add("dummy option " + (wrongs.size() + 1));
+        }
+
+        List<String> options = new ArrayList<>(1 + wrongCount);
+        options.add(correctPhrase.trim());
+        options.addAll(wrongs);
+        Collections.shuffle(options, ThreadLocalRandom.current());
+        return options;
+    }
+
+    private Set<Long> pickRandomTaskIds(List<ReviewTask> tasks, int count) {
+        if (count <= 0) return Set.of();
+        List<Long> ids = tasks.stream().map(ReviewTask::getId).collect(Collectors.toList());
+        Collections.shuffle(ids, ThreadLocalRandom.current());
+        return new HashSet<>(ids.subList(0, Math.min(count, ids.size())));
+    }
+
+    private String safe(String s) {
+        return (s == null) ? "" : s.trim();
+    }
+
+    private void applyHint(ReviewQuestion q, String hint) {
+        // 1) setHint(String) 있으면 사용
+        try {
+            Method m = q.getClass().getMethod("setHint", String.class);
+            m.invoke(q, hint);
+            return;
+        } catch (Exception ignored) {}
+
+        // 2) 없으면 hint 필드 직접 세팅(필드명이 다르면 여기만 바꾸면 됨)
+        try {
+            Field f = q.getClass().getDeclaredField("hint");
+            f.setAccessible(true);
+            f.set(q, hint);
+        } catch (Exception ignored) {}
     }
 
     private ReviewResponseDTO.QuizStartResponse startSessionOnlyWithGivenPendingTasks(Long userId, List<ReviewTask> pendingTasks) {

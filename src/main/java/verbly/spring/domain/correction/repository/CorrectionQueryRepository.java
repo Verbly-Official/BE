@@ -9,12 +9,13 @@ import verbly.spring.domain.post.enums.PostStatus;
 import java.util.List;
 
 public interface CorrectionQueryRepository {
-    List<CorrectionResponseDTO.MyCorrectionListDto> findMyCorrections(
+    Page<CorrectionResponseDTO.MyCorrectionListDto> findMyCorrections(
             Long authorId,
             Boolean bookmark,
             Boolean sort,
             PostStatus status,
-            CorrectorType correctorType
+            CorrectorType correctorType,
+            Pageable pageable
     );
 
     Page<CorrectionResponseDTO.MyCorrectionDto> findNativeCorrectionRequests(

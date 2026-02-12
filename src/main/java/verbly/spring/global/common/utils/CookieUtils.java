@@ -15,7 +15,7 @@ public class CookieUtils {
                 .path("/")
                 .domain("verbly.kr")
                 .maxAge(maxAgeInSeconds)
-                .sameSite("Lax")
+                .sameSite("Lax") // Lax // None
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());

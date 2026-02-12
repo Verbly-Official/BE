@@ -409,14 +409,14 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
             JsonNode optionsJson = null;
 
             if (type == ReviewQuestionType.cloze) {
-                prompt = "빈칸(____)에 들어갈 구문을 입력하세요:\n" + blanked;
+                prompt = "빈칸(____)에 들어갈 구문을 입력하세요: " + blanked;
             } else {
                 List<String> options = buildMcqPhraseOptions(distractorPool, item.getId(), phrase, 3);
                 ArrayNode arr = objectMapper.createArrayNode();
                 options.forEach(arr::add);
                 optionsJson = arr;
 
-                prompt = "빈칸(____)에 들어갈 구문을 고르세요:\n" + blanked;
+                prompt = "빈칸(____)에 들어갈 구문을 고르세요: " + blanked;
             }
 
             ReviewQuestion q = ReviewQuestion.of(

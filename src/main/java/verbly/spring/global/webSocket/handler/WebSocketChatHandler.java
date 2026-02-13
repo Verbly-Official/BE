@@ -15,6 +15,7 @@ import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.webSocket.exception.WebSocketExceptionHandler;
 import verbly.spring.global.webSocket.utils.WebSocketUtils;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;

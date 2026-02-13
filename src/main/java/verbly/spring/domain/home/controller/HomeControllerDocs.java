@@ -36,6 +36,7 @@ public interface HomeControllerDocs {
                                                 "result": {
                                                     "imageUrl": "http://...",
                                                     "nickname": "박시윤",
+                                                    "nativeLang": "kr",
                                                     "following": 0,
                                                     "streak": 0,
                                                     "point": 100,
@@ -80,6 +81,7 @@ public interface HomeControllerDocs {
                                                     "isFollowing": false,
                                                     "correctionReceived": 0,
                                                     "correctionGiven": 0
+                                                    "userId": 33
                                                 }
                                             }
                                         """

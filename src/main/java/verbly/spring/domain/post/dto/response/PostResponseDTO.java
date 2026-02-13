@@ -21,6 +21,7 @@ public class PostResponseDTO {
         private String nickname;
         private Boolean isFollowing;
         private UUID uuid;
+        private Long userId;
 
         private Long postId;
         private String content;
@@ -105,6 +106,7 @@ public class PostResponseDTO {
         private String nickname;
         private Boolean isFollowing;
         private UUID uuid;
+        private Long userId;
 
         private Long postId;
         private String content;

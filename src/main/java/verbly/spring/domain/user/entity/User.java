@@ -38,7 +38,7 @@ public class User extends BaseEntity {
     private String socialId;
 
     @Column(length = 3)
-    private String nativeLang; // ISO code (e.g. "ko")
+    private String nativeLang; // ISO code (e.g. "kr")
 
     @Column(length = 3)
     private String learningLang; // ISO code (e.g. "en")

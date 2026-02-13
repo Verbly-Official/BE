@@ -21,6 +21,10 @@ public enum SuccessStatus implements BaseCode {
     USER_PROFILE_UPDATE_SUCCESS(HttpStatus.OK, "USER2007", "프로필이 성공적으로 변경되었습니다."),
     USER_ALREADY_ONBOARDING_COMPLETED(HttpStatus.OK, "USER2011", "온보딩이 이미 완료된 유저입니다."),
 
+    // SMS 관련 응답
+    SMS_SEND_COMPLETED(HttpStatus.OK, "SMS2001", "인증번호가 전송되었습니다."),
+    SMS_VERIFY_SUCCESS(HttpStatus.OK, "SMS2002", "인증번호가 인증되었습니다."),
+
     // 커렉션 관련 응답
     CORRECTION_CREATE_SUCCESS(HttpStatus.CREATED, "CORRECTION2001", "Correction - 글을 성공적으로 저장했습니다."),
     CORRECTION_READ_SUCCESS(HttpStatus.OK, "CORRECTION2002", "Correction - 글을 성공적으로 조회했습니다."),

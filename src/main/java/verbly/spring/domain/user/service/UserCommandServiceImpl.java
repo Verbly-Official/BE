@@ -28,6 +28,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final AmazonS3Manager s3Manager;
     private final UuidRepository uuidRepository;
     private final ProfileImageRepository profileImageRepository;
+    private final SmsService smsService;
 //    private final OnboardingValidator onboardingValidator;
 
     @Override
@@ -81,14 +82,12 @@ public class UserCommandServiceImpl implements UserCommandService {
             user.updateEmail(request.getEmail());
         }
 
-        if (request.getPhoneNumber() != null) {
-            if (!request.getPhoneNumber().equals(user.getPhoneNumber())) {
-                if (!phoneVerificationService.isVerified(userId, request.getPhoneNumber())) { // 인증 완료 여부 확인
-                    throw new UserHandler(ErrorStatus.PHONE_VERIFICATION_REQUIRED);
-                }
-
-                user.updatePhoneNumber(request.getPhoneNumber()); // 통과하면 업데이트
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().equals(user.getPhoneNumber())) {
+            if (!smsService.verifyAuthCode(request.getPhoneNumber())) { // 인증 완료 여부 확인
+                throw new UserHandler(ErrorStatus.PHONE_VERIFICATION_REQUIRED);
             }
+
+            user.updatePhoneNumber(request.getPhoneNumber()); // 통과하면 업데이트
         }
 
         String profileImageUrl = null;

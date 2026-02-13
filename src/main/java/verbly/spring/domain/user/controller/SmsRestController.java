@@ -5,6 +5,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import verbly.spring.domain.user.service.SmsService;
+import verbly.spring.global.common.code.SuccessStatus;
 
 @Validated
 @RestController
@@ -18,7 +20,7 @@ public class SmsRestController {
             @RequestParam String phone
     ) {
         smsService.sendAuthCode(phone);
-        return ApiResponse.onSuccess(SuccessStatus._OK, "인증번호가 전송되었습니다.");
+        return ApiResponse.onSuccess(SuccessStatus.SMS_SEND_COMPLETED);
     }
 
     @PostMapping("/verify")
@@ -29,7 +31,7 @@ public class SmsRestController {
         boolean result = smsService.verifyAuthCode(phone, code);
 
         if (result) {
-            return ApiResponse.onSuccess(SuccessStatus._OK, "인증되었습니다.");
+            return ApiResponse.onSuccess(SuccessStatus.SMS_VERIFY_SUCCESS);
         }
 
         return ApiResponse.onFailure("SMS4001", "인증번호가 일치하지 않습니다.", null);

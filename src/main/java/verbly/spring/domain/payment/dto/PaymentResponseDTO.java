@@ -20,7 +20,7 @@ public class PaymentResponseDTO {
     public static class PaymentPlan{
         private Long planId;
         private String name;
-        private int price;
+        private Double price;
         BillingCycle billingCycle;
     }
 }

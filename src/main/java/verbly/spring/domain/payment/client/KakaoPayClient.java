@@ -1,4 +1,4 @@
-package verbly.spring.infrastructure.kakao;
+package verbly.spring.domain.payment.client;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import verbly.spring.infrastructure.kakao.dto.KakaoPayDTO;
+import verbly.spring.domain.payment.dto.KakaoPayDTO;
 
 @Component
 @RequiredArgsConstructor
@@ -29,16 +29,17 @@ public class KakaoPayClient {
     @Value("${pay.kakao.full-urls.backend.fail}")
     private String failUrl;
 
-    public KakaoPayDTO.ReadyResponse ready(String orderId, String userId, String itemName, int quantity, int totalAmount) {
+    public KakaoPayDTO.ReadyResponse ready(String orderId, String userId, String itemName, int quantity, Double totalAmount) {
         HttpHeaders headers = getHeaders();
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        int newvalue = (int)(totalAmount*1500);
 
         params.add("cid", CID);
         params.add("partner_order_id", orderId);
         params.add("partner_user_id", userId);
         params.add("item_name", itemName);
         params.add("quantity", String.valueOf(quantity));
-        params.add("total_amount", String.valueOf(totalAmount));
+        params.add("total_amount", String.valueOf(newvalue));
         params.add("tax_free_amount", "0");
 
         params.add("approval_url", successUrl);
@@ -69,17 +70,17 @@ public class KakaoPayClient {
         );
     }
 
-    public KakaoPayDTO.ApproveResponse recurring(String sid, String userId, int totalAmount) {
+    public KakaoPayDTO.ApproveResponse recurring(String sid, String userId, Double totalAmount) {
         HttpHeaders headers = getHeaders();
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         String orderId = "order_" + userId + "_" + System.currentTimeMillis();
-
+        int newvalue = (int)(totalAmount*1500);
         params.add("cid", CID);
         params.add("sid", sid);
         params.add("partner_order_id", orderId);
         params.add("partner_user_id", userId);
         params.add("quantity", "1");
-        params.add("total_amount", String.valueOf(totalAmount));
+        params.add("total_amount", String.valueOf(newvalue));
         params.add("tax_free_amount", "0");
 
         return restTemplate.postForObject(

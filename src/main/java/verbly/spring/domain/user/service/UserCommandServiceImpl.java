@@ -78,6 +78,10 @@ public class UserCommandServiceImpl implements UserCommandService {
         }
 
         if (request.getEmail() != null) {
+            user.updateEmail(request.getEmail());
+        }
+
+        if (request.getPhoneNumber() != null) {
             if (!request.getPhoneNumber().equals(user.getPhoneNumber())) {
                 if (!phoneVerificationService.isVerified(userId, request.getPhoneNumber())) { // 인증 완료 여부 확인
                     throw new UserHandler(ErrorStatus.PHONE_VERIFICATION_REQUIRED);
@@ -85,10 +89,6 @@ public class UserCommandServiceImpl implements UserCommandService {
 
                 user.updatePhoneNumber(request.getPhoneNumber()); // 통과하면 업데이트
             }
-        }
-
-        if (request.getPhoneNumber() != null) {
-            user.updatePhoneNumber(request.getPhoneNumber());
         }
 
         String profileImageUrl = null;

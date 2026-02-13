@@ -83,4 +83,32 @@ public interface PaymentControllerDocs {
             )
     })
     ApiResponse<List<PaymentResponseDTO.PaymentPlan>> paymentPlan();
+
+
+
+    @Operation(
+            summary = "페이팔 결제 준비 (Ready)",
+            security = @SecurityRequirement(name = "JWT TOKEN"),
+            description = "사용자가 '구독하기' 버튼을 눌렀을 때 호출합니다. 결제 페이지 URL을 반환합니다."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                                "isSuccess": true,
+                                                "code": "COMMON2000",
+                                                "message": "성공입니다.",
+                                                "result": "https://www.sandbox.paypal.com/webapps/billing/subscriptions?ba_token=BA-9B357889L1492641Y"
+                                            }
+                                        """
+                            )
+                    )
+            )
+    })
+    ApiResponse<String> ready(Long planId);
 }

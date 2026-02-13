@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.payment.dto.PaymentResponseDTO;
+import verbly.spring.domain.payment.service.PayPalService;
 import verbly.spring.domain.payment.service.PaymentQueryService;
 import verbly.spring.domain.payment.service.SubscriptionService;
 import verbly.spring.global.common.response.ApiResponse;
@@ -23,6 +24,7 @@ public class PaymentController implements PaymentControllerDocs {
 
     private final SubscriptionService subscriptionService;
     private final PaymentQueryService paymentQueryService;
+    private final PayPalService payPalService;
 
     @Value("${pay.kakao.full-urls.frontend.success}")
     private String successUrl;
@@ -31,7 +33,7 @@ public class PaymentController implements PaymentControllerDocs {
     private String failUrl;
 
     @Override
-    @PostMapping("/ready")
+    @PostMapping("/kakao/ready")
     public ApiResponse<KakaoPayDTO.ReadyResponse> ready(@RequestParam Long planId, HttpSession session) {
         Long userId = SecurityUtils.getCurrentUserId();
         String orderId = "order_" + userId + "_" + System.currentTimeMillis();
@@ -47,7 +49,7 @@ public class PaymentController implements PaymentControllerDocs {
     }
 
     @Hidden
-    @GetMapping("/success")
+    @GetMapping("/kakao/success")
     public void success(
             @RequestParam("pg_token") String pgToken,
             HttpSession session,
@@ -65,13 +67,13 @@ public class PaymentController implements PaymentControllerDocs {
     }
 
     @Hidden
-    @GetMapping("/cancel")
-    public void cancel(HttpServletResponse response) throws IOException {
+    @GetMapping("/kakao/cancel")
+    public void kakaoCancel(HttpServletResponse response) throws IOException {
         response.sendRedirect(failUrl);
     }
 
     @Hidden
-    @GetMapping("/fail")
+    @GetMapping("/kakao/fail")
     public void fail(HttpServletResponse response) throws IOException {
         response.sendRedirect(failUrl);
     }
@@ -80,5 +82,36 @@ public class PaymentController implements PaymentControllerDocs {
     @GetMapping("/plan")
     public ApiResponse<List<PaymentResponseDTO.PaymentPlan>> paymentPlan(){
         return ApiResponse.onSuccess(paymentQueryService.getAllPaymentPlan());
+    }
+
+    @Override
+    @PostMapping("/paypal/ready")
+    public ApiResponse<String> ready(@RequestParam Long planId) {
+        return ApiResponse.onSuccess(payPalService.ready(planId));
+    }
+
+    @Hidden
+    @GetMapping("/paypal/success")
+    public void success(
+            @RequestParam("subscription_id") String subscriptionId,
+            @RequestParam("planId") Long planId,
+            HttpServletResponse response
+    ) throws IOException {
+
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        try {
+            payPalService.success(subscriptionId, userId, planId);
+            response.sendRedirect(successUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(failUrl);
+        }
+    }
+
+    @Hidden
+    @GetMapping("/paypal/cancel")
+    public void paypalCancel(HttpServletResponse response) throws IOException {
+        response.sendRedirect(failUrl);
     }
 }

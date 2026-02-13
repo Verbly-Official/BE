@@ -103,6 +103,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         cookieUtils.clearJsessionCookie(response);
 
         // 3. 리다이렉트 (브릿지 페이지)
-        response.sendRedirect("https://www.verbly.kr/login/callback"); // http://localhost:5173/login/callback // https://www.verbly.kr/login/callback
+        response.sendRedirect("http://localhost:5173/login/callback"); // http://localhost:5173/login/callback // https://www.verbly.kr/login/callback
     }
 }

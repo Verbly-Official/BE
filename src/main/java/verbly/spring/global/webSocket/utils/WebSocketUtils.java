@@ -1,4 +1,4 @@
-package verbly.spring.global.webSocket.util;
+package verbly.spring.global.webSocket.utils;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
-public class WebSocketUtil {
+public class WebSocketUtils {
 
     private final UserRepository userRepository;
     private final ChatroomUserRepository chatroomUserRepository;

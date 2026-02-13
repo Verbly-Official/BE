@@ -20,6 +20,7 @@ public class PostConverter {
                 .collect(Collectors.toList());
         return PostResponseDTO.HomePosts.builder()
                 .postId(post.getId())
+                .userId(post.getAuthor().getId())
                 .content(post.getContent())
                 .commentsCount(post.getCommentsCount())
                 .status(post.getStatus())
@@ -109,6 +110,7 @@ public class PostConverter {
                 .collect(Collectors.toList());
         return PostResponseDTO.hotPost.builder()
                 .postId(post.getId())
+                .userId(post.getAuthor().getId())
                 .content(post.getContent())
                 .commentsCount(post.getCommentsCount())
                 .status(post.getStatus())

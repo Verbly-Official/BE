@@ -43,6 +43,7 @@ public enum ErrorStatus implements BaseErrorCode {
     CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT4003", "채팅방이 없습니다."),
     NOT_CHATROOM_MEMBER(HttpStatus.FORBIDDEN, "CHAT4004", "채팅방 입장 권한이 없습니다."),
     CANT_SELF_CHAT(HttpStatus.BAD_REQUEST, "CHAT4004", "스스로 채팅할 수 없습니다."),
+    JSON_PROCESS_FAIL(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "CHAT4005", "페이로드 형태 변환에 실패했습니다."),
 
     // Correction 관련 에러
     CORRECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "CORRECTION4001", "문서를 찾을 수 없습니다."),
@@ -59,6 +60,7 @@ public enum ErrorStatus implements BaseErrorCode {
     CORRECTION_FIRST_ACTION_ONLY_PENDING(HttpStatus.BAD_REQUEST, "CORRECTION4012", "첫 첨삭/피드백은 PENDING 상태에서만 가능합니다."),
     CORRECTION_EDIT_ONLY_IN_PROGRESS(HttpStatus.BAD_REQUEST, "CORRECTION4013", "수정/추가는 자신이 corrector인 IN_PROGRESS 글에서만 가능합니다."),
     CORRECTION_NOT_THE_CORRECTOR(HttpStatus.FORBIDDEN, "CORRECTION4014", "해당 글의 첨삭자가 아닙니다."),
+    CORRECTION_AI_FIRST(HttpStatus.FORBIDDEN, "CORRECTION4015", "AI 첨삭이 완료된 후 native 유저의 첨삭이 가능합니다."),
 
 
     // Post 관련 에러
@@ -86,6 +88,10 @@ public enum ErrorStatus implements BaseErrorCode {
     QUIZ_NO_MISTAKES(HttpStatus.BAD_REQUEST, "QUIZ4007", "오답이 없어 재도전할 수 없습니다."),
     QUIZ_NO_HINTS_REMAINING(HttpStatus.BAD_REQUEST, "QUIZ4008", "남은 힌트가 없습니다."),
 
+    // AI 관련 에러
+    AI_API_CALL_FAILED(HttpStatus.BAD_GATEWAY, "OPENAI5001", "AI API 호출에 실패했습니다."),
+    AI_RESPONSE_INVALID(HttpStatus.BAD_GATEWAY, "OPENAI5002", "AI 응답 형식이 올바르지 않습니다."),
+    AI_MODEL_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "OPENAI5003", "AI model 설정이 비어있습니다."),
     //결제 관련 에러
     PAYMENTPLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT4001", "없는 결제 플랜입니다."),
     PAYMENTPLAN_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "PAYMENT4002", "중지된 결제 플랜입니다.")

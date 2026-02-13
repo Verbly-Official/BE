@@ -66,7 +66,8 @@ public enum SuccessStatus implements BaseCode {
     CHATROOM_READ_SUCCESS(HttpStatus.OK, "CHAT2002", "채팅방 목록을 성공적으로 조회했습니다."),
     CHAT_MESSAGE_READ_SUCCESS(HttpStatus.OK, "CHAT2003", "채팅 내역을 성공적으로 조회했습니다."),
     SEARCH_SUCCESS(HttpStatus.OK, "CHAT2004", "검색어에 따른 데이터를 성공적으로 조회했습니다."),
-    CHATROOM_QUIT_SUCCESS(HttpStatus.OK, "CHAT2005", "채팅방에서 성공적으로 퇴장했습니다.");
+    CHATROOM_QUIT_SUCCESS(HttpStatus.OK, "CHAT2005", "채팅방에서 성공적으로 퇴장했습니다."),
+    CHAT_MESSAGE_SAVE_SUCCESS(HttpStatus.OK, "CHAT2006", "메세지를 성공적으로 저장했습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

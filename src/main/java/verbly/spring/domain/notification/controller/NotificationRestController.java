@@ -5,10 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import verbly.spring.domain.notification.dto.response.NotificationsResponseDTO;
 import verbly.spring.domain.notification.service.NotificationCommandService;
@@ -51,5 +48,14 @@ public class NotificationRestController implements NotificationControllerDocs {
     ) {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.onSuccess(notificationCommandService.patchNotifications(userId, pageable));
+    }
+
+    @Override
+    @PatchMapping("/{notificationId}")
+    public ApiResponse<NotificationsResponseDTO.NotificationDTO> patchNotification(
+            @PathVariable(name = "notificationId") Long notificationId
+    ) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(notificationCommandService.patchNotification(userId ,notificationId));
     }
 }

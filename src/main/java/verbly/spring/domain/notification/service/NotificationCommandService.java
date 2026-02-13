@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface NotificationCommandService {
     List<NotificationsResponseDTO.NotificationDTO> patchNotifications(Long userId, Pageable pageable);
+    NotificationsResponseDTO.NotificationDTO patchNotification(Long userId, Long notificationId);
 }

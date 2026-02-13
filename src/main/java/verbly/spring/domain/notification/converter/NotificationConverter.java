@@ -6,6 +6,7 @@ import verbly.spring.domain.notification.entity.Notification;
 public class NotificationConverter {
     public static NotificationsResponseDTO.NotificationDTO toNotificationDTO(Notification notification) {
         return NotificationsResponseDTO.NotificationDTO.builder()
+                .notificationId(notification.getId())
                 .content(notification.getContent())
                 .isRead(notification.isRead())
                 .createdAt(notification.getCreatedAt())

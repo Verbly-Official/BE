@@ -5,15 +5,18 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import verbly.spring.domain.notification.dto.response.NotificationsResponseDTO;
 import verbly.spring.global.common.response.ApiResponse;
 
 import java.util.List;
 
+@Tag(name = "Notification", description = "알림 관련 API")
 public interface NotificationControllerDocs {
 
     @Operation(
@@ -75,6 +78,7 @@ public interface NotificationControllerDocs {
                                                 "message": "성공입니다.",
                                                 "result": [
                                                     {
+                                                        "notificationId": 1,
                                                         "content": "박시윤 commented on your post.",
                                                         "createdAt": "2026-02-08T17:13:46.009652",
                                                         "isRead": true
@@ -126,5 +130,39 @@ public interface NotificationControllerDocs {
     })
     ApiResponse<List<NotificationsResponseDTO.NotificationDTO>> patchNotifications(
             Pageable pageable
+    );
+
+    @Operation(
+            summary = "알림 읽음 API",
+            security = @SecurityRequirement(name = "JWT TOKEN"),
+            description = "✅ **요청 파라미터 (Query String):**\n" +
+                    "- notificationId: 알림 ID ( Long )"
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                                "isSuccess": true,
+                                                "code": "COMMON2000",
+                                                "message": "성공입니다.",
+                                                "result": {
+                                                    "notificationId": 29,
+                                                    "content": "유진 liked your post.",
+                                                    "createdAt": "2026-02-14T00:41:17",
+                                                    "isRead": true
+                                                }
+                                            }
+                                        """
+                            )
+                    )
+            )
+    })
+    ApiResponse<NotificationsResponseDTO.NotificationDTO> patchNotification(
+            @PathVariable(name = "notificationId") Long notificationId
     );
 }

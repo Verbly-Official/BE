@@ -36,6 +36,7 @@ public interface HomeControllerDocs {
                                                 "result": {
                                                     "imageUrl": "http://...",
                                                     "nickname": "박시윤",
+                                                    "nativeLang": "kr",
                                                     "following": 0,
                                                     "streak": 0,
                                                     "point": 100,

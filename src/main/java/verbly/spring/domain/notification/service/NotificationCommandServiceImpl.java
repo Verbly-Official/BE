@@ -9,6 +9,7 @@ import verbly.spring.domain.notification.converter.NotificationConverter;
 import verbly.spring.domain.notification.dto.response.NotificationsResponseDTO;
 import verbly.spring.domain.notification.entity.Notification;
 import verbly.spring.domain.notification.repository.NotificationRepository;
+import verbly.spring.global.common.response.ApiResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,5 +28,12 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
         return notifications.stream()
                 .map(NotificationConverter::toNotificationDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public NotificationsResponseDTO.NotificationDTO patchNotification(Long userId, Long notificationId) {
+        notificationRepository.read(userId, notificationId);
+        Notification notification = notificationRepository.findByReceiver_IdAndId(userId, notificationId);
+        return NotificationConverter.toNotificationDTO(notification);
     }
 }

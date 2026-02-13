@@ -14,6 +14,7 @@ public class NotificationsResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class NotificationDTO {
+        Long notificationId;
         String content;
         LocalDateTime createdAt;
         Boolean isRead;

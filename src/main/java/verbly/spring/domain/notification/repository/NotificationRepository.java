@@ -16,5 +16,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query("UPDATE Notification n SET n.isRead = true WHERE n.receiver.id = :userId")
     void bulkRead(@Param("userId") Long userId);
 
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Notification n SET n.isRead = true WHERE n.receiver.id =:userId AND n.id =:notificationId")
+    void read(@Param("userId") Long userId, @Param("notificationId") Long notificationId);
+
     Slice<Notification> findByReceiver_IdOrderByCreatedAtDesc(Long receiverId, Pageable pageable);
+
+    Notification findByReceiver_IdAndId(Long userId, Long notificationId);
 }

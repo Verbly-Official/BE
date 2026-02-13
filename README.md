@@ -23,8 +23,8 @@ AI의 빠른 문법 교정과
 <br/>
 
 ## 🚀 <span id="배포-주소">배포 주소</span>
-> **🌐 프론트엔드 주소** <br/>
-> **⚙️ 백엔드 주소** <br/>
+> **🌐 프론트엔드 주소:** https://www.verbly.kr <br/>
+> **⚙️ 백엔드 주소:** https://api.verbly.kr <br/>
 
 <br/>
 

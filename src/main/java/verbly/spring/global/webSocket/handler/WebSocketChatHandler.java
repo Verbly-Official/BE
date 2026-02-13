@@ -1,5 +1,6 @@
 package verbly.spring.global.webSocket.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,22 +16,25 @@ import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.webSocket.exception.WebSocketExceptionHandler;
 import verbly.spring.global.webSocket.util.WebSocketUtil;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class WebSocketChatHandler extends TextWebSocketHandler {
 
-    private final ChatMessageService chatMessageService;
     private final ChatroomUserRepository chatroomUserRepository;
     private final WebSocketUtil webSocketUtil;
-    private final Map<Long, Set<WebSocketSession>> nowChatroom = new HashMap<>();
     private final ChatUtilService chatUtilService;
+    private final ObjectMapper objectMapper;
+
+    private final ConcurrentHashMap<Long, Set<WebSocketSession>> nowChatroom = new ConcurrentHashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception{
@@ -43,7 +47,6 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         */
 
         Long chatroomId = webSocketUtil.getChatroomIdBySession(session);
-
         Long userId = webSocketUtil.getIdBySession(session);
 
         // member check
@@ -54,46 +57,13 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
         // key contains check
         if(!nowChatroom.containsKey(chatroomId))
-            nowChatroom.put(chatroomId, new HashSet<>());
+            nowChatroom.put(chatroomId, ConcurrentHashMap.newKeySet());
 
-        Set<WebSocketSession> nowChatroomSession = nowChatroom.get(chatroomId);
         if(!session.isOpen())
             throw new WebSocketExceptionHandler(ErrorStatus.WEBSOCKET_SESSION_CLOSED);
-        nowChatroomSession.add(session);
-        nowChatroom.put(chatroomId, nowChatroomSession);
-    }
 
-    @Override
-    public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-
-        /*
-        1. get message
-        2. save message
-        3. send
-         */
-
-        //message
-        String text = message.getPayload();
-
-        //sender
-        Long senderId = webSocketUtil.getIdBySession(session);
-
-        // chatroom
-        Long  chatroomId = webSocketUtil.getChatroomIdBySession(session);
-
-        // save
-        chatMessageService.saveChatMessage(senderId, chatroomId, text);
-
-        // send
-        Set<WebSocketSession> nowChatroomUser = nowChatroom.get(chatroomId);
-        for(WebSocketSession webSocketSession : nowChatroomUser){
-            if(webSocketSession.isOpen()) {
-                webSocketSession.sendMessage(new TextMessage(text));
-                ChatroomUser chatroomUser = webSocketUtil.getChatroomUser(webSocketSession);
-                chatroomUser.updateLastReadAt(LocalDateTime.now());
-                chatroomUserRepository.save(chatroomUser);
-            }
-        }
+        nowChatroom.computeIfAbsent(chatroomId, k -> ConcurrentHashMap.newKeySet())
+                .add(session);
     }
 
     @Override
@@ -105,11 +75,46 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         3. remove closed session
         4. remove if empty
          */
-        Long  chatroomId =  webSocketUtil.getChatroomIdBySession(session);
-        Set<WebSocketSession> nowChatroomUser = nowChatroom.get(chatroomId);
-        nowChatroomUser.remove(session);
 
-        if(nowChatroomUser.isEmpty())
+        ChatroomUser chatroomUser = webSocketUtil.getChatroomUser(session);
+        chatroomUser.updateLastReadAt(LocalDateTime.now());
+        chatroomUserRepository.save(chatroomUser);
+
+        Long  chatroomId =  webSocketUtil.getChatroomIdBySession(session);
+
+        nowChatroom.computeIfPresent(chatroomId, (id, sessions) -> {
+           sessions.remove(session);
+           return sessions.isEmpty() ? null : sessions;
+        });
+    }
+
+    public void broadcastMessage(Long chatroomId, Object payload) {
+
+        Set<WebSocketSession> nowChatroomUser = nowChatroom.get(chatroomId);
+        if(nowChatroomUser == null || nowChatroomUser.isEmpty())
+            return;
+
+        final String text;
+
+        try {
+            text = objectMapper.writeValueAsString(payload);
+        } catch (Exception e) {
+            throw new WebSocketExceptionHandler(ErrorStatus.JSON_PROCESS_FAIL);
+        }
+
+        TextMessage textMessage = new TextMessage(text);
+
+        try {
+            for (WebSocketSession webSocketSession : nowChatroomUser) {
+                if (webSocketSession == null || webSocketSession.isOpen()) {
+                        webSocketSession.sendMessage(textMessage);
+                }
+            }
+        }  catch (Exception e) {
+            throw new WebSocketExceptionHandler(ErrorStatus.JSON_PROCESS_FAIL);
+        }
+
+        if (nowChatroomUser.isEmpty())
             nowChatroom.remove(chatroomId);
     }
 }

@@ -43,6 +43,7 @@ public enum ErrorStatus implements BaseErrorCode {
     CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT4003", "채팅방이 없습니다."),
     NOT_CHATROOM_MEMBER(HttpStatus.FORBIDDEN, "CHAT4004", "채팅방 입장 권한이 없습니다."),
     CANT_SELF_CHAT(HttpStatus.BAD_REQUEST, "CHAT4004", "스스로 채팅할 수 없습니다."),
+    JSON_PROCESS_FAIL(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "CHAT4005", "페이로드 형태 변환에 실패했습니다."),
 
     // Correction 관련 에러
     CORRECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "CORRECTION4001", "문서를 찾을 수 없습니다."),

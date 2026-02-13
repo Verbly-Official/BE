@@ -3,8 +3,12 @@ package verbly.spring.domain.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import verbly.spring.global.common.code.ErrorStatus;
+import verbly.spring.global.common.exception.BaseException;
 import verbly.spring.global.common.utils.SmsUtils;
 import verbly.spring.global.config.properties.SmsProperties;
+
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -15,7 +19,7 @@ public class SmsService {
     private final StringRedisTemplate redisTemplate;
     private final SmsProperties smsProperties;
 
-    private static final long AUTH_CODE_TTL = 3;
+    private static final long AUTH_CODE_TTL = 3; // 3분
 
     public void sendAuthCode(String phoneNumber) {
         String authCode = smsUtil.generateAuthCode(); // 인증번호 생성
@@ -34,24 +38,30 @@ public class SmsService {
             log.info("[SMS] 발송 성공 - to: {}", phoneNumber);
         } catch (Exception e) {
             log.error("[SMS] 발송 실패 - to: {}", phoneNumber, e);
-            throw new RuntimeException("SMS 발송에 실패했습니다.");
+            throw new BaseException(ErrorStatus.SMS_SEND_FAILED);
         }
 
         // Redis에 인증번호 저장 (3분 유효)
-        String redisKey = "SMS:AUTH:PHONE:" + phoneNumber;
+        String redisKey = buildKey(phoneNumber);
         redisTemplate.opsForValue().set(redisKey, authCode, AUTH_CODE_TTL, TimeUnit.MINUTES);
     }
 
-    public boolean verifyAuthCode(String phoneNumber, String inputCode) {
-
-        String redisKey = "SMS:AUTH:PHONE:" + phoneNumber;
+    public void verifyAuthCode(String phoneNumber, String inputCode) {
+        String redisKey = buildKey(phoneNumber);
         String storedCode = redisTemplate.opsForValue().get(redisKey);
 
-        if (storedCode != null && storedCode.equals(inputCode)) {
-            redisTemplate.delete(redisKey); // 1회 검증 후 삭제
-            return true;
+        if (storedCode == null) {
+            throw new BaseException(ErrorStatus.SMS_CODE_EXPIRED);
         }
 
-        return false;
+        if (!storedCode.equals(inputCode)) {
+            throw new BaseException(ErrorStatus.SMS_CODE_NOT_MATCH);
+        }
+
+        redisTemplate.delete(redisKey); // 1회 검증 후 삭제
+    }
+
+    private String buildKey(String phoneNumber) {
+        return "SMS:AUTH:PHONE:" + phoneNumber;
     }
 }

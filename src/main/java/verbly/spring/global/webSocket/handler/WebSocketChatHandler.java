@@ -10,17 +10,12 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import verbly.spring.domain.chat.entity.ChatroomUser;
 import verbly.spring.domain.chat.repo.ChatroomUserRepository;
-import verbly.spring.domain.chat.service.ChatMessageService;
 import verbly.spring.domain.chat.service.ChatUtilService;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.webSocket.exception.WebSocketExceptionHandler;
-import verbly.spring.global.webSocket.util.WebSocketUtil;
+import verbly.spring.global.webSocket.utils.WebSocketUtils;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketChatHandler extends TextWebSocketHandler {
 
     private final ChatroomUserRepository chatroomUserRepository;
-    private final WebSocketUtil webSocketUtil;
+    private final WebSocketUtils webSocketUtils;
     private final ChatUtilService chatUtilService;
     private final ObjectMapper objectMapper;
 
@@ -46,8 +41,8 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             - key=chatroomId : value=Set<session>
         */
 
-        Long chatroomId = webSocketUtil.getChatroomIdBySession(session);
-        Long userId = webSocketUtil.getIdBySession(session);
+        Long chatroomId = webSocketUtils.getChatroomIdBySession(session);
+        Long userId = webSocketUtils.getIdBySession(session);
 
         // member check
         if(!chatUtilService.isChatroomMember(chatroomId, userId)) {
@@ -76,11 +71,11 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         4. remove if empty
          */
 
-        ChatroomUser chatroomUser = webSocketUtil.getChatroomUser(session);
+        ChatroomUser chatroomUser = webSocketUtils.getChatroomUser(session);
         chatroomUser.updateLastReadAt(LocalDateTime.now());
         chatroomUserRepository.save(chatroomUser);
 
-        Long  chatroomId =  webSocketUtil.getChatroomIdBySession(session);
+        Long  chatroomId =  webSocketUtils.getChatroomIdBySession(session);
 
         nowChatroom.computeIfPresent(chatroomId, (id, sessions) -> {
            sessions.remove(session);

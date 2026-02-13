@@ -13,7 +13,7 @@ import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.common.constants.Constants;
 import verbly.spring.global.security.jwt.JwtTokenProvider;
 import verbly.spring.global.webSocket.exception.WebSocketExceptionHandler;
-import verbly.spring.global.webSocket.util.WebSocketUtil;
+import verbly.spring.global.webSocket.utils.WebSocketUtils;
 
 import java.net.URI;
 import java.util.List;
@@ -25,7 +25,7 @@ import java.util.Map;
 public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final WebSocketUtil webSocketUtil;
+    private final WebSocketUtils webSocketUtils;
     private final ChatUtilService chatUtilService;
 
     @Override
@@ -46,11 +46,11 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
             throw new WebSocketExceptionHandler(ErrorStatus.INVALID_JWT_ACCESS_TOKEN);
 
         // get userId from socialId in JWT
-        Long userId = webSocketUtil.getUserIdBySocialId(jwtTokenProvider.getSubjectFromToken(token));
+        Long userId = webSocketUtils.getUserIdBySocialId(jwtTokenProvider.getSubjectFromToken(token));
 
         // get URI
         URI uri = request.getURI();
-        Long chatroomId = webSocketUtil.getChatroomIdByURI(uri);
+        Long chatroomId = webSocketUtils.getChatroomIdByURI(uri);
 
         // member check
         if(!chatUtilService.isChatroomMember(chatroomId, userId))

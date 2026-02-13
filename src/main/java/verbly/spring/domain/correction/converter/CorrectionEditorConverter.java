@@ -17,13 +17,18 @@ public class CorrectionEditorConverter {
     public static List<CorrectionEditorResponseDTO.Sentence> toSentences(String postContent) {
         if (postContent == null || postContent.isBlank()) return List.of();
 
-        String[] parts = postContent.split("\\n");
-        if (parts.length == 1 && parts[0].isBlank()) return List.of();
+        String normalized = normalizeLineBreaks(postContent);
+        if (normalized.isBlank()) return List.of();
 
-        return IntStream.range(0, parts.length)
+        List<String> lines = Arrays.stream(normalized.split("\\n+"))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+
+        return IntStream.range(0, lines.size())
                 .mapToObj(i -> CorrectionEditorResponseDTO.Sentence.builder()
                         .sentenceIdx(i)
-                        .originalText(parts[i].trim())
+                        .originalText(lines.get(i))
                         .build())
                 .toList();
     }
@@ -32,18 +37,17 @@ public class CorrectionEditorConverter {
             String originalContent,
             String correctedContent
     ) {
-        List<String> originals = splitSentences(originalContent);
-        List<String> corrected = splitSentences(correctedContent);
+        List<String> originals = splitSentences(normalizeLineBreaks(originalContent));
+        List<String> corrected = splitSentences(normalizeLineBreaks(correctedContent));
 
-        int size = Math.min(originals.size(), corrected.size());
+        int maxSize = Math.max(originals.size(), corrected.size());
 
-        return IntStream.range(0, size)
+        return IntStream.range(0, maxSize)
                 .mapToObj(i -> CorrectionEditorResponseDTO.Sentence.builder()
                         .sentenceIdx(i)
-                        .originalText(originals.get(i))
-                        .correctedText(corrected.get(i))
-                        .build()
-                )
+                        .originalText(i < originals.size() ? originals.get(i) : null)
+                        .correctedText(i < corrected.size() ? corrected.get(i) : null)
+                        .build())
                 .toList();
     }
 
@@ -95,11 +99,25 @@ public class CorrectionEditorConverter {
             return List.of();
         }
 
-        return Arrays.stream(
-                        content.split("(?<=[.!?])\\s+|\n")
-                )
+        String normalized = normalizeLineBreaks(content);
+        if (normalized.isBlank()) return List.of();
+
+        return Arrays.stream(normalized.split("(?<=[.!?])\\s+|\\n+"))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .toList();
+    }
+
+    private static String normalizeLineBreaks(String s) {
+        if (s == null) return "";
+
+        s = s.replace("\\r\\n", "\n")
+                .replace("\\n", "\n")
+                .replace("\\r", "\n");
+
+        s = s.replace("\r\n", "\n")
+                .replace("\r", "\n");
+
+        return s;
     }
 }

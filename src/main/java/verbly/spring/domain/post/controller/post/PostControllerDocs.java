@@ -126,6 +126,7 @@ public interface PostControllerDocs {
                                                         "nickname": "박시윤",
                                                         "isFollowing": false,
                                                         "uuid": "00000000-0000-0000-0000-000000000000",
+                                                        "userId": 33,
                                                         "postId": 1,
                                                         "content": "string",
                                                         "status": "PENDING",

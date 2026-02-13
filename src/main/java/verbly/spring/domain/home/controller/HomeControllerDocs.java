@@ -80,6 +80,7 @@ public interface HomeControllerDocs {
                                                     "isFollowing": false,
                                                     "correctionReceived": 0,
                                                     "correctionGiven": 0
+                                                    "userId": 33
                                                 }
                                             }
                                         """

@@ -2,7 +2,9 @@ package verbly.spring.domain.correction.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.post.entity.Post;
+import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.entity.BaseEntity;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,16 +22,21 @@ public class Correction extends BaseEntity {
     @JoinColumn(name = "post_id", nullable = false, unique = true)
     private Post post;
 
-    // 즐겨찾기
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean bookmark = false;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "corrector_id")
+    private User corrector;
 
-    public void addBookmark() {
-        this.bookmark = true;
+    @Enumerated(EnumType.STRING)
+    @Column
+    private CorrectorType correctorType;
+
+    public void markAiAssistant() {
+        this.corrector = null;
+        this.correctorType = CorrectorType.AI_ASSISTANT;
     }
 
-    public void removeBookmark() {
-        this.bookmark = false;
+    public void takeoverByNative(User nativeUser) {
+        this.corrector = nativeUser;
+        this.correctorType = CorrectorType.NATIVE_SPEAKER;
     }
 }

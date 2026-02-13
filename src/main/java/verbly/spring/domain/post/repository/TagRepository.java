@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import verbly.spring.domain.post.entity.Tag;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TagRepository extends JpaRepository<Tag, Long> {
     List<Tag> findByNameIn(List<String> names);
@@ -15,4 +16,5 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
     @Query("UPDATE Tag t SET t.count = t.count + 1 WHERE t.id IN :ids")
     void increaseUsageCount(@Param("ids") List<Long> ids);
 
+    Optional<Tag> findByName(String name);
 }

@@ -2,12 +2,12 @@ package verbly.spring.domain.quizreview.entity;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.AccessLevel;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.type.SqlTypes;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import verbly.spring.domain.library.entity.LibraryItem;
 import verbly.spring.domain.quizreview.enums.ReviewQuestionType;
 

@@ -30,7 +30,7 @@ public class CorrectionFeedback extends BaseEntity {
     @Column(nullable = false)
     private CorrectorType correctorType;
 
-    @Column(nullable = false)
+    @Column
     private Integer sentenceIdx;
 
     @Lob

@@ -8,6 +8,7 @@ import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.enums.Level;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @Entity
@@ -49,6 +50,8 @@ public class Stats {
 
     private LocalDate lastActiveDate;
 
+    private LocalDateTime lastActiveTime; // 최근 접속 시각
+
     @Column(name = "review_count")
     private Long reviewCount;
 
@@ -79,5 +82,9 @@ public class Stats {
     public void updateReviewMeta(Long reviewCount, Double averageByRevieweeId) {
         this.reviewCount = reviewCount + 1;
         this.reviewAverage = averageByRevieweeId;
+    }
+
+    public void updateLastActive(String timezone) {
+        this.lastActiveTime = LocalDateTime.now(ZoneId.of(timezone));
     }
 }

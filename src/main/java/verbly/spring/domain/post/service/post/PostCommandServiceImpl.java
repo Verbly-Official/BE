@@ -78,7 +78,8 @@ public class PostCommandServiceImpl implements PostCommandService {
     }
 
     @Override
-    public PostResponseDTO.HomeWritePost writeHomePost(PostRequestDTO.HomeWritePost dto, User user) {
+    public PostResponseDTO.HomeWritePost writeHomePost(PostRequestDTO.HomeWritePost dto, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
         Post newPost = postConverter.toWritePost(dto, user);
         postRepository.save(newPost);
         processTag(newPost, dto.getTags());

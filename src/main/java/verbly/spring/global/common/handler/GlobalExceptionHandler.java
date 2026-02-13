@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import verbly.spring.global.common.code.BaseErrorCode;
 import verbly.spring.global.common.code.ErrorStatus;
-import verbly.spring.global.common.dto.ErrorReasonDTO;
 import verbly.spring.global.common.exception.BaseException;
 import verbly.spring.global.common.response.ApiResponse;
 

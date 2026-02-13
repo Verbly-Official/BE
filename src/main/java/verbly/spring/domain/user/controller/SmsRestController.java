@@ -2,11 +2,14 @@ package verbly.spring.domain.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import verbly.spring.domain.user.dto.request.SmsRequestDTO;
 import verbly.spring.domain.user.service.SmsService;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.common.code.SuccessStatus;

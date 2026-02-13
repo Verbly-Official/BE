@@ -11,7 +11,7 @@ import lombok.Setter;
 public class SmsRequestDTO {
     @Getter
     @Setter
-    public static class SmsSendDTO {
+    public static class SendDTO {
         @NotBlank(message = "전화번호는 필수입니다.")
         @Pattern(
                 regexp = "^[0-9+\\-]{7,20}$",
@@ -23,7 +23,7 @@ public class SmsRequestDTO {
 
     @Getter
     @Setter
-    public class SmsVerifyRequestDTO {
+    public class VerifyDTO {
         @NotBlank(message = "전화번호는 필수입니다.")
         @Pattern(
                 regexp = "^[0-9+\\-]{7,20}$",

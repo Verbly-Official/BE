@@ -21,6 +21,7 @@ public class HomeConverter {
     public static HomeResponseDTO.HomeUserInfoDTO toHomeUserInfoDTO(User target, long totalPosts, long following, long follower,
                                                                     boolean isFollowing, long correctionReceived, long correctionGiven) {
         return HomeResponseDTO.HomeUserInfoDTO.builder()
+                .userId(target.getId())
                 .imageUrl(target.getProfileImage().getImageUrl())
                 .nickname(target.getNickname())
                 .nativeLang(target.getNativeLang())

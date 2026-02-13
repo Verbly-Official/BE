@@ -36,5 +36,6 @@ public class HomeResponseDTO {
         Boolean isFollowing;
         Integer correctionReceived;
         Integer correctionGiven;
+        Long userId;
     }
 }

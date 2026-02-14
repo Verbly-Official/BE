@@ -7,6 +7,9 @@ import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.global.common.entity.BaseEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -29,6 +32,19 @@ public class Correction extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column
     private CorrectorType correctorType;
+
+    @OneToMany(mappedBy = "correction", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CorrectionWord> words = new ArrayList<>();
+
+    @OneToMany(mappedBy = "correction", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CorrectionFeedback> feedbacks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "correction", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CorrectionBookmark> bookmarks = new ArrayList<>();
+
 
     public void markAiAssistant() {
         this.corrector = null;

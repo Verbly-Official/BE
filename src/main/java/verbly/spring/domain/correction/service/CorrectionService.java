@@ -5,11 +5,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.correction.converter.CorrectionConverter;
+import verbly.spring.domain.correction.converter.CorrectionEditorConverter;
 import verbly.spring.domain.correction.dto.request.CorrectionRequestDTO;
+import verbly.spring.domain.correction.dto.response.CorrectionEditorResponseDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionListResponseDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.entity.Correction;
 import verbly.spring.domain.correction.entity.CorrectionBookmark;
+import verbly.spring.domain.correction.entity.CorrectionFeedback;
 import verbly.spring.domain.correction.entity.CorrectionWord;
 import verbly.spring.domain.correction.enums.CorrectorType;
 import verbly.spring.domain.correction.exception.CorrectionHandler;
@@ -293,6 +296,134 @@ public class CorrectionService {
         Long userId = SecurityUtils.getCurrentUserId();
 
         correctionBookmarkRepository.deleteByUserIdAndCorrectionId(userId, correctionId);
+    }
+
+    /**
+     * 첨삭 editer 상세 조회
+     */
+    @Transactional(readOnly = true)
+    public CorrectionEditorResponseDTO.Detail getMyCorrectionDetailAsEditor(Long correctionId) {
+        validateNativeAccess();
+
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        Correction correction = findOwnedCorrectionDetailOrThrow(userId, correctionId);
+
+        List<CorrectionWord> wordEntities =
+                correctionWordRepository.findByCorrectionIdOrderBySentenceIdxAscStartIdxAsc(correctionId);
+
+        List<CorrectionEditorResponseDTO.Word> words = wordEntities.stream()
+                .map(w -> CorrectionEditorResponseDTO.Word.builder()
+                        .wordId(w.getId())
+                        .sentenceIdx(w.getSentenceIdx())
+                        .startIdx(w.getStartIdx())
+                        .endIdx(w.getEndIdx())
+                        .originalText(w.getOriginalText())
+                        .correctedText(w.getCorrectedText())
+                        .build())
+                .toList();
+
+        String postContent = correction.getPost().getContent();
+        List<CorrectionEditorResponseDTO.Sentence> sentences =
+                buildEditorSentences(postContent, wordEntities);
+
+        List<CorrectionEditorResponseDTO.Feedback> feedback = correctionFeedbackRepository
+                .findAllByCorrectionIdOrderByCreatedAtAsc(correctionId)
+                .stream()
+                .map(f -> CorrectionEditorResponseDTO.Feedback.builder()
+                        .feedbackId(f.getId())
+                        .sentenceIdx(f.getSentenceIdx())
+                        .correctorType(f.getCorrectorType())
+                        .correctorName(resolveCorrectorName(f))
+                        .content(f.getContent())
+                        .createdAt(f.getCreatedAt())
+                        .updatedAt(f.getUpdatedAt())
+                        .build())
+                .toList();
+
+        return CorrectionEditorResponseDTO.Detail.builder()
+                .correctionId(correction.getId())
+                .postId(correction.getPost().getId())
+                .status(correction.getPost().getStatus())
+                .sentences(sentences)
+                .words(words)
+                .feedback(feedback)
+                .build();
+    }
+
+
+    private String resolveCorrectorName(CorrectionFeedback f) {
+        if (f.getCorrectorType() == CorrectorType.AI_ASSISTANT) return "AI Assistant";
+        if (f.getCorrectorType() == CorrectorType.NATIVE_SPEAKER && f.getCorrector() != null) {
+            return f.getCorrector().getNickname();
+        }
+        return null;
+    }
+
+    private List<CorrectionEditorResponseDTO.Sentence> buildEditorSentences(
+            String postContent,
+            List<CorrectionWord> words
+    ) {
+        List<String> originals = CorrectionEditorConverter.splitSentences(postContent);
+
+        var grouped = words.stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        CorrectionWord::getSentenceIdx,
+                        java.util.LinkedHashMap::new,
+                        java.util.stream.Collectors.toList()
+                ));
+
+        List<CorrectionEditorResponseDTO.Sentence> result = new java.util.ArrayList<>();
+
+        for (int sentenceIdx = 0; sentenceIdx < originals.size(); sentenceIdx++) {
+            String originalSentence = originals.get(sentenceIdx);
+
+            List<CorrectionWord> ws = grouped.getOrDefault(sentenceIdx, List.of());
+            ws = ws.stream()
+                    .sorted(java.util.Comparator
+                            .comparingInt(CorrectionWord::getStartIdx)
+                            .thenComparingInt(CorrectionWord::getEndIdx))
+                    .toList();
+
+            String correctedSentence = ws.isEmpty()
+                    ? originalSentence
+                    : applyWordCorrections(originalSentence, ws);
+
+            result.add(CorrectionEditorResponseDTO.Sentence.builder()
+                    .sentenceIdx(sentenceIdx)
+                    .originalText(originalSentence)
+                    .correctedText(correctedSentence)
+                    .build());
+        }
+
+        return result;
+    }
+
+    private String applyWordCorrections(String originalSentence, List<CorrectionWord> ws) {
+        StringBuilder sb = new StringBuilder();
+        int cursor = 0;
+
+        for (CorrectionWord w : ws) {
+            int start = clamp(w.getStartIdx(), 0, originalSentence.length());
+            int end = clamp(w.getEndIdx(), 0, originalSentence.length());
+            if (end < start) continue;
+
+            if (start > cursor) sb.append(originalSentence, cursor, start);
+
+            sb.append(w.getCorrectedText() == null ? "" : w.getCorrectedText());
+
+            cursor = end;
+        }
+
+        if (cursor < originalSentence.length()) {
+            sb.append(originalSentence.substring(cursor));
+        }
+
+        return sb.toString();
+    }
+
+    private int clamp(int v, int min, int max) {
+        return Math.max(min, Math.min(v, max));
     }
 
 

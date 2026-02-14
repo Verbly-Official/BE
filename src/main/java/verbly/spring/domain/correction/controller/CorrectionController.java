@@ -15,6 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.correction.dto.request.CorrectionRequestDTO;
+import verbly.spring.domain.correction.dto.response.CorrectionEditorResponseDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionListResponseDTO;
 import verbly.spring.domain.correction.dto.response.CorrectionResponseDTO;
 import verbly.spring.domain.correction.enums.CorrectorType;
@@ -135,10 +136,10 @@ public class CorrectionController {
             description = "자신이 작성한 커렉션 상세 정보를 조회합니다."
     )
     @GetMapping("/{correctionId}")
-    public ResponseEntity<ApiResponse<CorrectionResponseDTO.MyCorrectionDto>> getCorrectionDetail(
+    public ResponseEntity<ApiResponse<CorrectionEditorResponseDTO.Detail>> getCorrectionDetail(
             @PathVariable Long correctionId
     ){
-        CorrectionResponseDTO.MyCorrectionDto result = correctionService.getCorrectionDetail(correctionId);
+        CorrectionEditorResponseDTO.Detail result = correctionService.getMyCorrectionDetailAsEditor(correctionId);
 
         return ResponseEntity
                 .status(SuccessStatus.CORRECTION_READ_SUCCESS.getHttpStatus())

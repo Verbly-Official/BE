@@ -154,8 +154,6 @@ public class CorrectionNativeService {
 
         Correction correction = findCorrectionOrThrow(correctionId);
 
-        requireAiFinishedPendingForNativeStart(correction);
-
         if (request.getSentenceIdx() != null) {
             validateSentenceIdx(correction.getPost().getContent(), request.getSentenceIdx());
         }
@@ -277,6 +275,7 @@ public class CorrectionNativeService {
 
             correction.takeoverByNative(current);
             markInProgressIfPending(correction);
+            return;
         }
 
         // status==IN_PROGRESS, correctorType==NATIVE_SPEAKER, corrector==자기자신

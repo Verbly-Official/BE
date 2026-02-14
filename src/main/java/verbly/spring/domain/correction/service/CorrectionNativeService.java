@@ -139,8 +139,6 @@ public class CorrectionNativeService {
 
         Correction correction = findCorrectionOrThrow(correctionId);
 
-        requireAiFinishedPendingForNativeStart(correction);
-
         boolean firstAction = isFirstNativeAction(correction);
         takeIfFirstNativeActionOrVerifyOwner(correction, firstAction);
 
@@ -270,17 +268,34 @@ public class CorrectionNativeService {
     private void takeIfFirstNativeActionOrVerifyOwner(Correction correction, boolean isFirstNativeAction) {
         User current = SecurityUtils.getCurrentUser();
 
-        if (isFirstNativeAction) {
-            requirePendingForFirstAction(correction);
+        if (correction.getPost().getStatus() == PostStatus.COMPLETED) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_ALREADY_COMPLETED);
+        }
 
-            if (correction.getCorrectorType() != CorrectorType.AI_ASSISTANT) {
-                throw new CorrectionHandler(ErrorStatus.CORRECTION_AI_FIRST);
-            }
+        if (isFirstNativeAction) { // status==PENDING, correctorType==AI_ASSISTANT
+            requireAiFinishedPendingForNativeStart(correction);
 
             correction.takeoverByNative(current);
             markInProgressIfPending(correction);
-        } else {
-            requireInProgressAndOwner(correction);
+        }
+
+        // status==IN_PROGRESS, correctorType==NATIVE_SPEAKER, corrector==자기자신
+        requireInProgressNativeOwner(correction);
+    }
+
+    private void requireInProgressNativeOwner(Correction correction) {
+        if (correction.getPost().getStatus() != PostStatus.IN_PROGRESS) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_EDIT_ONLY_IN_PROGRESS);
+        }
+
+        if (correction.getCorrectorType() != CorrectorType.NATIVE_SPEAKER) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_NOT_THE_CORRECTOR);
+        }
+
+        User current = SecurityUtils.getCurrentUser();
+        if (current == null || correction.getCorrector() == null
+                || !correction.getCorrector().getId().equals(current.getId())) {
+            throw new CorrectionHandler(ErrorStatus.CORRECTION_NOT_THE_CORRECTOR);
         }
     }
 
@@ -405,7 +420,6 @@ public class CorrectionNativeService {
             throw new CorrectionHandler(ErrorStatus.CORRECTION_FIRST_ACTION_ONLY_PENDING);
         }
         if (correction.getCorrectorType() != CorrectorType.AI_ASSISTANT) {
-
             throw new CorrectionHandler(ErrorStatus.CORRECTION_AI_FIRST);
         }
     }

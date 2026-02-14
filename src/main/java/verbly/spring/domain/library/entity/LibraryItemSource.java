@@ -82,4 +82,32 @@ public class LibraryItemSource {
     public void archive() {
         this.sourceStatus = SourceStatus.ARCHIVED;
     }
+
+    public static LibraryItemSource ofCorrectionWord(
+            LibraryItem item,
+            Long postId,
+            Long correctionId,
+            Long correctionWordId,
+            Integer sentenceIndex,
+            Integer tokenStart,
+            Integer tokenEnd,
+            String originalSegment,
+            String suggestionSegment
+    ) {
+        LibraryItemSource s = new LibraryItemSource();
+        s.libraryItem = item;
+        s.postId = postId;
+        s.correctionId = correctionId;
+        s.correctionWordId = correctionWordId;
+
+        s.sentenceIndex = sentenceIndex;
+        s.tokenStart = tokenStart;
+        s.tokenEnd = tokenEnd;
+
+        s.originalSegment = originalSegment;
+        s.suggestionSegment = suggestionSegment;
+
+        s.sourceStatus = SourceStatus.ACTIVE;
+        return s;
+    }
 }

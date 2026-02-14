@@ -10,4 +10,7 @@ public interface LibraryItemSourceRepository extends JpaRepository<LibraryItemSo
     List<LibraryItemSource> findByLibraryItem_Id(Long libraryItemId);
 //  마찬가지로 소프트 딜리트
     void deleteByLibraryItem_Id(Long libraryItemId);
+
+    boolean existsByLibraryItem_IdAndCorrectionWordId(Long libraryItemId, Long correctionWordId);
+
 }

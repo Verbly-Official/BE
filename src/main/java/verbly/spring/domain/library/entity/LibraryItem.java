@@ -98,4 +98,8 @@ public class LibraryItem {
     public void softDelete() {
         this.status = LibraryItemStatus.DELETED;
     }
+
+    public void reactivate() {
+        this.status = LibraryItemStatus.ACTIVE;
+    }
 }

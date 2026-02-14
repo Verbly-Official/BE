@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/library/autofill")
-public class DevLibraryAutoFillController {
+public class LibraryAutoFillController {
 
     private final LibraryAutoFillService libraryAutoFillService;
     private final LibraryItemSourceRepository libraryItemSourceRepository;

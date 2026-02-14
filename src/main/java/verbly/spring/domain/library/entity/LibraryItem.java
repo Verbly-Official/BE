@@ -102,4 +102,10 @@ public class LibraryItem {
     public void reactivate() {
         this.status = LibraryItemStatus.ACTIVE;
     }
+
+    public void updateMeanings(String meaningKo, String meaningEn) {
+        if (meaningKo != null) this.meaningKo = meaningKo;
+        if (meaningEn != null) this.meaningEn = meaningEn;
+    }
+
 }

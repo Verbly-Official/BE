@@ -30,7 +30,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class LibraryAutoFillService {
 
-    public record ExampleInput(String exEn, String exKo) {}
+    // ✅ en=원형(lemma), ko=뜻, exEn/exKo=원형 포함 예문/뜻
+    public record ExampleInput(String en, String ko, String exEn, String exKo) {}
     public record FillResult(int itemsTouched, int sourcesInserted, int examplesInserted) {}
 
     private final CorrectionRepository correctionRepository;
@@ -40,11 +41,7 @@ public class LibraryAutoFillService {
     private final LibraryItemSourceRepository libraryItemSourceRepository;
     private final LibraryItemExampleRepository libraryItemExampleRepository;
 
-    /**
-     * correction_word가 업데이트된 "직후" 호출:
-     * library_items / library_item_sources / library_item_examples 채움
-     */
-    public FillResult fillFromCorrection(Long userId, Long correctionId, List<ExampleInput> examples) {
+    public FillResult fillFromCorrection(Long userId, Long correctionId, List<ExampleInput> inputs) {
         Correction correction = correctionRepository.findById(correctionId)
                 .orElseThrow(() -> new CorrectionHandler(ErrorStatus.CORRECTION_NOT_FOUND));
 
@@ -62,40 +59,53 @@ public class LibraryAutoFillService {
 
         Long postId = correction.getPost().getId();
 
-        // fallback 예문용: "최종 교정 문장" 만들어두기
+        // fallback 예문용(원형 예문이 없을 때)
         List<String> correctedSentences = buildCorrectedSentences(correction.getPost().getContent(), words);
 
-        // examples 정리
-        List<ExampleInput> safeExamples = (examples == null) ? List.of() : examples.stream()
-                .filter(e -> e != null && e.exEn() != null && !e.exEn().isBlank())
-                .map(e -> new ExampleInput(normalizeSpacesKeepCase(e.exEn()), e.exKo() == null ? null : e.exKo().trim()))
+        // 입력 정리
+        List<ExampleInput> safeInputs = (inputs == null) ? List.of() : inputs.stream()
+                .filter(i -> i != null && i.en() != null && !i.en().isBlank())
+                .map(i -> new ExampleInput(
+                        cleanPhraseForItem(i.en()),
+                        (i.ko() == null ? null : i.ko().trim()),
+                        normalizeSpacesKeepCase(i.exEn()),
+                        (i.exKo() == null ? null : i.exKo().trim())
+                ))
                 .toList();
+
+        // correctionWord 인덱싱(원문/교정문 기준)
+        Map<String, List<CorrectionWord>> byOriginal = indexByNorm(words, true);
+        Map<String, List<CorrectionWord>> byCorrected = indexByNorm(words, false);
 
         int itemsTouched = 0;
         int sourcesInserted = 0;
         int examplesInserted = 0;
 
-        for (CorrectionWord w : words) {
-            String original = safe(w.getOriginalText());
-            String correctedRaw = safe(w.getCorrectedText());
+        // ✅ 이제는 inputs(=라이브러리 카드) 기준으로 저장
+        for (ExampleInput in : safeInputs) {
+            String lemma = safe(in.en());
+            String meaningKo = safe(in.ko());
+            String lemmaNorm = LibraryConverter.normalizePhrase(lemma);
 
-            if (correctedRaw.isBlank()) continue;
+            if (lemmaNorm.isBlank()) continue;
 
-            // 라이브러리 phrase로 저장할 값(끝 punctuation 제거 정도만)
-            String correctedForItem = cleanPhraseForItem(correctedRaw);
-            String originalNorm = LibraryConverter.normalizePhrase(original);
-            String correctedNorm = LibraryConverter.normalizePhrase(correctedForItem);
-
-            // 실질 변경 없으면 스킵(띄어쓰기/대소문자만 변경 포함)
-            if (originalNorm.equals(correctedNorm)) continue;
-            if (correctedNorm.isBlank()) continue;
-
-            // 1) library_items upsert
-            LibraryItem item = upsertItem(userId, correctedForItem, correctedNorm);
+            // 1) item upsert (✅ meaningKo까지 채움)
+            LibraryItem item = upsertItem(userId, lemma, lemmaNorm, meaningKo, null);
             itemsTouched++;
 
-            // 2) library_item_sources insert (중복 방지)
-            if (!libraryItemSourceRepository.existsByLibraryItem_IdAndCorrectionWordId(item.getId(), w.getId())) {
+            // 2) source 연결: lemma가 originalText 또는 correctedText에 있으면 연결 가능
+            List<CorrectionWord> candidates = new ArrayList<>();
+            if (byOriginal.containsKey(lemmaNorm)) candidates.addAll(byOriginal.get(lemmaNorm));
+            if (byCorrected.containsKey(lemmaNorm)) candidates.addAll(byCorrected.get(lemmaNorm));
+
+            // 중복 제거(같은 word가 양쪽 매칭될 수 있음)
+            candidates = candidates.stream().distinct().toList();
+
+            for (CorrectionWord w : candidates) {
+                if (libraryItemSourceRepository.existsByLibraryItem_IdAndCorrectionWordId(item.getId(), w.getId())) {
+                    continue;
+                }
+
                 LibraryItemSource src = LibraryItemSource.ofCorrectionWord(
                         item,
                         postId,
@@ -104,43 +114,29 @@ public class LibraryAutoFillService {
                         w.getSentenceIdx(),
                         w.getStartIdx(),
                         w.getEndIdx(),
-                        original,
-                        correctedRaw // source에는 원본 correctedRaw 그대로 보관(콤마 등 포함 가능)
+                        safe(w.getOriginalText()),
+                        safe(w.getCorrectedText())
                 );
                 libraryItemSourceRepository.save(src);
                 sourcesInserted++;
             }
 
-            // 3) library_item_examples insert
-            //    ex 리스트에서 phrase 포함하는 예문들 저장
-            List<ExampleInput> matched = matchExamplesByPhrase(safeExamples, correctedNorm);
+            // 3) example 저장 (원형 포함 예문이 없으면 fallback)
+            String exampleEn = safe(in.exEn());
+            String exampleKo = safe(in.exKo());
 
-            if (!matched.isEmpty()) {
-                for (ExampleInput ex : matched) {
-                    String exEnStore = normalizeSpacesKeepCase(ex.exEn());
-                    if (libraryItemExampleRepository.existsByLibraryItem_IdAndExampleEn(item.getId(), exEnStore)) continue;
+            if (exampleEn.isBlank() || !containsFlexible(exampleEn, lemmaNorm)) {
+                exampleEn = "I want to " + lemma + ".";
+            }
+            // 힌트 비지 않게: 예문 뜻이 없으면 meaningKo로 채우는 건 선택(원하면 제거 가능)
+            if (exampleKo.isBlank()) exampleKo = meaningKo;
 
-                    libraryItemExampleRepository.save(
-                            LibraryItemExample.of(item, exEnStore, ex.exKo(), ExampleSource.AI)
-                    );
-                    examplesInserted++;
-                }
-            } else {
-                // 없으면 fallback: 해당 sentenceIdx의 "최종 교정 문장"을 예문으로 1개 저장
-                String fallback = pickFallbackSentence(correctedSentences, w.getSentenceIdx(), correctedForItem);
-
-                // fallback도 정답 phrase 포함이 안 되면 더미로
-                if (!containsFlexible(fallback, correctedNorm)) {
-                    fallback = "I learned the expression \"" + correctedForItem + "\" today.";
-                }
-
-                String exEnStore = normalizeSpacesKeepCase(fallback);
-                if (!libraryItemExampleRepository.existsByLibraryItem_IdAndExampleEn(item.getId(), exEnStore)) {
-                    libraryItemExampleRepository.save(
-                            LibraryItemExample.of(item, exEnStore, null, ExampleSource.AI)
-                    );
-                    examplesInserted++;
-                }
+            String exEnStore = normalizeSpacesKeepCase(exampleEn);
+            if (!libraryItemExampleRepository.existsByLibraryItem_IdAndExampleEn(item.getId(), exEnStore)) {
+                libraryItemExampleRepository.save(
+                        LibraryItemExample.of(item, exEnStore, exampleKo.isBlank() ? null : exampleKo, ExampleSource.AI)
+                );
+                examplesInserted++;
             }
         }
 
@@ -149,24 +145,42 @@ public class LibraryAutoFillService {
 
     // ---------------- helpers ----------------
 
-    private LibraryItem upsertItem(Long userId, String phrase, String phraseNorm) {
+    private LibraryItem upsertItem(Long userId, String phrase, String phraseNorm, String meaningKo, String meaningEn) {
         return libraryItemRepository.findByUserIdAndPhraseNorm(userId, phraseNorm)
                 .map(existing -> {
-                    // soft delete였으면 살려두기(권장)
                     if (existing.getStatus() == LibraryItemStatus.DELETED) {
                         existing.reactivate();
+                    }
+                    // 기존 meaning이 비어있으면 채움(덮어쓰기 정책은 팀 합의대로)
+                    if ((existing.getMeaningKo() == null || existing.getMeaningKo().isBlank())
+                            && meaningKo != null && !meaningKo.isBlank()) {
+                        existing.updateMeanings(meaningKo, null);
+                    }
+                    if ((existing.getMeaningEn() == null || existing.getMeaningEn().isBlank())
+                            && meaningEn != null && !meaningEn.isBlank()) {
+                        existing.updateMeanings(null, meaningEn);
                     }
                     return existing;
                 })
                 .orElseGet(() -> {
                     try {
-                        return libraryItemRepository.save(LibraryItem.of(userId, phrase, phraseNorm, null, null));
+                        return libraryItemRepository.save(LibraryItem.of(userId, phrase, phraseNorm, meaningKo, meaningEn));
                     } catch (DataIntegrityViolationException e) {
-                        // 동시성 유니크 충돌 시 재조회
                         return libraryItemRepository.findByUserIdAndPhraseNorm(userId, phraseNorm)
                                 .orElseThrow(() -> e);
                     }
                 });
+    }
+
+    private Map<String, List<CorrectionWord>> indexByNorm(List<CorrectionWord> words, boolean useOriginal) {
+        Map<String, List<CorrectionWord>> map = new HashMap<>();
+        for (CorrectionWord w : words) {
+            String t = useOriginal ? safe(w.getOriginalText()) : safe(w.getCorrectedText());
+            String norm = LibraryConverter.normalizePhrase(cleanPhraseForItem(t));
+            if (norm.isBlank()) continue;
+            map.computeIfAbsent(norm, k -> new ArrayList<>()).add(w);
+        }
+        return map;
     }
 
     private List<String> buildCorrectedSentences(String postContent, List<CorrectionWord> words) {
@@ -182,7 +196,6 @@ public class LibraryAutoFillService {
             String base = sentences.get(idx);
             StringBuilder sb = new StringBuilder(base);
 
-            // 오른쪽→왼쪽으로 replace(인덱스 안 꼬임)
             List<CorrectionWord> list = new ArrayList<>(entry.getValue());
             list.sort(Comparator.comparingInt(CorrectionWord::getStartIdx).reversed());
 
@@ -200,28 +213,6 @@ public class LibraryAutoFillService {
         return sentences;
     }
 
-    private String pickFallbackSentence(List<String> correctedSentences, Integer sentenceIdx, String phrase) {
-        if (correctedSentences == null || correctedSentences.isEmpty()) {
-            return "I learned the expression \"" + phrase + "\" today.";
-        }
-        if (sentenceIdx != null && sentenceIdx >= 0 && sentenceIdx < correctedSentences.size()) {
-            return correctedSentences.get(sentenceIdx);
-        }
-        return correctedSentences.get(0);
-    }
-
-    private List<ExampleInput> matchExamplesByPhrase(List<ExampleInput> examples, String phraseNorm) {
-        if (examples == null || examples.isEmpty()) return List.of();
-        if (phraseNorm == null || phraseNorm.isBlank()) return List.of();
-
-        Pattern p = buildFlexibleBoundaryPattern(phraseNorm);
-
-        return examples.stream()
-                .filter(e -> e.exEn() != null && p.matcher(normalizeLowerSpace(e.exEn())).find())
-                .toList();
-    }
-
-    // "take off" → "take\\s+off" + word boundary(영숫자 기준)
     private Pattern buildFlexibleBoundaryPattern(String phraseNorm) {
         String core = Arrays.stream(phraseNorm.split("\\s+"))
                 .map(Pattern::quote)
@@ -245,7 +236,6 @@ public class LibraryAutoFillService {
     private String cleanPhraseForItem(String s) {
         if (s == null) return "";
         String t = s.trim();
-        // 양 끝의 문장부호만 제거(내부 공백은 유지)
         t = t.replaceAll("^[\\p{Punct}]+", "");
         t = t.replaceAll("[\\p{Punct}]+$", "");
         return t.trim();

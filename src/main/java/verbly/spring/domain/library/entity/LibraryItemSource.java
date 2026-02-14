@@ -99,14 +99,11 @@ public class LibraryItemSource {
         s.postId = postId;
         s.correctionId = correctionId;
         s.correctionWordId = correctionWordId;
-
         s.sentenceIndex = sentenceIndex;
         s.tokenStart = tokenStart;
         s.tokenEnd = tokenEnd;
-
         s.originalSegment = originalSegment;
         s.suggestionSegment = suggestionSegment;
-
         s.sourceStatus = SourceStatus.ACTIVE;
         return s;
     }

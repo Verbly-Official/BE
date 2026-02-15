@@ -41,7 +41,7 @@ public class SmsRestController {
 
     @PostMapping("/verify")
     @Operation(
-            summary = "전화번호 인증번호 검증 API",
+            summary = "전화번호 인증번호 검증 API - JWT AccessToken 인증 필요",
             description = "사용자가 입력한 인증번호를 검증합니다. 인증 성공 시 해당 인증번호는 즉시 만료됩니다.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )

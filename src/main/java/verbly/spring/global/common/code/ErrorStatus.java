@@ -30,7 +30,7 @@ public enum ErrorStatus implements BaseErrorCode {
     SMS_CODE_NOT_MATCH(HttpStatus.BAD_REQUEST, "SMS4001", "인증번호가 일치하지 않습니다."),
     SMS_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "SMS4002", "인증번호가 만료되었습니다."),
     SMS_TOO_MANY_REQUEST(HttpStatus.TOO_MANY_REQUESTS, "SMS4003", "인증번호 요청 횟수를 초과했습니다."),
-    SMS_SEND_FAILED(HttpStatus.BAD_GATEWAY, "SMS5001", "SMS 발송에 실패했습니다."),
+    SMS_SEND_FAILED(HttpStatus.BAD_GATEWAY, "SMS5002", "SMS 발송에 실패했습니다."),
     SMS_VERIFICATION_REQUIRED(HttpStatus.BAD_REQUEST, "USER4004", "전화번호 변경을 위해 인증이 필요합니다."),
 
     //jwt 토큰

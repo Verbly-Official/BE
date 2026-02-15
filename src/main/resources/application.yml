@@ -125,4 +125,4 @@ pay:
 coolsms:
   api-key: ${SMS_API_KEY}
   api-secret: ${SMS_API_SECRET}
-  sender: ${CALLER_NUMBER} # 발신 번호 "010-1234-5678"
+  sender: ${CALLER_NUMBER} # 발신 번호 "01012345678"

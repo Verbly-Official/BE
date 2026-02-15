@@ -57,10 +57,12 @@ public class SmsService {
         String storedCode = redisTemplate.opsForValue().get(redisKey);
 
         if (storedCode == null) {
+            log.warn("[SMS] 인증 실패 - 만료 - phone: {}", request.getPhoneNumber());
             throw new BaseException(ErrorStatus.SMS_CODE_EXPIRED);
         }
 
         if (!storedCode.equals(request.getCode())) {
+            log.warn("[SMS] 인증 실패 - 불일치 - phone: {}", request.getPhoneNumber());
             throw new BaseException(ErrorStatus.SMS_CODE_NOT_MATCH);
         }
 

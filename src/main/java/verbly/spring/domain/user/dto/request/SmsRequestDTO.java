@@ -23,7 +23,7 @@ public class SmsRequestDTO {
 
     @Getter
     @Setter
-    public class VerifyDTO {
+    public static class VerifyDTO {
         @NotBlank(message = "전화번호는 필수입니다.")
         @Pattern(
                 regexp = "^[0-9+\\-]{7,20}$",

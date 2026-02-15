@@ -1,6 +1,7 @@
 package verbly.spring.global.config;
 
 import lombok.RequiredArgsConstructor;
+import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import verbly.spring.global.config.properties.SmsProperties;

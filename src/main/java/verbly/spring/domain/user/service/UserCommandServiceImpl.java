@@ -83,8 +83,8 @@ public class UserCommandServiceImpl implements UserCommandService {
         }
 
         if (request.getPhoneNumber() != null && !request.getPhoneNumber().equals(user.getPhoneNumber())) {
-            if (!smsService.verifyAuthCode(request.getPhoneNumber())) { // 인증 완료 여부 확인
-                throw new UserHandler(ErrorStatus.PHONE_VERIFICATION_REQUIRED);
+            if (!smsService.verifyAuthCode(request)) { // 인증 완료 여부 확인
+                throw new UserHandler(ErrorStatus.SMS_VERIFICATION_REQUIRED);
             }
 
             user.updatePhoneNumber(request.getPhoneNumber()); // 통과하면 업데이트

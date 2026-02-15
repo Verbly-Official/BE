@@ -10,7 +10,6 @@ import verbly.spring.global.config.properties.SmsProperties;
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableScheduling
-//@EnableConfigurationProperties(SmsProperties.class)
 public class Application {
 
 	public static void main(String[] args) {

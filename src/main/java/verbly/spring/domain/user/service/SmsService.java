@@ -65,9 +65,16 @@ public class SmsService {
         }
 
         redisTemplate.delete(redisKey); // 1회 검증 후 삭제
+
+        String verifiedKey = buildVerifiedKey(request.getPhoneNumber());
+        redisTemplate.opsForValue().set(verifiedKey, "true", AUTH_CODE_TTL, TimeUnit.MINUTES);
     }
 
     private String buildKey(String phoneNumber) {
         return "SMS:AUTH:PHONE:" + phoneNumber;
+    }
+
+    private String buildVerifiedKey(String phoneNumber) {
+        return "SMS:VERIFIED:PHONE:" + phoneNumber;
     }
 }

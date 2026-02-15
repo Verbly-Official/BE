@@ -2,6 +2,7 @@ package verbly.spring.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +29,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final AmazonS3Manager s3Manager;
     private final UuidRepository uuidRepository;
     private final ProfileImageRepository profileImageRepository;
-    private final SmsService smsService;
+    private final StringRedisTemplate redisTemplate;
 //    private final OnboardingValidator onboardingValidator;
 
     @Override
@@ -83,9 +84,14 @@ public class UserCommandServiceImpl implements UserCommandService {
         }
 
         if (request.getPhoneNumber() != null && !request.getPhoneNumber().equals(user.getPhoneNumber())) {
-            if (!smsService.verifyAuthCode(request)) { // 인증 완료 여부 확인
+            String verifiedKey = "SMS:VERIFIED:PHONE:" + request.getPhoneNumber();
+            String verified = redisTemplate.opsForValue().get(verifiedKey);
+
+            if (verified == null) {
                 throw new UserHandler(ErrorStatus.SMS_VERIFICATION_REQUIRED);
             }
+
+            redisTemplate.delete(verifiedKey); // 1회 사용
 
             user.updatePhoneNumber(request.getPhoneNumber()); // 통과하면 업데이트
         }

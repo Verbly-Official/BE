@@ -2,7 +2,10 @@ package verbly.spring.domain.post.service.post;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import verbly.spring.domain.notification.enums.NotificationType;
+import verbly.spring.domain.notification.service.NotificationService;
 import verbly.spring.domain.post.converter.PostConverter;
 import verbly.spring.domain.post.dto.request.PostRequestDTO;
 import verbly.spring.domain.post.dto.response.PostResponseDTO;
@@ -29,6 +32,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class PostCommandServiceImpl implements PostCommandService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -36,6 +40,8 @@ public class PostCommandServiceImpl implements PostCommandService {
     private final PostConverter postConverter;
     private final TagRepository tagRepository;
     private final PostTagRepository postTagRepository;
+
+    private final NotificationService notificationService;
 
     @Override
     public PostResponseDTO.AddPostLike addPostLike(Long postId, Long userId) {
@@ -48,6 +54,13 @@ public class PostCommandServiceImpl implements PostCommandService {
         postRepository.increaseLikeCount(postId);
         Post updatedPost = postRepository.findById(postId).orElseThrow(() -> new PostHandler(ErrorStatus.POST_NOT_FOUND));
         Boolean isLiked = postLikeRepository.existsByUserAndPost(user, updatedPost);
+        try {
+            if (!post.getAuthor().getId().equals(user.getId())) {
+                notificationService.send(post.getAuthor(), user, NotificationType.LIKE, "/posts/" + postId);
+            }
+        } catch (Exception e) {
+            log.warn("알림 전송 실패 (좋아요는 정상 저장됨): {}", e.getMessage());
+        }
         return postConverter.addPostLike(updatedPost, isLiked);
     }
 

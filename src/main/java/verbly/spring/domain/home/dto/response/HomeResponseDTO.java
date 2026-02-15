@@ -14,6 +14,7 @@ public class HomeResponseDTO {
     public static class HomeViewerInfoDTO {
         String imageUrl;
         String nickname;
+        String nativeLang;
         Integer following;
         Integer streak;
         Long point;

@@ -478,7 +478,8 @@ public interface PostControllerDocs {
                     "✅ **path variable:**\n" +
                     "- keyword: 검색 키워드 (String)\n" +
                     "- Tag 검색: #을 포함한 Keyword ( #String )\n" +
-                    "- Content 검색: # 없이 ( String )"
+                    "- Content 검색: #없이 ( String )\n" +
+                    "- MySQL 성능 및 기술 이슈로 'am'과 같은 의미가 적은 단어는 검색 X"
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(

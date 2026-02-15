@@ -17,7 +17,7 @@ public class SmsRequestDTO {
                 regexp = "^[0-9+\\-]{7,20}$",
                 message = "전화번호 형식이 올바르지 않습니다."
         )
-        @Schema(example = "+8201012345678")
+        @Schema(example = "01012345678")
         private String phoneNumber;
     }
 
@@ -29,7 +29,7 @@ public class SmsRequestDTO {
                 regexp = "^[0-9+\\-]{7,20}$",
                 message = "전화번호 형식이 올바르지 않습니다."
         )
-        @Schema(example = "+8201012345678")
+        @Schema(example = "01012345678")
         private String phoneNumber;
 
         @NotBlank(message = "인증번호는 필수입니다.")

@@ -1,7 +1,6 @@
 package verbly.spring.global.common.utils;
 
 import org.springframework.stereotype.Component;
-
 import java.util.Random;
 
 @Component

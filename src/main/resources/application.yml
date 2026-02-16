@@ -34,6 +34,9 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true
+    redis:
+      host: localhost
+      port: 6379 # redis port 기본값
   security:
     oauth2:
       client:
@@ -122,3 +125,7 @@ pay:
       frontend:
         success: ${KAKAO_PAY_REDIRECT_URL_SUCCESS_F}
         fail: ${KAKAO_PAY_REDIRECT_URL_FAIL_F}
+coolsms:
+  api-key: ${SMS_API_KEY}
+  api-secret: ${SMS_API_SECRET}
+  sender: ${CALLER_NUMBER} # 발신 번호 "01012345678"

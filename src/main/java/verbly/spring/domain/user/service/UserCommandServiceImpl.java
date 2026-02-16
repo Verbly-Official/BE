@@ -2,6 +2,7 @@ package verbly.spring.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +29,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final AmazonS3Manager s3Manager;
     private final UuidRepository uuidRepository;
     private final ProfileImageRepository profileImageRepository;
+    private final StringRedisTemplate redisTemplate;
 //    private final OnboardingValidator onboardingValidator;
 
     @Override
@@ -56,6 +58,10 @@ public class UserCommandServiceImpl implements UserCommandService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
 
+        redisTemplate.delete("SMS:AUTH:USER:" + userId);
+        redisTemplate.delete("SMS:VERIFIED:USER:" + userId);
+        redisTemplate.delete("SMS:TRY:USER:" + userId);
+
         // 멤버 테이블에서 멤버 삭제
         userRepository.delete(user);
     }
@@ -81,8 +87,21 @@ public class UserCommandServiceImpl implements UserCommandService {
             user.updateEmail(request.getEmail());
         }
 
-        if (request.getPhoneNumber() != null) {
-            user.updatePhoneNumber(request.getPhoneNumber());
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().equals(user.getPhoneNumber())) {
+            String verifiedKey = "SMS:VERIFIED:USER:" + userId;
+            String verifiedPhone = redisTemplate.opsForValue().get(verifiedKey);
+
+            if (verifiedPhone == null) {
+                throw new UserHandler(ErrorStatus.SMS_VERIFICATION_REQUIRED);
+            }
+
+            if (!verifiedPhone.equals(request.getPhoneNumber())) {
+                throw new UserHandler(ErrorStatus.SMS_VERIFICATION_REQUIRED);
+            }
+
+            redisTemplate.delete(verifiedKey); // 1회 사용
+
+            user.updatePhoneNumber(request.getPhoneNumber()); // 통과하면 업데이트
         }
 
         String profileImageUrl = null;

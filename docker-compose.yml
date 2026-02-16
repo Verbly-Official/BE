@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine # Redis 공식 경량 이미지
+    container_name: redis
+    restart: always # 자동 재시작
+    networks:
+      - verbly-net # 내부 네트워크(컨테이너끼리 통신)
+
+  spring:
+    image: yunnij/verbly:latest  # Docker Hub에 푸시한 Spring 이미지 (앞에는 username)
+    container_name: verbly-spring
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - redis # redis 먼저 뜬 뒤 spring 실행
+    networks:
+      - verbly-net # nginx/redis와 같은 네트워크로 묶음
+
+  nginx:
+    image: nginx:1.27-alpine # Nginx 공식 이미지
+    container_name: verbly-nginx # 컨테이너 이름
+    restart: always # 서버 재부팅/장애 시 자동 재시작
+    ports:
+      - "80:80" # EC2 80 → nginx 컨테이너 80
+    volumes:
+      - /home/ubuntu/data/nginx:/etc/nginx/conf.d:ro # nginx 설정 파일 마운트(읽기 전용)
+    depends_on:
+      - spring  # spring 뜬 뒤 nginx 실행
+    networks:
+      - verbly-net
+
+networks:
+  verbly-net:
+    driver: bridge                               # 같은 네트워크끼리 DNS로 통신

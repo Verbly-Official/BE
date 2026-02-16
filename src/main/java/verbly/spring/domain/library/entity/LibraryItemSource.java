@@ -83,27 +83,24 @@ public class LibraryItemSource {
         this.sourceStatus = SourceStatus.ARCHIVED;
     }
 
-    public static LibraryItemSource ofCorrectionWord(
+    public static LibraryItemSource ofCorrection(
             LibraryItem item,
             Long postId,
-            Long correctionId,
-            Long correctionWordId,
-            Integer sentenceIndex,
-            Integer tokenStart,
-            Integer tokenEnd,
-            String originalSegment,
-            String suggestionSegment
+            Long correctionId
     ) {
         LibraryItemSource s = new LibraryItemSource();
         s.libraryItem = item;
         s.postId = postId;
         s.correctionId = correctionId;
-        s.correctionWordId = correctionWordId;
-        s.sentenceIndex = sentenceIndex;
-        s.tokenStart = tokenStart;
-        s.tokenEnd = tokenEnd;
-        s.originalSegment = originalSegment;
-        s.suggestionSegment = suggestionSegment;
+        // correction_word 기반 연결은 안 하므로 아래는 null로 둠
+        s.feedbackId = null;
+        s.correctionWordId = null;
+        s.sentenceIndex = null;
+        s.tokenStart = null;
+        s.tokenEnd = null;
+        s.originalSegment = null;
+        s.suggestionSegment = null;
+
         s.sourceStatus = SourceStatus.ACTIVE;
         return s;
     }

@@ -45,24 +45,14 @@ public class LibraryAutoFillService {
         Correction correction = correctionRepository.findById(correctionId)
                 .orElseThrow(() -> new CorrectionHandler(ErrorStatus.CORRECTION_NOT_FOUND));
 
-        // 작성자 검증
         if (correction.getPost() == null
                 || correction.getPost().getAuthor() == null
                 || !Objects.equals(correction.getPost().getAuthor().getId(), userId)) {
             throw new CorrectionHandler(ErrorStatus.CORRECTION_ACCESS_DENIED);
         }
 
-        List<CorrectionWord> words = correctionWordRepository.findByCorrectionId(correctionId);
-        if (words.isEmpty()) {
-            throw new CorrectionHandler(ErrorStatus.CORRECTION_WORD_NOT_FOUND);
-        }
-
         Long postId = correction.getPost().getId();
 
-        // fallback 예문용(원형 예문이 없을 때)
-        List<String> correctedSentences = buildCorrectedSentences(correction.getPost().getContent(), words);
-
-        // 입력 정리
         List<ExampleInput> safeInputs = (inputs == null) ? List.of() : inputs.stream()
                 .filter(i -> i != null && i.en() != null && !i.en().isBlank())
                 .map(i -> new ExampleInput(
@@ -73,62 +63,34 @@ public class LibraryAutoFillService {
                 ))
                 .toList();
 
-        // correctionWord 인덱싱(원문/교정문 기준)
-        Map<String, List<CorrectionWord>> byOriginal = indexByNorm(words, true);
-        Map<String, List<CorrectionWord>> byCorrected = indexByNorm(words, false);
-
         int itemsTouched = 0;
         int sourcesInserted = 0;
         int examplesInserted = 0;
 
-        //  이제는 inputs(=라이브러리 카드) 기준으로 저장
         for (ExampleInput in : safeInputs) {
             String lemma = safe(in.en());
             String meaningKo = safe(in.ko());
             String lemmaNorm = LibraryConverter.normalizePhrase(lemma);
-
             if (lemmaNorm.isBlank()) continue;
 
-            // 1) item upsert (✅ meaningKo까지 채움)
+            // 1) item upsert (en/ko 저장)
             LibraryItem item = upsertItem(userId, lemma, lemmaNorm, meaningKo, null);
             itemsTouched++;
 
-            // 2) source 연결: lemma가 originalText 또는 correctedText에 있으면 연결 가능
-            List<CorrectionWord> candidates = new ArrayList<>();
-            if (byOriginal.containsKey(lemmaNorm)) candidates.addAll(byOriginal.get(lemmaNorm));
-            if (byCorrected.containsKey(lemmaNorm)) candidates.addAll(byCorrected.get(lemmaNorm));
-
-            // 중복 제거(같은 word가 양쪽 매칭될 수 있음)
-            candidates = candidates.stream().distinct().toList();
-
-            for (CorrectionWord w : candidates) {
-                if (libraryItemSourceRepository.existsByLibraryItem_IdAndCorrectionWordId(item.getId(), w.getId())) {
-                    continue;
-                }
-
-                LibraryItemSource src = LibraryItemSource.ofCorrectionWord(
-                        item,
-                        postId,
-                        correctionId,
-                        w.getId(),
-                        w.getSentenceIdx(),
-                        w.getStartIdx(),
-                        w.getEndIdx(),
-                        safe(w.getOriginalText()),
-                        safe(w.getCorrectedText())
-                );
+            // 2)  source는 correctionId -> postId만 넣고 저장 (correction_word 연결 X)
+            if (!libraryItemSourceRepository.existsByLibraryItem_IdAndCorrectionId(item.getId(), correctionId)) {
+                LibraryItemSource src = LibraryItemSource.ofCorrection(item, postId, correctionId);
                 libraryItemSourceRepository.save(src);
                 sourcesInserted++;
             }
 
-            // 3) example 저장 (원형 포함 예문이 없으면 fallback)
+            // 3) example 저장 (lemma 포함 검증)
             String exampleEn = safe(in.exEn());
             String exampleKo = safe(in.exKo());
 
             if (exampleEn.isBlank() || !containsFlexible(exampleEn, lemmaNorm)) {
                 exampleEn = "I want to " + lemma + ".";
             }
-            // 힌트 비지 않게: 예문 뜻이 없으면 meaningKo로 채우는 건 선택(원하면 제거 가능)
             if (exampleKo.isBlank()) exampleKo = meaningKo;
 
             String exEnStore = normalizeSpacesKeepCase(exampleEn);
@@ -142,7 +104,6 @@ public class LibraryAutoFillService {
 
         return new FillResult(itemsTouched, sourcesInserted, examplesInserted);
     }
-
     // ---------------- helpers ----------------
 
     private LibraryItem upsertItem(Long userId, String phrase, String phraseNorm, String meaningKo, String meaningEn) {
@@ -183,35 +144,6 @@ public class LibraryAutoFillService {
         return map;
     }
 
-    private List<String> buildCorrectedSentences(String postContent, List<CorrectionWord> words) {
-        List<String> sentences = new ArrayList<>(CorrectionEditorConverter.splitSentences(postContent));
-
-        Map<Integer, List<CorrectionWord>> bySentence =
-                words.stream().collect(Collectors.groupingBy(CorrectionWord::getSentenceIdx));
-
-        for (var entry : bySentence.entrySet()) {
-            int idx = entry.getKey();
-            if (idx < 0 || idx >= sentences.size()) continue;
-
-            String base = sentences.get(idx);
-            StringBuilder sb = new StringBuilder(base);
-
-            List<CorrectionWord> list = new ArrayList<>(entry.getValue());
-            list.sort(Comparator.comparingInt(CorrectionWord::getStartIdx).reversed());
-
-            for (CorrectionWord w : list) {
-                int start = w.getStartIdx();
-                int end = w.getEndIdx();
-                if (start < 0 || end > sb.length() || start > end) continue;
-
-                sb.replace(start, end, w.getCorrectedText() == null ? "" : w.getCorrectedText());
-            }
-
-            sentences.set(idx, sb.toString());
-        }
-
-        return sentences;
-    }
 
     private Pattern buildFlexibleBoundaryPattern(String phraseNorm) {
         String core = Arrays.stream(phraseNorm.split("\\s+"))

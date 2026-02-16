@@ -13,7 +13,7 @@ public interface LibraryItemSourceRepository extends JpaRepository<LibraryItemSo
 //  마찬가지로 소프트 딜리트
     void deleteByLibraryItem_Id(Long libraryItemId);
 
-    boolean existsByLibraryItem_IdAndCorrectionWordId(Long libraryItemId, Long correctionWordId);
+    boolean existsByLibraryItem_IdAndCorrectionId(Long libraryItemId, Long correctionId);
 
     @Query("select distinct s.libraryItem.id from LibraryItemSource s where s.correctionId = :correctionId")
     List<Long> findDistinctItemIdsByCorrectionId(@Param("correctionId") Long correctionId);

@@ -37,7 +37,7 @@ public class UserRequestDTO {
         private String email;
 
         @Pattern(
-                regexp = "^[0-9+\\-]{7,20}$",
+                regexp = "^01[016789]\\d{7,8}$",
                 message = "전화번호 형식이 올바르지 않습니다."
         )
         @Schema(example = "01012345678")

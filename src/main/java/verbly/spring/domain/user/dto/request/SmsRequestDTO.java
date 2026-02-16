@@ -14,7 +14,7 @@ public class SmsRequestDTO {
     public static class SendDTO {
         @NotBlank(message = "전화번호는 필수입니다.")
         @Pattern(
-                regexp = "^[0-9+\\-]{7,20}$",
+                regexp = "^01[016789]\\d{7,8}$",
                 message = "전화번호 형식이 올바르지 않습니다."
         )
         @Schema(example = "01012345678")
@@ -26,7 +26,7 @@ public class SmsRequestDTO {
     public static class VerifyDTO {
         @NotBlank(message = "전화번호는 필수입니다.")
         @Pattern(
-                regexp = "^[0-9+\\-]{7,20}$",
+                regexp = "^01[016789]\\d{7,8}$",
                 message = "전화번호 형식이 올바르지 않습니다."
         )
         @Schema(example = "01012345678")

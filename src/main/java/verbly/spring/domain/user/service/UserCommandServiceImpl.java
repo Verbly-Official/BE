@@ -58,6 +58,10 @@ public class UserCommandServiceImpl implements UserCommandService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
 
+        redisTemplate.delete("SMS:AUTH:USER:" + userId);
+        redisTemplate.delete("SMS:VERIFIED:USER:" + userId);
+        redisTemplate.delete("SMS:TRY:USER:" + userId);
+
         // 멤버 테이블에서 멤버 삭제
         userRepository.delete(user);
     }
@@ -85,9 +89,13 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         if (request.getPhoneNumber() != null && !request.getPhoneNumber().equals(user.getPhoneNumber())) {
             String verifiedKey = "SMS:VERIFIED:USER:" + userId;
-            String verified = redisTemplate.opsForValue().get(verifiedKey);
+            String verifiedPhone = redisTemplate.opsForValue().get(verifiedKey);
 
-            if (!"true".equals(verified)) {
+            if (verifiedPhone == null) {
+                throw new UserHandler(ErrorStatus.SMS_VERIFICATION_REQUIRED);
+            }
+
+            if (!verifiedPhone.equals(request.getPhoneNumber())) {
                 throw new UserHandler(ErrorStatus.SMS_VERIFICATION_REQUIRED);
             }
 

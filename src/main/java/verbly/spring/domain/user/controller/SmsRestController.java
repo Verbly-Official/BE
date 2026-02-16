@@ -16,6 +16,7 @@ import verbly.spring.domain.user.service.SmsService;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.common.code.SuccessStatus;
 import verbly.spring.global.common.response.ApiResponse;
+import verbly.spring.global.security.utils.SecurityUtils;
 
 @Validated
 @RestController
@@ -34,7 +35,8 @@ public class SmsRestController {
     public ResponseEntity<ApiResponse<Void>> sendAuthCode(
             @Valid @RequestBody SmsRequestDTO.SendDTO request
     ) {
-        smsService.sendAuthCode(request);
+        Long userId = SecurityUtils.getCurrentUserId();
+        smsService.sendAuthCode(userId, request);
         return ResponseEntity.status(SuccessStatus.SMS_SEND_COMPLETED.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.SMS_SEND_COMPLETED, null));
     }
@@ -48,7 +50,8 @@ public class SmsRestController {
     public ResponseEntity<ApiResponse<Void>> verifyAuthCode(
             @Valid @RequestBody SmsRequestDTO.VerifyDTO request
     ) {
-        smsService.verifyAuthCode(request);
+        Long userId = SecurityUtils.getCurrentUserId();
+        smsService.verifyAuthCode(userId, request);
         return ResponseEntity.status(SuccessStatus.SMS_VERIFY_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.SMS_VERIFY_SUCCESS, null));
     }

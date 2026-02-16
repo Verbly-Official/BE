@@ -27,7 +27,7 @@ public class SmsService {
 
     private static final long AUTH_CODE_TTL = 3; // 3분
 
-    public void sendAuthCode(SmsRequestDTO.SendDTO request) {
+    public void sendAuthCode(Long userId, SmsRequestDTO.SendDTO request) {
         String authCode = smsUtil.generateAuthCode(); // 인증번호 생성
         String messageText = smsUtil.makeAuthMessage(authCode); // 메시지
 
@@ -48,17 +48,26 @@ public class SmsService {
         }
 
         // Redis에 인증번호 저장 (3분 유효)
-        String redisKey = buildKey(request.getPhoneNumber());
-        redisTemplate.opsForValue().set(redisKey, authCode, AUTH_CODE_TTL, TimeUnit.MINUTES);
+        String redisKey = buildKey(userId);
+        String value = request.getPhoneNumber() + ":" + authCode;
+        redisTemplate.opsForValue().set(redisKey, value, AUTH_CODE_TTL, TimeUnit.MINUTES);
     }
 
-    public void verifyAuthCode(SmsRequestDTO.VerifyDTO request) {
-        String redisKey = buildKey(request.getPhoneNumber());
-        String storedCode = redisTemplate.opsForValue().get(redisKey);
+    public void verifyAuthCode(Long userId, SmsRequestDTO.VerifyDTO request) {
+        String redisKey = buildKey(userId);
+        String storedValue = redisTemplate.opsForValue().get(redisKey);
 
-        if (storedCode == null) {
+        if (storedValue == null) {
             log.warn("[SMS] 인증 실패 - 만료 - phone: {}", request.getPhoneNumber());
             throw new BaseException(ErrorStatus.SMS_CODE_EXPIRED);
+        }
+
+        String[] parts = storedValue.split(":");
+        String storedPhone = parts[0];
+        String storedCode = parts[1];
+
+        if (!storedPhone.equals(request.getPhoneNumber())) {
+            throw new BaseException(ErrorStatus.SMS_CODE_NOT_MATCH);
         }
 
         if (!storedCode.equals(request.getCode())) {
@@ -68,15 +77,15 @@ public class SmsService {
 
         redisTemplate.delete(redisKey); // 1회 검증 후 삭제
 
-        String verifiedKey = buildVerifiedKey(request.getPhoneNumber());
+        String verifiedKey = buildVerifiedKey(userId);
         redisTemplate.opsForValue().set(verifiedKey, "true", AUTH_CODE_TTL, TimeUnit.MINUTES);
     }
 
-    private String buildKey(String phoneNumber) {
-        return "SMS:AUTH:PHONE:" + phoneNumber;
+    private String buildKey(Long userId) {
+        return "SMS:AUTH:USER:" + userId;
     }
 
-    private String buildVerifiedKey(String phoneNumber) {
-        return "SMS:VERIFIED:PHONE:" + phoneNumber;
+    private String buildVerifiedKey(Long userId) {
+        return "SMS:VERIFIED:USER:" + userId;
     }
 }

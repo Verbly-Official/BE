@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class LibraryAutoFillService {
 
-    // ✅ en=원형(lemma), ko=뜻, exEn/exKo=원형 포함 예문/뜻
+    //  en=원형(lemma), ko=뜻, exEn/exKo=원형 포함 예문/뜻
     public record ExampleInput(String en, String ko, String exEn, String exKo) {}
     public record FillResult(int itemsTouched, int sourcesInserted, int examplesInserted) {}
 
@@ -81,7 +81,7 @@ public class LibraryAutoFillService {
         int sourcesInserted = 0;
         int examplesInserted = 0;
 
-        // ✅ 이제는 inputs(=라이브러리 카드) 기준으로 저장
+        //  이제는 inputs(=라이브러리 카드) 기준으로 저장
         for (ExampleInput in : safeInputs) {
             String lemma = safe(in.en());
             String meaningKo = safe(in.ko());

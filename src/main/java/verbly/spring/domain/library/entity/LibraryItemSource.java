@@ -82,4 +82,26 @@ public class LibraryItemSource {
     public void archive() {
         this.sourceStatus = SourceStatus.ARCHIVED;
     }
+
+    public static LibraryItemSource ofCorrection(
+            LibraryItem item,
+            Long postId,
+            Long correctionId
+    ) {
+        LibraryItemSource s = new LibraryItemSource();
+        s.libraryItem = item;
+        s.postId = postId;
+        s.correctionId = correctionId;
+        // correction_word 기반 연결은 안 하므로 아래는 null로 둠
+        s.feedbackId = null;
+        s.correctionWordId = null;
+        s.sentenceIndex = null;
+        s.tokenStart = null;
+        s.tokenEnd = null;
+        s.originalSegment = null;
+        s.suggestionSegment = null;
+
+        s.sourceStatus = SourceStatus.ACTIVE;
+        return s;
+    }
 }

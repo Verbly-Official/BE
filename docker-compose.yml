@@ -26,7 +26,7 @@ services:
     ports:
       - "80:80" # EC2 80 → nginx 컨테이너 80
     volumes:
-      - ./nginx:/etc/nginx/conf.d:ro # nginx 설정 파일 마운트(읽기 전용)
+      - /home/ubuntu/data/nginx:/etc/nginx/conf.d:ro # nginx 설정 파일 마운트(읽기 전용)
     depends_on:
       - spring  # spring 뜬 뒤 nginx 실행
     networks:

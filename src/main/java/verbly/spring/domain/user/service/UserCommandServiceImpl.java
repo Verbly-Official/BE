@@ -84,10 +84,10 @@ public class UserCommandServiceImpl implements UserCommandService {
         }
 
         if (request.getPhoneNumber() != null && !request.getPhoneNumber().equals(user.getPhoneNumber())) {
-            String verifiedKey = "SMS:VERIFIED:PHONE:" + request.getPhoneNumber();
+            String verifiedKey = "SMS:VERIFIED:USER:" + userId;
             String verified = redisTemplate.opsForValue().get(verifiedKey);
 
-            if (verified == null) {
+            if (!"true".equals(verified)) {
                 throw new UserHandler(ErrorStatus.SMS_VERIFICATION_REQUIRED);
             }
 

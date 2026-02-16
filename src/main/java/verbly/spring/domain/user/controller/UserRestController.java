@@ -81,7 +81,7 @@ public class UserRestController {
             @RequestParam("nickname") @NotBlank(message = "필수 입력칸 미입력입니다. 다시 확인해주세요.") @Size(max = 20, message = "닉네임은 최대 20자입니다.") String nickname,
             @RequestParam(value = "bio", required = false) @Size(max = 150, message = "자기소개는 최대 150자입니다.") String bio,
             @RequestParam(value = "email", required = false) @Email(message = "이메일 형식이 올바르지 않습니다.") @Size(max = 30, message = "이메일은 최대 30자입니다.") String email,
-            @RequestParam(value = "phoneNumber", required = false) @Pattern(regexp = "^[0-9+\\-]{7,20}$", message = "전화번호 형식이 올바르지 않습니다.") @Schema(example = "+8201012345678") String phoneNumber,
+            @RequestParam(value = "phoneNumber", required = false) @Pattern(regexp = "^[0-9+\\-]{7,20}$", message = "전화번호 형식이 올바르지 않습니다.") @Schema(example = "01012345678") String phoneNumber,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         Long userId = SecurityUtils.getCurrentUserId();

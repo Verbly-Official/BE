@@ -11,6 +11,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import verbly.spring.domain.payment.dto.KakaoPayDTO;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -29,17 +32,21 @@ public class KakaoPayClient {
     @Value("${pay.kakao.full-urls.backend.fail}")
     private String failUrl;
 
-    public KakaoPayDTO.ReadyResponse ready(String orderId, String userId, String itemName, int quantity, Double totalAmount) {
+    public KakaoPayDTO.ReadyResponse ready(String orderId, String userId, String itemName, int quantity, BigDecimal totalAmount) {
         HttpHeaders headers = getHeaders();
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        int newvalue = (int)(totalAmount*1500);
+        BigDecimal value = BigDecimal.valueOf(1450);
+        int won = totalAmount
+                .multiply(value)
+                .setScale(0, RoundingMode.HALF_UP)
+                .intValue();
 
         params.add("cid", CID);
         params.add("partner_order_id", orderId);
         params.add("partner_user_id", userId);
         params.add("item_name", itemName);
         params.add("quantity", String.valueOf(quantity));
-        params.add("total_amount", String.valueOf(newvalue));
+        params.add("total_amount", String.valueOf(won));
         params.add("tax_free_amount", "0");
 
         params.add("approval_url", successUrl);
@@ -70,17 +77,21 @@ public class KakaoPayClient {
         );
     }
 
-    public KakaoPayDTO.ApproveResponse recurring(String sid, String userId, Double totalAmount) {
+    public KakaoPayDTO.ApproveResponse recurring(String sid, String userId, BigDecimal totalAmount) {
         HttpHeaders headers = getHeaders();
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         String orderId = "order_" + userId + "_" + System.currentTimeMillis();
-        int newvalue = (int)(totalAmount*1500);
+        BigDecimal value = BigDecimal.valueOf(1450);
+        int won = totalAmount
+                .multiply(value)
+                .setScale(0, RoundingMode.HALF_UP)
+                .intValue();
         params.add("cid", CID);
         params.add("sid", sid);
         params.add("partner_order_id", orderId);
         params.add("partner_user_id", userId);
         params.add("quantity", "1");
-        params.add("total_amount", String.valueOf(newvalue));
+        params.add("total_amount", String.valueOf(won));
         params.add("tax_free_amount", "0");
 
         return restTemplate.postForObject(

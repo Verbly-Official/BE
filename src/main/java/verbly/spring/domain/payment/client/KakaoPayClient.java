@@ -29,6 +29,16 @@ public class KakaoPayClient {
     @Value("${pay.kakao.full-urls.backend.fail}")
     private String failUrl;
 
+    /**
+     * Initiates a KakaoPay "ready" request to obtain a payment ready response (payment URL and transaction id).
+     *
+     * @param orderId     merchant's order identifier
+     * @param userId      merchant's user identifier
+     * @param itemName    name of the item being purchased
+     * @param quantity    quantity of the item
+     * @param totalAmount amount in business units; this value is multiplied by 1500 and cast to an integer to produce the `total_amount` sent to KakaoPay
+     * @return            a KakaoPayDTO.ReadyResponse containing KakaoPay's ready response (including redirect URL and transaction id)
+     */
     public KakaoPayDTO.ReadyResponse ready(String orderId, String userId, String itemName, int quantity, Double totalAmount) {
         HttpHeaders headers = getHeaders();
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -53,6 +63,15 @@ public class KakaoPayClient {
         );
     }
 
+    /**
+     * Complete a KakaoPay payment approval and return the approval result.
+     *
+     * @param tid     the KakaoPay transaction id to approve
+     * @param pgToken the payment gateway token returned by Kakao after user authorization
+     * @param orderId the partner's order identifier
+     * @param userId  the partner's user identifier
+     * @return        a KakaoPayDTO.ApproveResponse containing the approval result from KakaoPay
+     */
     public KakaoPayDTO.ApproveResponse approve(String tid, String pgToken, String orderId, String userId) {
         HttpHeaders headers = getHeaders();
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -70,6 +89,14 @@ public class KakaoPayClient {
         );
     }
 
+    /**
+     * Initiates a KakaoPay subscription payment and returns the provider's approval response.
+     *
+     * @param sid         the KakaoPay subscription identifier
+     * @param userId      the partner user identifier associated with the subscription
+     * @param totalAmount the base amount used to compute the payment; it is multiplied by 1500 and cast to an integer before being sent as `total_amount`
+     * @return            a KakaoPayDTO.ApproveResponse containing KakaoPay's subscription approval details
+     */
     public KakaoPayDTO.ApproveResponse recurring(String sid, String userId, Double totalAmount) {
         HttpHeaders headers = getHeaders();
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();

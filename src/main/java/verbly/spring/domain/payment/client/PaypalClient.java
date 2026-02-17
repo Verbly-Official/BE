@@ -23,7 +23,11 @@ public class PaypalClient {
     @Value("${paypal.client-id}") private String clientId;
     @Value("${paypal.client-secret}") private String clientSecret;
 
-    // 1. 액세스 토큰 발급 (API 호출할 때마다 필요)
+    /**
+     * Obtain an OAuth 2.0 access token from PayPal using the configured client credentials.
+     *
+     * @return the access token string used to authenticate subsequent PayPal API requests
+     */
     private String getAccessToken() {
         String auth = clientId + ":" + clientSecret;
         String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
@@ -42,7 +46,15 @@ public class PaypalClient {
         ).getAccessToken();
     }
 
-    // 2. 구독 생성 요청 -> 승인 URL(approval_url) 반환
+    /**
+     * Creates a PayPal subscription for the given plan and returns the approval URL where the user can approve the subscription.
+     *
+     * @param planId    the PayPal plan ID to subscribe to
+     * @param returnUrl the URL to which PayPal will redirect after the user approves the subscription
+     * @param cancelUrl the URL to which PayPal will redirect if the user cancels the approval flow
+     * @return          the approval URL that the caller should redirect the user to
+     * @throws RuntimeException if the subscription response does not contain an approval URL
+     */
     public String createSubscription(String planId, String returnUrl, String cancelUrl) {
         String accessToken = getAccessToken();
 
@@ -72,7 +84,12 @@ public class PaypalClient {
                 .getHref();
     }
 
-    // 3. 구독 상태 조회 (스케줄러 & 성공 처리용)
+    /**
+     * Retrieve PayPal subscription details for the given subscription ID.
+     *
+     * @param subscriptionId the PayPal subscription ID to retrieve
+     * @return the subscription details as a {@code PaypalDTO.SubscriptionResponse}, or {@code null} if the response body is empty
+     */
     public PaypalDTO.SubscriptionResponse getSubscriptionStatus(String subscriptionId) {
         String accessToken = getAccessToken();
 

@@ -22,6 +22,15 @@ public class PayPalScheduler {
     private final SubscriptionRepository subscriptionRepository;
     private final PaypalClient paypalClient;
 
+    /**
+     * Synchronizes local PayPal subscriptions with their current PayPal statuses.
+     *
+     * <p>Finds subscriptions with provider PAYPAL and status ACTIVE, queries PayPal for each subscription's
+     * current status, renews subscriptions that are ACTIVE on PayPal, and expires others. Errors while
+     * processing an individual subscription are logged and do not interrupt processing of the remaining subscriptions.
+     *
+     * <p>This method is scheduled to run daily at 04:00 and executes within a transactional context.
+     */
     @Scheduled(cron = "0 0 4 * * *")
     @Transactional
     public void checkPayPalStatus() {

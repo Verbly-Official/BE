@@ -56,7 +56,7 @@ public class User extends BaseEntity {
     private String email;
 
     @Column(length = 20)
-    private String phoneNumber; // +82 010-1234-5678
+    private String phoneNumber; // 010-1234-5678
 
     @Column(length = 50)
     private String timezone;
@@ -81,7 +81,7 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Stats stats;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -110,6 +110,10 @@ public class User extends BaseEntity {
     }
 
     public void updatePhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+        this.phoneNumber = normalizePhoneNumber(phoneNumber);
+    }
+
+    private String normalizePhoneNumber(String phone) {
+        return phone.replaceAll("-", "").replaceAll(" ", "");
     }
 }

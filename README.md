@@ -1,6 +1,6 @@
-# Verbly: 틀릴까 봐 말하지 못했던 영어를, 자연스럽게!
+# Verbly: 내가 쓴 영어일기를 AI와 원어민이 듀얼 첨삭해주는 서비스
 
-![image]()
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/021e41e2-ee30-49c6-b4cb-7a2eebadc6b9" />
 
 <br/>
 

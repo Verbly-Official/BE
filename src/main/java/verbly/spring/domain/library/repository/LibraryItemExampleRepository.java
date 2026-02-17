@@ -10,4 +10,6 @@ public interface LibraryItemExampleRepository extends JpaRepository<LibraryItemE
     List<LibraryItemExample> findByLibraryItem_Id(Long libraryItemId);
     //소프트 딜리트라서 이게 거의 의미없음.
     void deleteByLibraryItem_Id(Long libraryItemId);
+
+    boolean existsByLibraryItem_IdAndExampleEn(Long libraryItemId, String exampleEn);
 }

@@ -10,6 +10,7 @@ public class HomeConverter {
         return HomeResponseDTO.HomeViewerInfoDTO.builder()
                 .imageUrl(viewer.getProfileImage().getImageUrl())
                 .nickname(viewer.getNickname())
+                .nativeLang(viewer.getNativeLang())
                 .following((int)following)
                 .streak(viewer.getStats().getStreakDays())
                 .point(viewer.getStats().getPoint())

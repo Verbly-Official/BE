@@ -1,17 +1,23 @@
 package verbly.spring.domain.payment.dto;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.List;
 
 public class PaypalDTO {
 
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @Getter
     @NoArgsConstructor
     public static class TokenResponse {
         @JsonProperty("access_token") private String accessToken;
     }
 
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @Getter
     @Builder
     public static class CreateSubscriptionRequest {
@@ -19,6 +25,8 @@ public class PaypalDTO {
         @JsonProperty("application_context") private ApplicationContext applicationContext;
     }
 
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @Getter
     @Builder
     public static class ApplicationContext {
@@ -27,6 +35,8 @@ public class PaypalDTO {
         @JsonProperty("user_action") private String userAction;
     }
 
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @Getter
     @NoArgsConstructor
     @ToString
@@ -38,6 +48,8 @@ public class PaypalDTO {
         private List<Link> links;
     }
 
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @Getter
     @NoArgsConstructor
     public static class Link {

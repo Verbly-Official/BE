@@ -20,31 +20,24 @@ import java.util.List;
 public class PayPalScheduler {
 
     private final SubscriptionRepository subscriptionRepository;
-    private final PaypalClient paypalClient;
+    private final PayPalService payPalService; // 서비스 주입
 
     @Scheduled(cron = "0 0 4 * * *")
-    @Transactional
     public void checkPayPalStatus() {
         log.info("🔄 페이팔 상태 동기화 시작");
 
+        // 1. 활성화된 구독 목록 가져오기 (단순 조회라 트랜잭션 짧게 끝남)
         List<Subscription> subs = subscriptionRepository.findByProviderAndStatus(
                 PaymentProvider.PAYPAL,
                 SubscriptionStatus.ACTIVE
         );
 
+        // 2. 하나씩 서비스로 넘기기
         for (Subscription sub : subs) {
-            try {
-                PaypalDTO.SubscriptionResponse info = paypalClient.getSubscriptionStatus(sub.getSid());
-
-                if ("ACTIVE".equals(info.getStatus())) {
-                    sub.renew();
-                } else {
-                    sub.expire();
-                    log.info("❌ 구독 만료 처리됨: SID {}", sub.getSid());
-                }
-            } catch (Exception e) {
-                log.error("스케줄러 에러 (SID: {}): {}", sub.getSid(), e.getMessage());
-            }
+            // 여기서 에러가 터져도 다음 사람(for문)은 계속 돌아갑니다.
+            payPalService.syncSingleSubscription(sub);
         }
+
+        log.info("✅ 동기화 작업 종료. 총 {}건 처리 시도.", subs.size());
     }
 }

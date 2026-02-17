@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 import verbly.spring.domain.payment.client.PaypalClient;
 import verbly.spring.domain.payment.dto.PaypalDTO;
 import verbly.spring.domain.payment.entity.Subscription;
@@ -32,7 +33,6 @@ public class PayPalService {
     private final SubscriptionRepository subscriptionRepository;
 
     private final PlanRepository subscriptionPlanRepository;
-    private final PlanRepository planRepository;
     private final UserRepository userRepository;
 
     @Value("${paypal.plan-id.monthly}") private String monthlyPlanId;
@@ -48,7 +48,10 @@ public class PayPalService {
         }
         String realPayPalPlanId = (plan.getBillingCycle() == BillingCycle.MONTHLY) ? monthlyPlanId : yearlyPlanId;
 
-        String returnUrl = successBackend + planId;
+        String returnUrl = UriComponentsBuilder.fromHttpUrl(successBackend)
+                .pathSegment(String.valueOf(planId))
+                .build()
+                .toUriString();
 
         return paypalClient.createSubscription(realPayPalPlanId, returnUrl, cancelBackend);
     }
@@ -61,7 +64,7 @@ public class PayPalService {
         }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
-        SubscriptionPlan plan = planRepository.findById(planId)
+        SubscriptionPlan plan = subscriptionPlanRepository.findById(planId)
                 .orElseThrow(() -> new PaymentHandler(ErrorStatus.PAYMENTPLAN_NOT_FOUND));
 
         if(plan.getPaypalPlanId() == null || !plan.getPaypalPlanId().equals(planId)){
@@ -82,5 +85,25 @@ public class PayPalService {
 
         subscriptionRepository.save(subscription);
         log.info("✅ 페이팔 구독 저장 완료: User {}, SID {}", userId, subscriptionId);
+    }
+
+    public void syncSingleSubscription(Subscription sub) {
+        try {
+            PaypalDTO.SubscriptionResponse info = paypalClient.getSubscriptionStatus(sub.getSid());
+            updateSubscriptionInDb(sub, info);
+        } catch (Exception e) {
+            log.error("구독 갱신 실패 SID: {}", sub.getSid(), e);
+        }
+    }
+
+    @Transactional
+    public void updateSubscriptionInDb(Subscription sub, PaypalDTO.SubscriptionResponse info) {
+        if ("ACTIVE".equals(info.getStatus())) {
+            sub.renew();
+        } else {
+            sub.expire();
+            log.info("❌ 구독 만료 처리됨: SID {}", sub.getSid());
+        }
+        subscriptionRepository.save(sub);
     }
 }

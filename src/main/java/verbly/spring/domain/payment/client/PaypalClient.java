@@ -37,11 +37,15 @@ public class PaypalClient {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "client_credentials");
 
-        return paypalRestTemplate.postForObject(
+        PaypalDTO.TokenResponse response = paypalRestTemplate.postForObject(
                 baseUrl + "/v1/oauth2/token",
                 new HttpEntity<>(body, headers),
                 PaypalDTO.TokenResponse.class
-        ).getAccessToken();
+        );
+        if (response == null || response.getAccessToken() == null) {
+            throw new PaymentHandler(ErrorStatus.PAYPAL_TOKEN_ERROR);
+        }
+        return response.getAccessToken();
     }
 
     // 2. 구독 생성 요청 -> 승인 URL(approval_url) 반환

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.payment.dto.PaymentResponseDTO;
@@ -20,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/payment")
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentController implements PaymentControllerDocs {
 
     private final SubscriptionService subscriptionService;
@@ -97,14 +99,12 @@ public class PaymentController implements PaymentControllerDocs {
             @RequestParam("planId") Long planId,
             HttpServletResponse response
     ) throws IOException {
-
-        Long userId = SecurityUtils.getCurrentUserId();
-
         try {
+            Long userId = SecurityUtils.getCurrentUserId();
             payPalService.success(subscriptionId, userId, planId);
             response.sendRedirect(successUrl);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("PayPal 결제 성공 처리 중 에러 발생 - SubID: {}, UserId: {}", subscriptionId, e.getMessage(), e);
             response.sendRedirect(failUrl);
         }
     }

@@ -104,7 +104,8 @@ public enum ErrorStatus implements BaseErrorCode {
     PAYMENTPLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT4001", "없는 결제 플랜입니다."),
     PAYMENTPLAN_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "PAYMENT4002", "중지된 결제 플랜입니다."),
     PAYPAL_SUBSCRIPTION_ERROR(HttpStatus.BAD_REQUEST, "PAYMENT4003", "구독 오류"),
-    PAYPAL_APPROVAL_URL_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT4004", "구독 URL 오류")
+    PAYPAL_APPROVAL_URL_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT4004", "구독 URL 오류"),
+    PAYPAL_TOKEN_ERROR(HttpStatus.NOT_FOUND, "PAYMENT4005", "페이팔 토큰이 없습니다")
     ;
 
     private final HttpStatus httpStatus;

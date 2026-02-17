@@ -9,6 +9,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import verbly.spring.domain.payment.dto.PaypalDTO;
+import verbly.spring.domain.payment.exception.PaymentHandler;
+import verbly.spring.global.common.code.ErrorStatus;
 
 import java.util.Base64;
 
@@ -17,7 +19,7 @@ import java.util.Base64;
 @Slf4j
 public class PaypalClient {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate paypalRestTemplate;
 
     @Value("${paypal.url}") private String baseUrl;
     @Value("${paypal.client-id}") private String clientId;
@@ -35,7 +37,7 @@ public class PaypalClient {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "client_credentials");
 
-        return restTemplate.postForObject(
+        return paypalRestTemplate.postForObject(
                 baseUrl + "/v1/oauth2/token",
                 new HttpEntity<>(body, headers),
                 PaypalDTO.TokenResponse.class
@@ -59,16 +61,20 @@ public class PaypalClient {
                         .build())
                 .build();
 
-        PaypalDTO.SubscriptionResponse response = restTemplate.postForObject(
+        PaypalDTO.SubscriptionResponse response = paypalRestTemplate.postForObject(
                 baseUrl + "/v1/billing/subscriptions",
                 new HttpEntity<>(request, headers),
                 PaypalDTO.SubscriptionResponse.class
         );
 
+        if (response == null || response.getLinks() == null) {
+            throw new PaymentHandler(ErrorStatus.PAYPAL_SUBSCRIPTION_ERROR);
+        }
+
         return response.getLinks().stream()
                 .filter(link -> "approve".equals(link.getRel()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("승인 URL 없음"))
+                .orElseThrow(() -> new PaymentHandler(ErrorStatus.PAYPAL_APPROVAL_URL_NOT_FOUND))
                 .getHref();
     }
 
@@ -79,7 +85,7 @@ public class PaypalClient {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
 
-        return restTemplate.exchange(
+        return paypalRestTemplate.exchange(
                 baseUrl + "/v1/billing/subscriptions/" + subscriptionId,
                 HttpMethod.GET,
                 new HttpEntity<>(headers),

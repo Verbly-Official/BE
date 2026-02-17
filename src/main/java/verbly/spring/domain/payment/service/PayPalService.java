@@ -64,6 +64,12 @@ public class PayPalService {
         SubscriptionPlan plan = planRepository.findById(planId)
                 .orElseThrow(() -> new PaymentHandler(ErrorStatus.PAYMENTPLAN_NOT_FOUND));
 
+        if(plan.getPaypalPlanId() == null || !plan.getPaypalPlanId().equals(planId)){
+            log.warn("⚠️ 플랜 변조 의심! UserId: {}, 요청PlanID: {}, 실제페이팔PlanID: {}",
+                    userId, planId, info.getPlanId());
+            throw new PaymentHandler(ErrorStatus.PAYPAL_PLAN_MISMATCH);
+        }
+
         Subscription subscription = Subscription.builder()
                 .user(user)
                 .plan(plan)

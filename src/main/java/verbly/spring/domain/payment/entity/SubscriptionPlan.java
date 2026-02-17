@@ -15,6 +15,8 @@ public class SubscriptionPlan extends BaseEntity {
     private String name;
     private Double price;
 
+    private String paypalPlanId;
+
     @Enumerated(EnumType.STRING)
     private BillingCycle billingCycle;
 

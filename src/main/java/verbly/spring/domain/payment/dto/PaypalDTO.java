@@ -33,6 +33,8 @@ public class PaypalDTO {
     public static class SubscriptionResponse {
         private String id;
         private String status;
+        @JsonProperty("plan_id")
+        private String planId;
         private List<Link> links;
     }
 

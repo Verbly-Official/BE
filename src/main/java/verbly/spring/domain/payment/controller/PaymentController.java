@@ -32,6 +32,13 @@ public class PaymentController implements PaymentControllerDocs {
     @Value("${pay.kakao.full-urls.frontend.fail}")
     private String failUrl;
 
+    /**
+     * Prepare a Kakao Pay payment for the given plan and persist readiness data in the HTTP session.
+     *
+     * @param planId the identifier of the payment plan to prepare
+     * @param session the HTTP session where `tid`, `planId`, `userId`, and `orderId` will be stored
+     * @return an ApiResponse wrapping the KakaoPayDTO.ReadyResponse containing Kakao Pay readiness details
+     */
     @Override
     @PostMapping("/kakao/ready")
     public ApiResponse<KakaoPayDTO.ReadyResponse> ready(@RequestParam Long planId, HttpSession session) {
@@ -48,6 +55,14 @@ public class PaymentController implements PaymentControllerDocs {
         return ApiResponse.onSuccess(response);
     }
 
+    /**
+     * Handle Kakao Pay success callback and finalize the subscription approval.
+     *
+     * @param pgToken the `pg_token` returned by Kakao Pay used to approve the payment
+     * @param session the HTTP session containing `tid`, `userId`, `planId`, and `orderId` from the readiness step
+     * @param response used to redirect the client to the configured success URL
+     * @throws IOException if sending the redirect fails
+     */
     @Hidden
     @GetMapping("/kakao/success")
     public void success(
@@ -66,30 +81,63 @@ public class PaymentController implements PaymentControllerDocs {
         response.sendRedirect(successUrl);
     }
 
+    /**
+     * Redirects the client to the configured payment failure URL.
+     *
+     * @throws IOException if sending the redirect fails
+     */
     @Hidden
     @GetMapping("/kakao/cancel")
     public void kakaoCancel(HttpServletResponse response) throws IOException {
         response.sendRedirect(failUrl);
     }
 
+    /**
+     * Handle Kakao Pay failure callback by redirecting the client to the configured failure URL.
+     *
+     * @param response the HTTP response used to perform the redirect
+     * @throws IOException if sending the redirect fails
+     */
     @Hidden
     @GetMapping("/kakao/fail")
     public void fail(HttpServletResponse response) throws IOException {
         response.sendRedirect(failUrl);
     }
 
+    /**
+     * Retrieve all available payment plans.
+     *
+     * @return an ApiResponse containing a list of available PaymentPlan DTOs
+     */
     @Override
     @GetMapping("/plan")
     public ApiResponse<List<PaymentResponseDTO.PaymentPlan>> paymentPlan(){
         return ApiResponse.onSuccess(paymentQueryService.getAllPaymentPlan());
     }
 
+    /**
+     * Initiates a PayPal checkout for the given payment plan and returns the approval URL.
+     *
+     * @param planId the identifier of the payment plan to create a PayPal checkout for
+     * @return the PayPal approval URL to which the client should be redirected
+     */
     @Override
     @PostMapping("/paypal/ready")
     public ApiResponse<String> ready(@RequestParam Long planId) {
         return ApiResponse.onSuccess(payPalService.ready(planId));
     }
 
+    /**
+     * Handle PayPal subscription success callback and redirect the client to the configured frontend URL.
+     *
+     * Calls the service to finalize the subscription; on successful processing redirects to the configured success URL,
+     * and on error redirects to the configured failure URL.
+     *
+     * @param subscriptionId the PayPal subscription identifier returned by PayPal
+     * @param planId the application plan identifier associated with the subscription
+     * @param response the HTTP response used to perform the redirect
+     * @throws IOException if sending the redirect fails
+     */
     @Hidden
     @GetMapping("/paypal/success")
     public void success(
@@ -109,6 +157,12 @@ public class PaymentController implements PaymentControllerDocs {
         }
     }
 
+    /**
+     * Redirects the client to the configured payment failure URL.
+     *
+     * @param response the HTTP response used to perform the redirect
+     * @throws IOException if sending the redirect fails
+     */
     @Hidden
     @GetMapping("/paypal/cancel")
     public void paypalCancel(HttpServletResponse response) throws IOException {

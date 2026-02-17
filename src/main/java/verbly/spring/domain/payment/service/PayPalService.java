@@ -40,6 +40,13 @@ public class PayPalService {
     @Value("${paypal.full-urls.backend.success}") private String successBackend;
     @Value("${paypal.full-urls.backend.fail}") private String cancelBackend;
 
+    /**
+     * Prepares a PayPal subscription for the specified internal plan and returns the PayPal creation URL.
+     *
+     * @param planId internal identifier of the subscription plan to subscribe to
+     * @return the PayPal subscription creation URL or token returned by the PayPal client
+     * @throws PaymentHandler if the plan does not exist or is not active
+     */
     public String ready(Long planId) {
 
         SubscriptionPlan plan = subscriptionPlanRepository.findById(planId).orElseThrow(()-> new PaymentHandler(ErrorStatus.PAYMENTPLAN_NOT_FOUND));
@@ -53,6 +60,20 @@ public class PayPalService {
         return paypalClient.createSubscription(realPayPalPlanId, returnUrl, cancelBackend);
     }
 
+    /**
+     * Finalizes and persists a PayPal subscription after PayPal reports success.
+     *
+     * Retrieves PayPal subscription status, validates it, loads the user and subscription plan,
+     * creates a Subscription with provider set to PAYPAL and status set to ACTIVE, sets
+     * lastPaymentDate to now and nextPaymentDate according to the plan's billing cycle, and
+     * persists the Subscription.
+     *
+     * @param subscriptionId the PayPal subscription identifier
+     * @param userId         the internal user identifier to associate with the subscription
+     * @param planId         the internal subscription plan identifier to apply
+     * @throws PaymentHandler if the PayPal subscription status is not acceptable or the plan is not found
+     * @throws UserHandler    if the user is not found
+     */
     @Transactional
     public void success(String subscriptionId, Long userId, Long planId) {
         PaypalDTO.SubscriptionResponse info = paypalClient.getSubscriptionStatus(subscriptionId);

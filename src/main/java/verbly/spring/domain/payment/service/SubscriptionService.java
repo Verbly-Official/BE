@@ -45,6 +45,19 @@ public class SubscriptionService {
         );
     }
 
+    /**
+     * Approves a KakaoPay payment and creates an active Subscription for the corresponding user and plan.
+     *
+     * Calls the payment client to finalize approval, constructs a Subscription with the payment SID,
+     * sets last and next payment dates based on the plan's billing cycle, marks the provider as KAKAO,
+     * and persists the Subscription.
+     *
+     * @param pgToken    the payment gateway token returned by KakaoPay callback
+     * @param tid        the transaction id assigned by KakaoPay
+     * @param orderId    the merchant order identifier used for this payment
+     * @param userIdStr  the user id as a string (will be parsed to Long)
+     * @param planId     the id of the subscription plan to associate with the subscription
+     */
     public void approve(String pgToken, String tid, String orderId, String userIdStr, Long planId) {
 
         KakaoPayDTO.ApproveResponse response = kakaoPayClient.approve(tid, pgToken, orderId, userIdStr);

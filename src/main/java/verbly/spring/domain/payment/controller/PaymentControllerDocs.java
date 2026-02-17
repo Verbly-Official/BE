@@ -52,6 +52,11 @@ public interface PaymentControllerDocs {
             @Parameter(hidden = true) HttpSession session
     );
 
+    /**
+     * Retrieve available payment plans.
+     *
+     * @return an ApiResponse wrapping a list of available PaymentPlan objects; each PaymentPlan contains `name`, `price`, and `billingCycle`
+     */
     @Operation(
             summary = "결제 플랜 리스트 반환",
             security = @SecurityRequirement(name = "JWT TOKEN"),
@@ -86,6 +91,12 @@ public interface PaymentControllerDocs {
 
 
 
+    /**
+     * Prepare a PayPal subscription and provide the URL of the payment page.
+     *
+     * @param planId the identifier of the subscription plan to purchase
+     * @return the PayPal subscription page URL as a string
+     */
     @Operation(
             summary = "페이팔 결제 준비 (Ready)",
             security = @SecurityRequirement(name = "JWT TOKEN"),

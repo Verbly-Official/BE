@@ -41,11 +41,19 @@ public class Subscription extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private SubscriptionStatus status;
 
+    /**
+     * Marks the subscription as expired and clears its scheduled next payment date.
+     */
     public void expire() {
         this.status = SubscriptionStatus.EXPIRED;
         this.nextPaymentDate = null;
     }
 
+    /**
+     * Updates the subscription to record a successful payment and schedule the next payment.
+     *
+     * Sets `lastPaymentDate` to the current time and sets `nextPaymentDate` to one month from now when the plan's billing cycle is `MONTHLY`; otherwise sets `nextPaymentDate` to one year from now.
+     */
     public void renew() {
         this.lastPaymentDate = LocalDateTime.now();
         if (this.plan.getBillingCycle() == BillingCycle.MONTHLY) {

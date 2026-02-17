@@ -93,10 +93,11 @@ public class PaymentController implements PaymentControllerDocs {
     }
 
     @Hidden
-    @GetMapping("/paypal/success")
+    @GetMapping("/paypal/success/{planId}")
     public void success(
             @RequestParam("subscription_id") String subscriptionId,
-            @RequestParam("planId") Long planId,
+            @PathVariable("planId") Long planId,
+
             HttpServletResponse response
     ) throws IOException {
         try {

@@ -59,7 +59,7 @@ public class PayPalService {
     @Transactional
     public void success(String subscriptionId, Long userId, Long planId) {
         PaypalDTO.SubscriptionResponse info = paypalClient.getSubscriptionStatus(subscriptionId);
-        if (!"ACTIVE".equals(info.getStatus()) && !"APPROVAL_PENDING".equals(info.getStatus())) {
+        if (!"ACTIVE".equals(info.getStatus())) {
             throw new PaymentHandler(ErrorStatus.PAYMENTPLAN_NOT_FOUND);
         }
         User user = userRepository.findById(userId)
@@ -67,7 +67,7 @@ public class PayPalService {
         SubscriptionPlan plan = subscriptionPlanRepository.findById(planId)
                 .orElseThrow(() -> new PaymentHandler(ErrorStatus.PAYMENTPLAN_NOT_FOUND));
 
-        if(plan.getPaypalPlanId() == null || !plan.getPaypalPlanId().equals(planId)){
+        if(plan.getPaypalPlanId() == null || !plan.getPaypalPlanId().equals(info.getPlanId())){
             log.warn("⚠️ 플랜 변조 의심! UserId: {}, 요청PlanID: {}, 실제페이팔PlanID: {}",
                     userId, planId, info.getPlanId());
             throw new PaymentHandler(ErrorStatus.PAYPAL_PLAN_MISMATCH);

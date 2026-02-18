@@ -14,4 +14,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
             LocalDateTime now,
             SubscriptionStatus status
     );
+
+    boolean existsBySid(String sid);
 }

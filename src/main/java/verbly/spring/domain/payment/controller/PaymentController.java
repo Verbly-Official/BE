@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.payment.dto.PaymentResponseDTO;
+import verbly.spring.domain.payment.dto.PaypalDTO;
 import verbly.spring.domain.payment.service.PayPalService;
 import verbly.spring.domain.payment.service.PaymentQueryService;
 import verbly.spring.domain.payment.service.SubscriptionService;
@@ -86,33 +87,20 @@ public class PaymentController implements PaymentControllerDocs {
         return ApiResponse.onSuccess(paymentQueryService.getAllPaymentPlan());
     }
 
-    @Override
     @PostMapping("/paypal/ready")
     public ApiResponse<String> ready(@RequestParam Long planId) {
         return ApiResponse.onSuccess(payPalService.ready(planId));
     }
 
-    @Hidden
-    @GetMapping("/paypal/success/{planId}")
-    public void success(
-            @RequestParam("subscription_id") String subscriptionId,
-            @PathVariable("planId") Long planId,
+    @PostMapping("/paypal/complete")
+    public ApiResponse<String> complete(@RequestBody PaypalDTO.PaymentCompleteRequestDto request) {
 
-            HttpServletResponse response
-    ) throws IOException {
-        try {
-            Long userId = SecurityUtils.getCurrentUserId();
-            payPalService.success(subscriptionId, userId, planId);
-            response.sendRedirect(successUrl);
-        } catch (Exception e) {
-            log.error("PayPal 결제 성공 처리 중 에러 발생 - SubID: {}, UserId: {}", subscriptionId, e.getMessage(), e);
-            response.sendRedirect(failUrl);
-        }
-    }
+        // 1. 토큰에서 유저 ID 추출 (SecurityUtils 사용)
+        Long userId = SecurityUtils.getCurrentUserId();
 
-    @Hidden
-    @GetMapping("/paypal/cancel")
-    public void paypalCancel(HttpServletResponse response) throws IOException {
-        response.sendRedirect(failUrl);
+        // 2. 서비스 호출 (검증 및 저장)
+        payPalService.success(request.getSubscriptionId(), userId, request.getPlanId());
+
+        return ApiResponse.onSuccess("구독이 성공적으로 완료되었습니다.");
     }
 }

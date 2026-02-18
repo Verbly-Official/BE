@@ -56,4 +56,11 @@ public class PaypalDTO {
         private String href;
         private String rel;
     }
+
+    @Getter
+    @NoArgsConstructor
+    public static class PaymentCompleteRequestDto {
+        private String subscriptionId;
+        private Long planId;
+    }
 }

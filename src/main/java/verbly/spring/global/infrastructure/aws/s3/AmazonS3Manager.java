@@ -33,7 +33,7 @@ public class AmazonS3Manager {
     }
 
     public String generateUserKeyName(Uuid uuid) {
-        return amazonConfig.getUserPath() + '/' + uuid.getUuid(); // 멤버 프로필 사진
+        return amazonConfig.getUserPath() + '/' + uuid.getUuid(); // 유저 프로필 사진
     }
 
     public String extractS3KeyFromUrl(String imageUrl) {

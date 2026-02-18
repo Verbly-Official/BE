@@ -32,7 +32,7 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO.UserInfoDTO toUserInfoDTO(User user, long totalPosts, long correctionsGiven, long correctionsReceived, long followingCount) {
+    public static UserResponseDTO.UserInfoDTO toUserInfoDTO(User user, long totalPosts, long correctionsGiven, long correctionsReceived, long followingCount, boolean isSubscribed) {
         String profileImageUrl = Optional.ofNullable(user.getProfileImage())
                 .map(ProfileImage::getImageUrl)
                 .orElse("default_profile_url");
@@ -60,6 +60,7 @@ public class UserConverter {
                 .totalPosts(totalPosts)
                 .correctionsGiven(correctionsGiven)
                 .correctionsReceived(correctionsReceived)
+                .sub(isSubscribed)
                 .status(user.getStatus().name())
                 .build();
     }

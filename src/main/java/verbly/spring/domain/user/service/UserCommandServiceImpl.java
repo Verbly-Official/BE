@@ -16,7 +16,7 @@ import verbly.spring.domain.user.repository.ProfileImageRepository;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.domain.uuid.entity.Uuid;
 import verbly.spring.domain.uuid.repository.UuidRepository;
-import verbly.spring.global.common.aws.s3.AmazonS3Manager;
+import verbly.spring.global.infrastructure.aws.s3.AmazonS3Manager;
 import verbly.spring.global.common.code.ErrorStatus;
 
 import java.util.UUID;
@@ -62,7 +62,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         redisTemplate.delete("SMS:VERIFIED:USER:" + userId);
         redisTemplate.delete("SMS:TRY:USER:" + userId);
 
-        // 멤버 테이블에서 멤버 삭제
+        // 유저 테이블에서 유저 삭제
         userRepository.delete(user);
     }
 

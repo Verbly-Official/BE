@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.correction.repository.CorrectionFeedbackRepository;
 import verbly.spring.domain.correction.repository.CorrectionRepository;
 import verbly.spring.domain.follow.repository.FollowRepository;
+import verbly.spring.domain.payment.enums.SubscriptionStatus;
+import verbly.spring.domain.payment.repository.SubscriptionRepository;
 import verbly.spring.domain.post.repository.PostRepository;
 import verbly.spring.domain.user.converter.UserConverter;
 import verbly.spring.domain.user.dto.response.UserResponseDTO;
@@ -16,6 +18,8 @@ import verbly.spring.domain.user.validator.ProfileValidator;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.security.jwt.JwtTokenProvider;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class UserQueryServiceImpl implements UserQueryService {
@@ -24,6 +28,7 @@ public class UserQueryServiceImpl implements UserQueryService {
     private final CorrectionRepository correctionRepository;
     private final CorrectionFeedbackRepository correctionFeedbackRepository;
     private final FollowRepository followRepository;
+    private final SubscriptionRepository subscriptionRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final ProfileValidator profileValidator;
 
@@ -40,7 +45,8 @@ public class UserQueryServiceImpl implements UserQueryService {
         long correctionsGiven = correctionFeedbackRepository.countByCorrector_Id(user.getId());
         long correctionsReceived = correctionRepository.countByPost_Author_Id(user.getId());
         long followingCount = followRepository.countByFollowerId(user.getId());
+        boolean isSubscribed = subscriptionRepository.existsByUser_IdAndStatusAndNextPaymentDateAfter(userId, SubscriptionStatus.ACTIVE, LocalDateTime.now());
 
-        return UserConverter.toUserInfoDTO(user, totalPosts, correctionsGiven, correctionsReceived, followingCount); // 정보 조회에 성공하면, 우리가 정의한 Response DTO인 UserInfoDTO 로 반환
+        return UserConverter.toUserInfoDTO(user, totalPosts, correctionsGiven, correctionsReceived, followingCount, isSubscribed); // 정보 조회에 성공하면, 우리가 정의한 Response DTO인 UserInfoDTO 로 반환
     }
 }

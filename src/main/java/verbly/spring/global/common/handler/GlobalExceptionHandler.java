@@ -95,7 +95,7 @@ public ResponseEntity<Object> validation(ConstraintViolationException e, WebRequ
         ErrorStatus errorStatus;
 
         if (requestUri.contains("/user/profile-image")) {
-            errorStatus = ErrorStatus.IMAGE_FILE_TOO_LARGE; // 멤버 프로필 이미지 업로드 실패 시
+            errorStatus = ErrorStatus.IMAGE_FILE_TOO_LARGE; // 유저 프로필 이미지 업로드 실패 시
         } //else if (requestUri.contains("/article") || requestUri.contains("/articles")) {
             //errorStatus = ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE; // 게시글 이미지 업로드 실패 시
         //}

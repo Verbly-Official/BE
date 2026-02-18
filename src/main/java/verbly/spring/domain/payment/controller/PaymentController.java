@@ -14,7 +14,7 @@ import verbly.spring.domain.payment.service.PaymentQueryService;
 import verbly.spring.domain.payment.service.SubscriptionService;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.utils.SecurityUtils;
-import verbly.spring.domain.payment.dto.KakaoPayDTO;
+import verbly.spring.global.infrastructure.kakao.dto.KakaoPayDTO;
 
 import java.io.IOException;
 import java.util.List;

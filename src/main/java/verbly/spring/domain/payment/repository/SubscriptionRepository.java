@@ -9,11 +9,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
-    List<Subscription> findByProviderAndStatus(PaymentProvider provider, SubscriptionStatus status);
-    List<Subscription> findByNextPaymentDateBeforeAndStatus(
-            LocalDateTime now,
-            SubscriptionStatus status
-    );
+    List<Subscription> findByNextPaymentDateBeforeAndStatus(LocalDateTime now, SubscriptionStatus status);
 
+    boolean existsByUser_IdAndStatusAndNextPaymentDateAfter(Long userId, SubscriptionStatus status, LocalDateTime now);
+    List<Subscription> findByProviderAndStatus(PaymentProvider provider, SubscriptionStatus status);
     boolean existsBySid(String sid);
 }

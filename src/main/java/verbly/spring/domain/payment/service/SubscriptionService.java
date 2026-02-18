@@ -14,8 +14,8 @@ import verbly.spring.domain.payment.repository.SubscriptionRepository;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
-import verbly.spring.domain.payment.dto.KakaoPayDTO;
-import verbly.spring.domain.payment.client.KakaoPayClient;
+import verbly.spring.global.infrastructure.kakao.KakaoPayClient;
+import verbly.spring.global.infrastructure.kakao.dto.KakaoPayDTO;
 
 import java.time.LocalDateTime;
 

@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.payment.dto.PaymentResponseDTO;
-import verbly.spring.domain.payment.dto.PaypalDTO;
+import verbly.spring.global.infrastructure.paypal.dto.PaypalDTO;
 import verbly.spring.domain.payment.service.PayPalService;
 import verbly.spring.domain.payment.service.PaymentQueryService;
 import verbly.spring.domain.payment.service.SubscriptionService;
@@ -36,7 +36,7 @@ public class PaymentController implements PaymentControllerDocs {
     private String failUrl;
 
     @Override
-    @PostMapping("/kakao/ready")
+    @PostMapping("/ready")
     public ApiResponse<KakaoPayDTO.ReadyResponse> ready(@RequestParam Long planId, HttpSession session) {
         Long userId = SecurityUtils.getCurrentUserId();
         String orderId = "order_" + userId + "_" + System.currentTimeMillis();
@@ -52,7 +52,7 @@ public class PaymentController implements PaymentControllerDocs {
     }
 
     @Hidden
-    @GetMapping("/kakao/success")
+    @GetMapping("/success")
     public void success(
             @RequestParam("pg_token") String pgToken,
             HttpSession session,
@@ -70,7 +70,7 @@ public class PaymentController implements PaymentControllerDocs {
     }
 
     @Hidden
-    @GetMapping("/kakao/cancel")
+    @GetMapping("/cancel")
     public void kakaoCancel(HttpServletResponse response) throws IOException {
         response.sendRedirect(failUrl);
     }

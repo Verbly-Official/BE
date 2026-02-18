@@ -1,4 +1,4 @@
-package verbly.spring.domain.payment.dto;
+package verbly.spring.global.infrastructure.paypal.dto;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

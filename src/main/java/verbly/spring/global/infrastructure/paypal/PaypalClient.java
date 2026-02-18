@@ -1,4 +1,4 @@
-package verbly.spring.domain.payment.client;
+package verbly.spring.global.infrastructure.paypal;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import verbly.spring.domain.payment.dto.PaypalDTO;
+import verbly.spring.global.infrastructure.paypal.dto.PaypalDTO;
 import verbly.spring.domain.payment.exception.PaymentHandler;
 import verbly.spring.global.common.code.ErrorStatus;
 

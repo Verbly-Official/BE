@@ -1,4 +1,4 @@
-package verbly.spring.global.common.aws.s3;
+package verbly.spring.global.infrastructure.aws.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;

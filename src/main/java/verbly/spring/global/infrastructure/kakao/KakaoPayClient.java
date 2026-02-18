@@ -1,4 +1,4 @@
-package verbly.spring.infrastructure.kakao;
+package verbly.spring.global.infrastructure.kakao;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import verbly.spring.infrastructure.kakao.dto.KakaoPayDTO;
+import verbly.spring.global.infrastructure.kakao.dto.KakaoPayDTO;
 
 @Component
 @RequiredArgsConstructor

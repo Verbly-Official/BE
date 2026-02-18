@@ -8,8 +8,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import verbly.spring.domain.payment.dto.PaymentResponseDTO;
+import verbly.spring.domain.payment.dto.PaypalDTO;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.domain.payment.dto.KakaoPayDTO;
 
@@ -111,4 +113,32 @@ public interface PaymentControllerDocs {
             )
     })
     ApiResponse<String> ready(Long planId);
+
+    @Operation(
+            summary = "페이팔 결제 최종 승인 (Complete)",
+            description = "페이팔 결제 창에서 승인 후, 리다이렉트된 페이지에서 받은 정보를 서버로 전송합니다." +
+                    "String subscriptionId: 페이팔 구독 ID (I-로 시작하는 문자열)" +
+                    "Long planId: 사용자가 구매한 플랜 ID",
+            security = @SecurityRequirement(name = "JWT TOKEN")
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                               "isSuccess": true,
+                                               "code": "COMMON2000",
+                                               "message": "성공입니다.",
+                                               "result": "구독이 성공적으로 완료되었습니다."
+                                            }
+                                        """
+                            )
+                    )
+            )
+    })
+    ApiResponse<String> complete(@RequestBody PaypalDTO.PaymentCompleteRequestDto request);
 }

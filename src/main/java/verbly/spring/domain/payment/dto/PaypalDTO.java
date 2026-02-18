@@ -3,6 +3,7 @@ package verbly.spring.domain.payment.dto;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.List;
 
@@ -60,7 +61,9 @@ public class PaypalDTO {
     @Getter
     @NoArgsConstructor
     public static class PaymentCompleteRequestDto {
+        @Schema(description = "페이팔 구독 ID (I-로 시작하는 문자열)", example = "I-BW4J5ABCDEFG")
         private String subscriptionId;
+        @Schema(description = "사용자가 구매한 플랜 ID (DB PK)", example = "1")
         private Long planId;
     }
 }

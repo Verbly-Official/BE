@@ -62,7 +62,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         redisTemplate.delete("SMS:VERIFIED:USER:" + userId);
         redisTemplate.delete("SMS:TRY:USER:" + userId);
 
-        // 멤버 테이블에서 멤버 삭제
+        // 유저 테이블에서 유저 삭제
         userRepository.delete(user);
     }
 

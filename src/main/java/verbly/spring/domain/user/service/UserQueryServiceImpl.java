@@ -45,7 +45,7 @@ public class UserQueryServiceImpl implements UserQueryService {
         long correctionsGiven = correctionFeedbackRepository.countByCorrector_Id(user.getId());
         long correctionsReceived = correctionRepository.countByPost_Author_Id(user.getId());
         long followingCount = followRepository.countByFollowerId(user.getId());
-        boolean isSubscribed = subscriptionRepository.existsByUserIdAndStatusAndNextPaymentDateAfter(userId, SubscriptionStatus.ACTIVE, LocalDateTime.now());
+        boolean isSubscribed = subscriptionRepository.existsByUser_IdAndStatusAndNextPaymentDateAfter(userId, SubscriptionStatus.ACTIVE, LocalDateTime.now());
 
         return UserConverter.toUserInfoDTO(user, totalPosts, correctionsGiven, correctionsReceived, followingCount, isSubscribed); // 정보 조회에 성공하면, 우리가 정의한 Response DTO인 UserInfoDTO 로 반환
     }

@@ -102,7 +102,11 @@ public enum ErrorStatus implements BaseErrorCode {
     AI_MODEL_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "OPENAI5003", "AI model 설정이 비어있습니다."),
     //결제 관련 에러
     PAYMENTPLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT4001", "없는 결제 플랜입니다."),
-    PAYMENTPLAN_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "PAYMENT4002", "중지된 결제 플랜입니다.")
+    PAYMENTPLAN_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "PAYMENT4002", "중지된 결제 플랜입니다."),
+    PAYPAL_SUBSCRIPTION_ERROR(HttpStatus.BAD_REQUEST, "PAYMENT4003", "구독 오류"),
+    PAYPAL_APPROVAL_URL_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT4004", "구독 URL 오류"),
+    PAYPAL_TOKEN_ERROR(HttpStatus.NOT_FOUND, "PAYMENT4005", "페이팔 토큰이 없습니다"),
+    PAYPAL_PLAN_MISMATCH(HttpStatus.BAD_REQUEST, "PAYMENT4006", "실제 페이팔 ID와 결제한 페이팔 ID가 일치하지 않습니다")
     ;
 
     private final HttpStatus httpStatus;

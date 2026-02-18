@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.payment.entity.Subscription;
 import verbly.spring.domain.payment.entity.SubscriptionPlan;
 import verbly.spring.domain.payment.enums.BillingCycle;
+import verbly.spring.domain.payment.enums.PaymentProvider;
 import verbly.spring.domain.payment.enums.SubscriptionStatus;
 import verbly.spring.domain.payment.exception.PaymentHandler;
 import verbly.spring.domain.payment.repository.PlanRepository;
@@ -62,6 +63,7 @@ public class SubscriptionService {
                 .status(SubscriptionStatus.ACTIVE)
                 .lastPaymentDate(now)
                 .nextPaymentDate(nextDate)
+                .provider(PaymentProvider.KAKAO)
                 .build();
 
         subscriptionRepository.save(subscription);

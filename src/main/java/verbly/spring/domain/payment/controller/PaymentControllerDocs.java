@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.RequestParam;
 import verbly.spring.domain.payment.dto.PaymentResponseDTO;
 import verbly.spring.global.common.response.ApiResponse;
-import verbly.spring.infrastructure.kakao.dto.KakaoPayDTO;
+import verbly.spring.global.infrastructure.kakao.dto.KakaoPayDTO;
 
 import java.util.List;
 

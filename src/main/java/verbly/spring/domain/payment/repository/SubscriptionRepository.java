@@ -8,8 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
-    List<Subscription> findByNextPaymentDateBeforeAndStatus(
-            LocalDateTime now,
-            SubscriptionStatus status
-    );
+    List<Subscription> findByNextPaymentDateBeforeAndStatus(LocalDateTime now, SubscriptionStatus status);
+
+    boolean existsByUserIdAndStatusAndNextPaymentDateAfter(Long userId, SubscriptionStatus status, LocalDateTime now);
 }

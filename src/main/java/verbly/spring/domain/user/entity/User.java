@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import verbly.spring.domain.follow.entity.Follow;
 import verbly.spring.domain.post.entity.Comment;
 import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.post.entity.PostLike;
+import verbly.spring.domain.review.entity.Review;
 import verbly.spring.domain.stats.entity.Stats;
 import verbly.spring.domain.user.enums.AuthProvider;
 import verbly.spring.domain.user.enums.UserStatus;
@@ -89,6 +91,20 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Follow> following = new ArrayList<>();
+
+    @OneToMany(mappedBy = "followee", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Follow> followers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "reviewer", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Review> writtenReviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "reviewee", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Review> receivedReviews = new ArrayList<>();
+
 
     public void setStats(Stats stats) {
         this.stats = stats;

@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import verbly.spring.domain.correction.exception.CorrectionHandler;
 import verbly.spring.global.common.code.ErrorStatus;
-import verbly.spring.global.common.dto.gemini.GeminiGenerateRequestDTO;
-import verbly.spring.global.common.dto.gemini.GeminiGenerateResponseDTO;
+import verbly.spring.global.infrastructure.gemini.dto.GeminiGenerateRequestDTO;
+import verbly.spring.global.infrastructure.gemini.dto.GeminiGenerateResponseDTO;
 
 import java.util.List;
 import java.util.Map;

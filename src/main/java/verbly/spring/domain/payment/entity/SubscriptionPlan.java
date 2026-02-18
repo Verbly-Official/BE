@@ -5,6 +5,8 @@ import lombok.Getter;
 import verbly.spring.domain.payment.enums.BillingCycle;
 import verbly.spring.global.common.entity.BaseEntity;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 public class SubscriptionPlan extends BaseEntity {
@@ -13,10 +15,13 @@ public class SubscriptionPlan extends BaseEntity {
     private Long id;
 
     private String name;
-    private int price;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal price;
+
+    private String paypalPlanId;
 
     @Enumerated(EnumType.STRING)
-    private BillingCycle billingCycle; // MONTHLY, YEARLY
+    private BillingCycle billingCycle;
 
     Boolean isActive;
 }

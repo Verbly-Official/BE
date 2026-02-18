@@ -11,7 +11,7 @@ public enum SuccessStatus implements BaseCode {
     // 일반적인 응답
     _OK(HttpStatus.OK, "COMMON2000", "성공입니다."),
 
-    // 멤버 관련 응답
+    // 유저 관련 응답
     USER_NEEDS_ONBOARDING(HttpStatus.CREATED, "USER2001", "신규 유저입니다. 온보딩이 필요합니다."),
     USER_ALREADY_LOGIN(HttpStatus.OK, "USER2002", "이미 등록된 유저입니다."),
     USER_ONBOARDING_SUCCESS(HttpStatus.CREATED, "USER2003", "온보딩 정보를 성공적으로 저장했습니다."),
@@ -20,6 +20,10 @@ public enum SuccessStatus implements BaseCode {
     USER_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "USER2006", "회원 탈퇴가 완료되었습니다."),
     USER_PROFILE_UPDATE_SUCCESS(HttpStatus.OK, "USER2007", "프로필이 성공적으로 변경되었습니다."),
     USER_ALREADY_ONBOARDING_COMPLETED(HttpStatus.OK, "USER2011", "온보딩이 이미 완료된 유저입니다."),
+
+    // SMS 관련 응답
+    SMS_SEND_COMPLETED(HttpStatus.OK, "SMS2001", "인증번호가 전송되었습니다."),
+    SMS_VERIFY_SUCCESS(HttpStatus.OK, "SMS2002", "인증번호가 인증되었습니다."),
 
     // 커렉션 관련 응답
     CORRECTION_CREATE_SUCCESS(HttpStatus.CREATED, "CORRECTION2001", "Correction - 글을 성공적으로 저장했습니다."),

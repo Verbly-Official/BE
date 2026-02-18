@@ -26,6 +26,14 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_STATS_NOT_FOUND(HttpStatus.NOT_FOUND, "USER4009", "사용자의 상태 정보를 찾을 수 없습니."),
     ONBOARDING_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "USER4009", "이미 온보딩이 완료된 유저입니다."),
 
+    // SMS
+    SMS_CODE_NOT_MATCH(HttpStatus.BAD_REQUEST, "SMS4001", "인증번호가 일치하지 않습니다."),
+    SMS_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "SMS4002", "인증번호가 만료되었습니다."),
+    SMS_TOO_MANY_REQUEST(HttpStatus.TOO_MANY_REQUESTS, "SMS4003", "인증번호 요청 횟수를 초과했습니다."),
+    SMS_SEND_FAILED(HttpStatus.BAD_GATEWAY, "SMS5002", "SMS 발송에 실패했습니다."),
+    SMS_VERIFICATION_REQUIRED(HttpStatus.BAD_REQUEST, "SMS4004", "전화번호 변경을 위해 인증이 필요합니다."),
+    SMS_TOO_MANY_ATTEMPTS(HttpStatus.BAD_REQUEST, "SMS4005", "인증 횟수가 5회를 초과했습니다."),
+
     //jwt 토큰
     INVALID_JWT_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4001", "유효하지 않은 AccessToken입니다."),
     INVALID_JWT_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4002", "유효하지 않은 RefreshToken입니다."),
@@ -94,7 +102,11 @@ public enum ErrorStatus implements BaseErrorCode {
     AI_MODEL_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "OPENAI5003", "AI model 설정이 비어있습니다."),
     //결제 관련 에러
     PAYMENTPLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT4001", "없는 결제 플랜입니다."),
-    PAYMENTPLAN_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "PAYMENT4002", "중지된 결제 플랜입니다.")
+    PAYMENTPLAN_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "PAYMENT4002", "중지된 결제 플랜입니다."),
+    PAYPAL_SUBSCRIPTION_ERROR(HttpStatus.BAD_REQUEST, "PAYMENT4003", "구독 오류"),
+    PAYPAL_APPROVAL_URL_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT4004", "구독 URL 오류"),
+    PAYPAL_TOKEN_ERROR(HttpStatus.NOT_FOUND, "PAYMENT4005", "페이팔 토큰이 없습니다"),
+    PAYPAL_PLAN_MISMATCH(HttpStatus.BAD_REQUEST, "PAYMENT4006", "실제 페이팔 ID와 결제한 페이팔 ID가 일치하지 않습니다")
     ;
 
     private final HttpStatus httpStatus;

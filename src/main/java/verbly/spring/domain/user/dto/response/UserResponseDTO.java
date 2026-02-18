@@ -44,6 +44,8 @@ public class UserResponseDTO {
         private long correctionsGiven; // 외국인에게만 뜨는 도움 준 수
         private long correctionsReceived; // 한국인에게만 뜨는 도움 받은 글
 
+        private boolean sub; // 구독 여부
+
         private String status;
     }
 

@@ -38,4 +38,5 @@ public interface CorrectionWordRepository extends JpaRepository<CorrectionWord, 
 
     boolean existsByCorrectionId(Long correctionId);
 
+    List<CorrectionWord> findByCorrectionIdOrderBySentenceIdxAscStartIdxAsc(Long correctionId);
 }

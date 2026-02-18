@@ -269,4 +269,5 @@ public class LibraryRestController {
         return ResponseEntity.status(SuccessStatus.LIBRARY_ITEM_EXAMPLE_DELETE_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.LIBRARY_ITEM_EXAMPLE_DELETE_SUCCESS, null));
     }
+
 }

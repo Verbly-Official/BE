@@ -1,4 +1,4 @@
-package verbly.spring.infrastructure.kakao.dto;
+package verbly.spring.global.infrastructure.kakao.dto;
 
 import lombok.Data;
 

@@ -59,6 +59,10 @@ public class UserCommandServiceImpl implements UserCommandService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
 
+        if (user.getPhoneNumber() != null) {
+            String normalizedPhone = PhoneUtils.normalize(user.getPhoneNumber());
+            redisTemplate.delete("SMS:SEND:PHONE:" + normalizedPhone);
+        }
         redisTemplate.delete("SMS:AUTH:USER:" + userId);
         redisTemplate.delete("SMS:VERIFIED:USER:" + userId);
         redisTemplate.delete("SMS:TRY:USER:" + userId);

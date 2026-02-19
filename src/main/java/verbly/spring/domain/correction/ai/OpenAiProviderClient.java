@@ -54,6 +54,7 @@ public class OpenAiProviderClient implements AiProviderClient{
         Map<String, Object> responseFormat = switch (kind) {
             case AI_ASSIST_PANEL -> buildAiAssistPanelJsonSchema();
             case WORD_EDITS -> buildWordEditsJsonSchema();
+            case LEARNING_POINT -> buildLearningPointSchemaOnly();
         };
 
         return new OpenAIRequestDTO(
@@ -149,6 +150,34 @@ public class OpenAiProviderClient implements AiProviderClient{
                                 "required", List.of("edits")
                         )
                 )
+        );
+    }
+
+    private Map<String, Object> buildLearningPointSchemaOnly() {
+        return Map.of(
+                "type", "object",
+                "properties", Map.of(
+                        "points", Map.of(
+                                "type", "array",
+                                "description", "A list of all grammatical corrections found in the sentence pair.",
+                                "items", Map.of( // 배열 안의 알맹이(Item) 정의
+                                        "type", "object",
+                                        "properties", Map.of(
+                                                "errorPart", Map.of("type", "string", "description", "The incorrect part in Original."),
+                                                "correctPart", Map.of("type", "string", "description", "The corrected part in Revised."),
+                                                "rootExpression", Map.of("type", "string", "description", "Base form or idiom."),
+                                                "meaningKo", Map.of("type", "string", "description", "Korean meaning."),
+                                                "examples", Map.of(
+                                                        "type", "array",
+                                                        "items", Map.of("type", "string"),
+                                                        "description", "3 example sentences."
+                                                )
+                                        ),
+                                        "required", List.of("errorPart", "correctPart", "rootExpression", "meaningKo", "examples")
+                                )
+                        )
+                ),
+                "required", List.of("points")
         );
     }
 }

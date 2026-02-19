@@ -1,6 +1,7 @@
 package verbly.spring.domain.correction.ai;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "ai.provider", havingValue = "gemini", matchIfMissing = true)
+@Slf4j
 public class GeminiProviderClient implements AiProviderClient{
 
     private final RestTemplate geminiRestTemplate;
@@ -37,6 +39,7 @@ public class GeminiProviderClient implements AiProviderClient{
         Map<String, Object> schemaOnly = switch (kind) {
             case AI_ASSIST_PANEL -> buildAiAssistPanelSchemaOnly();
             case WORD_EDITS -> buildWordEditsSchemaOnly();
+            case LEARNING_POINT -> buildLearningPointSchemaOnly();
         };
 
         String url = apiUrl + "/models/" + model + ":generateContent";
@@ -75,8 +78,11 @@ public class GeminiProviderClient implements AiProviderClient{
                 || res.getCandidates().get(0).getContent().getParts().isEmpty()) {
             throw new CorrectionHandler(ErrorStatus.AI_RESPONSE_INVALID);
         }
-
         String text = res.getCandidates().get(0).getContent().getParts().get(0).getText();
+
+        // ✅ [추가] 이 로그를 추가해야 범인을 잡습니다!
+        log.info("🤖 제미나이 원본 응답: " + text);
+        // (Slf4j가 있으면 log.info("🤖 ... {}", text); 로 쓰세요)
         if (text == null || text.isBlank()) {
             throw new CorrectionHandler(ErrorStatus.AI_RESPONSE_INVALID);
         }
@@ -134,6 +140,41 @@ public class GeminiProviderClient implements AiProviderClient{
                         )
                 ),
                 "required", List.of("edits")
+        );
+    }
+
+    private Map<String, Object> buildLearningPointSchemaOnly() {
+        return Map.of(
+                "type", "object",
+                "properties", Map.of(
+                        "points", Map.of(
+                                "type", "array",
+                                "description", "A list of all grammatical corrections found in the sentence pair.",
+                                "items", Map.of(
+                                        "type", "object",
+                                        "properties", Map.of(
+                                                "errorPart", Map.of("type", "string", "description", "The incorrect part in Original."),
+                                                "correctPart", Map.of("type", "string", "description", "The corrected part in Revised."),
+                                                "rootExpression", Map.of("type", "string", "description", "Base form or idiom."),
+                                                "meaningKo", Map.of("type", "string", "description", "Korean meaning."),
+                                                "examples", Map.of(
+                                                        "type", "array",
+                                                        "description", "3 example sentences with their Korean translations.",
+                                                        "items", Map.of(
+                                                                "type", "object",
+                                                                "properties", Map.of(
+                                                                        "sentence", Map.of("type", "string", "description", "English example sentence."),
+                                                                        "translationKo", Map.of("type", "string", "description", "Korean translation of the sentence.")
+                                                                ),
+                                                                "required", List.of("sentence", "translationKo")
+                                                        )
+                                                )
+                                        ),
+                                        "required", List.of("errorPart", "correctPart", "rootExpression", "meaningKo", "examples")
+                                )
+                        )
+                ),
+                "required", List.of("points")
         );
     }
 }

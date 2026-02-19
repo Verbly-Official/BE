@@ -28,16 +28,21 @@ public class LibraryAutoFillController {
     ) {
         Long userId = SecurityUtils.getCurrentUserId();
 
-        // ✅ library 카드(en/ko/exEn/exKo)로 받기
         List<ExampleInput> inputs = (request == null || request.getLibrary() == null)
                 ? List.of()
                 : request.getLibrary().stream()
-                .map(e -> new ExampleInput(e.getEn(), e.getKo(), e.getExEn(), e.getExKo()))
+                .map(card -> new ExampleInput(
+                        card.getEn(),
+                        card.getKo(),
+                        card.getExamples() == null ? List.of()
+                                : card.getExamples().stream()
+                                .map(p -> new LibraryAutoFillService.ExamplePairInput(p.getExEn(), p.getExKo()))
+                                .toList()
+                ))
                 .toList();
 
         var result = libraryAutoFillService.fillFromCorrection(userId, correctionId, inputs);
 
-        // source 기준으로 itemId 뽑기
         List<Long> itemIds = libraryItemSourceRepository.findDistinctItemIdsByCorrectionId(correctionId);
 
         return ResponseEntity.ok(ApiResponse.onSuccess(new FillAndItemsResponse(result, itemIds)));
@@ -53,10 +58,16 @@ public class LibraryAutoFillController {
         @Getter
         @NoArgsConstructor
         public static class LibraryCard {
-            private String en;    // 원형(lemma)
-            private String ko;    // 뜻(한국어)
-            private String exEn;  // 원형 포함 예문(EN)
-            private String exKo;  // 예문 뜻(KO)
+            private String en;
+            private String ko;
+            private List<ExamplePair> examples;
+
+            @Getter
+            @NoArgsConstructor
+            public static class ExamplePair {
+                private String exEn;
+                private String exKo;
+            }
         }
     }
 

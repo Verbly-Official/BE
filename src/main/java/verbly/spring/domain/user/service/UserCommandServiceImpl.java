@@ -16,6 +16,7 @@ import verbly.spring.domain.user.repository.ProfileImageRepository;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.domain.uuid.entity.Uuid;
 import verbly.spring.domain.uuid.repository.UuidRepository;
+import verbly.spring.global.common.utils.PhoneUtils;
 import verbly.spring.global.infrastructure.aws.s3.AmazonS3Manager;
 import verbly.spring.global.common.code.ErrorStatus;
 
@@ -87,7 +88,7 @@ public class UserCommandServiceImpl implements UserCommandService {
             user.updateEmail(request.getEmail());
         }
 
-        if (request.getPhoneNumber() != null && !request.getPhoneNumber().equals(user.getPhoneNumber())) {
+        if (request.getPhoneNumber() != null && !PhoneUtils.normalize(request.getPhoneNumber()).equals(user.getPhoneNumber())) {
             String verifiedKey = "SMS:VERIFIED:USER:" + userId;
             String verifiedPhone = redisTemplate.opsForValue().get(verifiedKey);
 

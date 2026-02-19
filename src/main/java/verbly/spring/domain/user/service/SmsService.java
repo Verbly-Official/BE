@@ -49,8 +49,16 @@ public class SmsService {
 
         // Redis에 인증번호 저장 (3분 유효)
         String redisKey = buildKey(userId);
+        String tryKey = buildTryKey(userId);
+        String verifiedKey = buildVerifiedKey(userId);
+
+        redisTemplate.delete(redisKey);
+        redisTemplate.delete(tryKey);
+        redisTemplate.delete(verifiedKey);
+
         String normalizedPhone = normalizePhoneNumber(request.getPhoneNumber());
         String value = normalizedPhone + ":" + authCode;
+
         redisTemplate.opsForValue().set(redisKey, value, AUTH_CODE_TTL, TimeUnit.MINUTES);
     }
 

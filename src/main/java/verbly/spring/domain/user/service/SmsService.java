@@ -29,26 +29,42 @@ public class SmsService {
     private static final long AUTH_CODE_TTL = 3; // 3분
 
     public void sendAuthCode(Long userId, SmsRequestDTO.SendDTO request) {
+        String normalizedPhone = PhoneUtils.normalize(request.getPhoneNumber());
+
+        // 동일 번호 1분 재발송 제한
+        String phoneSendKey = "SMS:SEND:PHONE:" + normalizedPhone;
+
+        Boolean alreadySent = redisTemplate.hasKey(phoneSendKey);
+        if (Boolean.TRUE.equals(alreadySent)) {
+            throw new BaseException(ErrorStatus.SMS_TOO_MANY_REQUESTS);
+        }
+
+        // 1분 TTL 설정
+        redisTemplate.opsForValue().set(phoneSendKey, "1", 1, TimeUnit.MINUTES);
+
         String authCode = smsUtil.generateAuthCode(); // 인증번호 생성
         String messageText = smsUtil.makeAuthMessage(authCode); // 메시지
 
         Message message = new Message();
         message.setFrom(smsProperties.getSender());
-        message.setTo(request.getPhoneNumber());
+        message.setTo(normalizedPhone);
         message.setText(messageText);
 
         SingleMessageSendingRequest requestSMS = new SingleMessageSendingRequest(message); // 요청 래핑
 
         // CoolSMS 발송 및 로그
         try {
-            SingleMessageSentResponse response = messageService.sendOne(requestSMS);
+            messageService.sendOne(requestSMS);
             log.info("[SMS] 발송 성공 - to: {}", request.getPhoneNumber());
         } catch (Exception e) {
             log.error("[SMS] 발송 실패 - to: {}", request.getPhoneNumber(), e);
+
+            redisTemplate.delete(phoneSendKey); // 실패 시 재발송 제한 키 제거 (롤백 개념)
+
             throw new BaseException(ErrorStatus.SMS_SEND_FAILED);
         }
 
-        // Redis에 인증번호 저장 (3분 유효)
+        // 기존 인증 관련 키 초기화
         String redisKey = buildKey(userId);
         String tryKey = buildTryKey(userId);
         String verifiedKey = buildVerifiedKey(userId);
@@ -57,10 +73,8 @@ public class SmsService {
         redisTemplate.delete(tryKey);
         redisTemplate.delete(verifiedKey);
 
-        String normalizedPhone = PhoneUtils.normalize(request.getPhoneNumber());
         String value = normalizedPhone + ":" + authCode;
-
-        redisTemplate.opsForValue().set(redisKey, value, AUTH_CODE_TTL, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(redisKey, value, AUTH_CODE_TTL, TimeUnit.MINUTES); // Redis에 인증번호 저장 (3분 유효)
     }
 
     public void verifyAuthCode(Long userId, SmsRequestDTO.VerifyDTO request) {

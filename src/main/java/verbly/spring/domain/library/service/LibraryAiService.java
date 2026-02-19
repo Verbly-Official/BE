@@ -19,14 +19,15 @@ public class LibraryAiService {
 
     public LibraryAiDTO createLearningPoint(String original, String revised) {
         String systemPrompt = "You are an English grammar expert.";
-        
+
         String userPrompt = String.format("""
             Compare these two sentences and identify **ALL** grammatical and lexical changes.
             
             Original: "%s"
             Revised: "%s"
             
-            For EACH change found, provide the root expression, Korean meaning, and examples.
+            // ✅ 예문에 한글 번역을 포함하도록 지시사항 추가
+            For EACH change found, provide the root expression, Korean meaning, and examples (including Korean translations).
             Return the result as a JSON object containing a list of 'points'.
             """, original, revised);
 

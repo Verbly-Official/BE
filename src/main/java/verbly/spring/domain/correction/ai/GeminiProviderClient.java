@@ -150,17 +150,25 @@ public class GeminiProviderClient implements AiProviderClient{
                         "points", Map.of(
                                 "type", "array",
                                 "description", "A list of all grammatical corrections found in the sentence pair.",
-                                "items", Map.of( // 배열 안의 알맹이(Item) 정의
+                                "items", Map.of(
                                         "type", "object",
                                         "properties", Map.of(
                                                 "errorPart", Map.of("type", "string", "description", "The incorrect part in Original."),
                                                 "correctPart", Map.of("type", "string", "description", "The corrected part in Revised."),
                                                 "rootExpression", Map.of("type", "string", "description", "Base form or idiom."),
                                                 "meaningKo", Map.of("type", "string", "description", "Korean meaning."),
+                                                // ✅ examples 부분을 객체 배열로 변경
                                                 "examples", Map.of(
                                                         "type", "array",
-                                                        "items", Map.of("type", "string"),
-                                                        "description", "3 example sentences."
+                                                        "description", "3 example sentences with their Korean translations.",
+                                                        "items", Map.of(
+                                                                "type", "object",
+                                                                "properties", Map.of(
+                                                                        "sentence", Map.of("type", "string", "description", "English example sentence."),
+                                                                        "translationKo", Map.of("type", "string", "description", "Korean translation of the sentence.")
+                                                                ),
+                                                                "required", List.of("sentence", "translationKo")
+                                                        )
                                                 )
                                         ),
                                         "required", List.of("errorPart", "correctPart", "rootExpression", "meaningKo", "examples")

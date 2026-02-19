@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class LibraryAiDTO {
+
     @JsonProperty("points")
     private List<LearningPoint> points;
 
@@ -31,6 +32,17 @@ public class LibraryAiDTO {
         private String meaningKo;
 
         @JsonProperty("examples")
-        private List<String> examples;
+        private List<Example> examples;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @ToString
+    public static class Example {
+        @JsonProperty("sentence")
+        private String sentence;
+
+        @JsonProperty("translationKo")
+        private String translationKo;
     }
 }

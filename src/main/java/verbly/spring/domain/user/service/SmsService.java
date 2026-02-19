@@ -39,8 +39,7 @@ public class SmsService {
             throw new BaseException(ErrorStatus.SMS_TOO_MANY_REQUEST);
         }
 
-        // 1분 TTL 설정
-        redisTemplate.opsForValue().set(phoneSendKey, "1", 1, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(phoneSendKey, "1", 1, TimeUnit.MINUTES); // 1분 TTL 설정
 
         String authCode = smsUtil.generateAuthCode(); // 인증번호 생성
         String messageText = smsUtil.makeAuthMessage(authCode); // 메시지

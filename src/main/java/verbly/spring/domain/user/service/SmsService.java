@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import verbly.spring.domain.user.dto.request.SmsRequestDTO;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.common.exception.BaseException;
+import verbly.spring.global.common.utils.PhoneUtils;
 import verbly.spring.global.common.utils.SmsUtils;
 import verbly.spring.global.config.properties.SmsProperties;
 
@@ -56,7 +57,7 @@ public class SmsService {
         redisTemplate.delete(tryKey);
         redisTemplate.delete(verifiedKey);
 
-        String normalizedPhone = normalizePhoneNumber(request.getPhoneNumber());
+        String normalizedPhone = PhoneUtils.normalize(request.getPhoneNumber());
         String value = normalizedPhone + ":" + authCode;
 
         redisTemplate.opsForValue().set(redisKey, value, AUTH_CODE_TTL, TimeUnit.MINUTES);
@@ -80,7 +81,7 @@ public class SmsService {
 
         String storedValue = redisTemplate.opsForValue().get(redisKey);
 
-        String normalizedPhone = normalizePhoneNumber(request.getPhoneNumber());
+        String normalizedPhone = PhoneUtils.normalize(request.getPhoneNumber());
 
         if (storedValue == null) {
             log.warn("[SMS] 인증 실패 - 만료 - phone: {}", normalizedPhone);
@@ -113,10 +114,6 @@ public class SmsService {
 
     private String buildVerifiedKey(Long userId) {
         return "SMS:VERIFIED:USER:" + userId;
-    }
-
-    private String normalizePhoneNumber(String phone) {
-        return phone.replaceAll("-", "").replaceAll(" ", "");
     }
 
     private String buildTryKey(Long userId) {

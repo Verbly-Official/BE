@@ -13,6 +13,7 @@ import verbly.spring.domain.stats.entity.Stats;
 import verbly.spring.domain.user.enums.AuthProvider;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.entity.BaseEntity;
+import verbly.spring.global.common.utils.PhoneUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,10 +127,6 @@ public class User extends BaseEntity {
     }
 
     public void updatePhoneNumber(String phoneNumber) {
-        this.phoneNumber = normalizePhoneNumber(phoneNumber);
-    }
-
-    private String normalizePhoneNumber(String phone) {
-        return phone.replaceAll("-", "").replaceAll(" ", "");
+        this.phoneNumber = PhoneUtils.normalize(phoneNumber);
     }
 }

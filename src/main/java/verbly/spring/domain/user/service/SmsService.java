@@ -36,7 +36,7 @@ public class SmsService {
 
         Boolean alreadySent = redisTemplate.hasKey(phoneSendKey);
         if (Boolean.TRUE.equals(alreadySent)) {
-            throw new BaseException(ErrorStatus.SMS_TOO_MANY_ATTEMPTS);
+            throw new BaseException(ErrorStatus.SMS_TOO_MANY_REQUEST);
         }
 
         // 1분 TTL 설정

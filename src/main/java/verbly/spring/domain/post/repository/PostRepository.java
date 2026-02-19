@@ -55,4 +55,15 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findByStatusAndLikesCountGreaterThanEqual(PostStatus postStatus, int i);
     Optional<Post> findByIdAndAuthorId(Long postId, Long authorId);
+
+    @Query("SELECT DISTINCT p FROM Post p " +
+            "JOIN p.postTags pt " +
+            "WHERE pt.tag.name = :tagName AND p.temp = false")
+    Slice<Post> findByTagName(@Param("tagName") String tagName, Pageable pageable);
+
+    @Query(value = "SELECT * FROM post " +
+            "WHERE MATCH(content) AGAINST(:keyword IN BOOLEAN MODE) " +
+            "AND temp = false",
+            nativeQuery = true)
+    Slice<Post> searchByContent(@Param("keyword") String keyword, Pageable pageable);
 }

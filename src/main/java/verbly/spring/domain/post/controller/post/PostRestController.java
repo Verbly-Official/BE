@@ -109,4 +109,14 @@ public class PostRestController implements PostControllerDocs {
         Long userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.onSuccess(postQueryService.getHotPosts(userId));
     }
+
+    @Override
+    @GetMapping("/search/{keyword}")
+    public ApiResponse<Slice<PostResponseDTO.HomePosts>> searchPosts(
+            @PathVariable String keyword,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ApiResponse.onSuccess(postQueryService.searchPosts(keyword, userId, pageable));
+    }
 }

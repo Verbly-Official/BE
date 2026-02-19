@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.PathVariable;
 import verbly.spring.domain.post.dto.request.CommentRequestDTO;
 import verbly.spring.domain.post.dto.request.PostRequestDTO;
 import verbly.spring.domain.post.dto.response.CommentResponseDTO;
@@ -463,6 +466,89 @@ public interface PostControllerDocs {
             )
     })
     ApiResponse<List<PostResponseDTO.hotPost>> getHotPosts();
+
+
+    @Operation( summary = "포스트 검색 API",
+            security = @SecurityRequirement(name = "JWT TOKEN"),
+            description = "검색한 포스트를 무한 스크롤(Slice) 방식으로 조회합니다.\n\n" +
+                    "✅ **요청 파라미터 (Query String):**\n" +
+                    "- page: 페이지 번호 (Integer, 0부터 시작)\n" +
+                    "- size: 페이지 크기 (Integer, 기본 10)\n" +
+                    "- sort: 정렬 기준 (String, 기본 createdAt, DESC)\n\n" +
+                    "✅ **path variable:**\n" +
+                    "- keyword: 검색 키워드 (String)\n" +
+                    "- Tag 검색: #을 포함한 Keyword ( #String )\n" +
+                    "- Content 검색: #없이 ( String )\n" +
+                    "- MySQL 성능 및 기술 이슈로 'am'과 같은 의미가 적은 단어는 검색 X"
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                                  {
+                                                        "isSuccess": true,
+                                                        "code": "COMMON2000",
+                                                        "message": "성공입니다.",
+                                                        "result": {
+                                                          "content": [
+                                                            {
+                                                              "userImageUrl": "http://k.kakaocdn.net/dn/cZzX2j/btsLx7TX3Gx/QMDTWrOkMpg46aWkufLcQ1/img_640x640.jpg",
+                                                              "nickname": "박시윤",
+                                                              "isFollowing": false,
+                                                              "uuid": "26b5e7a5-b76d-408c-89ae-fbd76f2a74ba",
+                                                              "userId": 2,
+                                                              "postId": 1,
+                                                              "content": "I am working on the new feature since two weeks and it still not finished.\\nMy manager said me to submit it until Friday, but I didn’t started yet.\\nThe meeting was cancelled because nobody didn’t join.\\nI will send you the document when I will finish it.",
+                                                              "status": "COMPLETED",
+                                                              "likesCount": 0,
+                                                              "commentsCount": 0,
+                                                              "createdAt": "2026-02-12T04:19:16.163934",
+                                                              "tags": [
+                                                                "#Work",
+                                                                "#Update"
+                                                              ],
+                                                              "isLiked": false
+                                                            }
+                                                          ],
+                                                          "pageable": {
+                                                            "pageNumber": 0,
+                                                            "pageSize": 2,
+                                                            "sort": {
+                                                              "empty": false,
+                                                              "sorted": true,
+                                                              "unsorted": false
+                                                            },
+                                                            "offset": 0,
+                                                            "paged": true,
+                                                            "unpaged": false
+                                                          },
+                                                          "size": 2,
+                                                          "number": 0,
+                                                          "sort": {
+                                                            "empty": false,
+                                                            "sorted": true,
+                                                            "unsorted": false
+                                                          },
+                                                          "first": true,
+                                                          "last": true,
+                                                          "numberOfElements": 1,
+                                                          "empty": false
+                                                  }
+                                            }
+                                        """
+                            )
+                    )
+            )
+    })
+    ApiResponse<Slice<PostResponseDTO.HomePosts>> searchPosts(
+            @PathVariable String keyword,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    );
 }
 
 

@@ -88,9 +88,13 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     public void processTag(Post post, List<String> tags){
         if (tags.isEmpty() || tags == null) return;
-        Set<String> tagSet = new HashSet<>(tags);
+        Set<String> tagSet = tags.stream()
+                .filter(t -> t != null && !t.isBlank())
+                .map(String::trim)
+                .map(name -> name.startsWith("#") ? name : "#" + name)
+                .collect(Collectors.toSet());
 
-        List<Tag> existingTags = tagRepository.findByNameIn(tags);
+        List<Tag> existingTags = tagRepository.findByNameIn(new ArrayList<>(tagSet));
 
         Set<String> existingTagNames = existingTags.stream().map(Tag::getName).collect(Collectors.toSet());
 

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import verbly.spring.domain.correction.ai.AiJsonSchemaKind;
+import verbly.spring.domain.correction.ai.AiProviderClient;
 import verbly.spring.domain.correction.ai.GeminiProviderClient;
 import verbly.spring.domain.library.dto.response.LibraryAiDTO;
 
@@ -14,7 +15,7 @@ import verbly.spring.domain.library.dto.response.LibraryAiDTO;
 @Slf4j
 public class LibraryAiService {
 
-    private final GeminiProviderClient geminiClient;
+    private final AiProviderClient aiProviderClient;
     private final ObjectMapper objectMapper;
 
     public LibraryAiDTO createLearningPoint(String original, String revised) {
@@ -26,12 +27,11 @@ public class LibraryAiService {
             Original: "%s"
             Revised: "%s"
             
-            // ✅ 예문에 한글 번역을 포함하도록 지시사항 추가
             For EACH change found, provide the root expression, Korean meaning, and examples (including Korean translations).
             Return the result as a JSON object containing a list of 'points'.
             """, original, revised);
 
-        String jsonResult = geminiClient.generateJson(
+        String jsonResult = aiProviderClient.generateJson(
                 systemPrompt,
                 userPrompt,
                 AiJsonSchemaKind.LEARNING_POINT

@@ -157,7 +157,6 @@ public class GeminiProviderClient implements AiProviderClient{
                                                 "correctPart", Map.of("type", "string", "description", "The corrected part in Revised."),
                                                 "rootExpression", Map.of("type", "string", "description", "Base form or idiom."),
                                                 "meaningKo", Map.of("type", "string", "description", "Korean meaning."),
-                                                // ✅ examples 부분을 객체 배열로 변경
                                                 "examples", Map.of(
                                                         "type", "array",
                                                         "description", "3 example sentences with their Korean translations.",

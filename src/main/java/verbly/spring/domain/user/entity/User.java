@@ -126,7 +126,7 @@ public class User extends BaseEntity {
         this.email = email;
     }
 
-    public void updatePhoneNumber(String phoneNumber) {
-        this.phoneNumber = PhoneUtils.normalize(phoneNumber);
+    public void updatePhoneNumber(String normalizedPhoneNumber) {
+        this.phoneNumber = normalizedPhoneNumber;
     }
 }

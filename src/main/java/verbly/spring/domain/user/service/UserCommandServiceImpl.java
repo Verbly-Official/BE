@@ -92,21 +92,24 @@ public class UserCommandServiceImpl implements UserCommandService {
             user.updateEmail(request.getEmail());
         }
 
-        if (request.getPhoneNumber() != null && !PhoneUtils.normalize(request.getPhoneNumber()).equals(user.getPhoneNumber())) {
+        String requestPhone = request.getPhoneNumber();
+        String normalizedPhone = null;
+
+        if (requestPhone != null) {
+            normalizedPhone = PhoneUtils.normalize(requestPhone);
+        }
+
+        if (normalizedPhone != null && !normalizedPhone.equals(user.getPhoneNumber())) {
             String verifiedKey = "SMS:VERIFIED:USER:" + userId;
             String verifiedPhone = redisTemplate.opsForValue().get(verifiedKey);
 
-            if (verifiedPhone == null) {
-                throw new UserHandler(ErrorStatus.SMS_VERIFICATION_REQUIRED);
-            }
-
-            if (!verifiedPhone.equals(request.getPhoneNumber())) {
+            if (verifiedPhone == null || !verifiedPhone.equals(normalizedPhone)) {
                 throw new UserHandler(ErrorStatus.SMS_VERIFICATION_REQUIRED);
             }
 
             redisTemplate.delete(verifiedKey); // 1회 사용
 
-            user.updatePhoneNumber(request.getPhoneNumber()); // 통과하면 업데이트
+            user.updatePhoneNumber(normalizedPhone); // 통과하면 업데이트
         }
 
         String profileImageUrl = null;

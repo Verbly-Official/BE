@@ -1,4 +1,4 @@
-package verbly.spring.global.common.aws.s3;
+package verbly.spring.global.infrastructure.aws.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -33,7 +33,7 @@ public class AmazonS3Manager {
     }
 
     public String generateUserKeyName(Uuid uuid) {
-        return amazonConfig.getUserPath() + '/' + uuid.getUuid(); // 멤버 프로필 사진
+        return amazonConfig.getUserPath() + '/' + uuid.getUuid(); // 유저 프로필 사진
     }
 
     public String extractS3KeyFromUrl(String imageUrl) {

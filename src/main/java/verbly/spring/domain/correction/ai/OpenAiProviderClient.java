@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import verbly.spring.domain.correction.exception.CorrectionHandler;
 import verbly.spring.global.common.code.ErrorStatus;
-import verbly.spring.global.common.dto.openAI.OpenAIMessage;
-import verbly.spring.global.common.dto.openAI.OpenAIRequestDTO;
-import verbly.spring.global.common.dto.openAI.OpenAIResponseDTO;
+import verbly.spring.global.infrastructure.openAI.dto.OpenAIMessage;
+import verbly.spring.global.infrastructure.openAI.dto.OpenAIRequestDTO;
+import verbly.spring.global.infrastructure.openAI.dto.OpenAIResponseDTO;
 
 import java.util.List;
 import java.util.Map;

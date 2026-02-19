@@ -4,14 +4,17 @@ import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import verbly.spring.domain.payment.dto.PaymentResponseDTO;
+import verbly.spring.global.infrastructure.paypal.dto.PaypalDTO;
+import verbly.spring.domain.payment.service.PayPalService;
 import verbly.spring.domain.payment.service.PaymentQueryService;
 import verbly.spring.domain.payment.service.SubscriptionService;
 import verbly.spring.global.common.response.ApiResponse;
 import verbly.spring.global.security.utils.SecurityUtils;
-import verbly.spring.infrastructure.kakao.dto.KakaoPayDTO;
+import verbly.spring.global.infrastructure.kakao.dto.KakaoPayDTO;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,10 +22,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/payment")
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentController implements PaymentControllerDocs {
 
     private final SubscriptionService subscriptionService;
     private final PaymentQueryService paymentQueryService;
+    private final PayPalService payPalService;
 
     @Value("${pay.kakao.full-urls.frontend.success}")
     private String successUrl;
@@ -66,12 +71,12 @@ public class PaymentController implements PaymentControllerDocs {
 
     @Hidden
     @GetMapping("/cancel")
-    public void cancel(HttpServletResponse response) throws IOException {
+    public void kakaoCancel(HttpServletResponse response) throws IOException {
         response.sendRedirect(failUrl);
     }
 
     @Hidden
-    @GetMapping("/fail")
+    @GetMapping("/kakao/fail")
     public void fail(HttpServletResponse response) throws IOException {
         response.sendRedirect(failUrl);
     }
@@ -80,5 +85,22 @@ public class PaymentController implements PaymentControllerDocs {
     @GetMapping("/plan")
     public ApiResponse<List<PaymentResponseDTO.PaymentPlan>> paymentPlan(){
         return ApiResponse.onSuccess(paymentQueryService.getAllPaymentPlan());
+    }
+
+    @PostMapping("/paypal/ready")
+    public ApiResponse<String> ready(@RequestParam Long planId) {
+        return ApiResponse.onSuccess(payPalService.ready(planId));
+    }
+
+    @PostMapping("/paypal/complete")
+    public ApiResponse<String> complete(@RequestBody PaypalDTO.PaymentCompleteRequestDto request) {
+
+        // 1. 토큰에서 유저 ID 추출 (SecurityUtils 사용)
+        Long userId = SecurityUtils.getCurrentUserId();
+
+        // 2. 서비스 호출 (검증 및 저장)
+        payPalService.success(request.getSubscriptionId(), userId, request.getPlanId());
+
+        return ApiResponse.onSuccess("구독이 성공적으로 완료되었습니다.");
     }
 }

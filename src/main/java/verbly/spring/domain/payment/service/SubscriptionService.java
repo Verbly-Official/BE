@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.payment.entity.Subscription;
 import verbly.spring.domain.payment.entity.SubscriptionPlan;
 import verbly.spring.domain.payment.enums.BillingCycle;
+import verbly.spring.domain.payment.enums.PaymentProvider;
 import verbly.spring.domain.payment.enums.SubscriptionStatus;
 import verbly.spring.domain.payment.exception.PaymentHandler;
 import verbly.spring.domain.payment.repository.PlanRepository;
@@ -13,8 +14,8 @@ import verbly.spring.domain.payment.repository.SubscriptionRepository;
 import verbly.spring.domain.user.entity.User;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.global.common.code.ErrorStatus;
-import verbly.spring.infrastructure.kakao.KakaoPayClient;
-import verbly.spring.infrastructure.kakao.dto.KakaoPayDTO;
+import verbly.spring.global.infrastructure.kakao.KakaoPayClient;
+import verbly.spring.global.infrastructure.kakao.dto.KakaoPayDTO;
 
 import java.time.LocalDateTime;
 
@@ -62,6 +63,7 @@ public class SubscriptionService {
                 .status(SubscriptionStatus.ACTIVE)
                 .lastPaymentDate(now)
                 .nextPaymentDate(nextDate)
+                .provider(PaymentProvider.KAKAO)
                 .build();
 
         subscriptionRepository.save(subscription);

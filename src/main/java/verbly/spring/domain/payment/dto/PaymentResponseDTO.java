@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import verbly.spring.domain.payment.enums.BillingCycle;
 import verbly.spring.domain.post.enums.PostStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +21,7 @@ public class PaymentResponseDTO {
     public static class PaymentPlan{
         private Long planId;
         private String name;
-        private int price;
+        private BigDecimal price;
         BillingCycle billingCycle;
     }
 }

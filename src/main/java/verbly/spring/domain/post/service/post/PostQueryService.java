@@ -13,4 +13,6 @@ public interface PostQueryService {
     Slice<PostResponseDTO.UserPosts> getUserPosts(Pageable pageable, UUID uuid, Long viewerIdr);
 
     List<PostResponseDTO.hotPost> getHotPosts(Long viewerId);
+
+    Slice<PostResponseDTO.HomePosts> searchPosts(String keyword, Long viewerId, Pageable pageable);
 }

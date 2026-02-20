@@ -48,7 +48,7 @@ AI의 빠른 문법 교정과
 | DataBase          | MySQL |
 | Cloud          | AWS |
 
-<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/95b5b7f3-b865-4ac2-9e11-aaa6643f142b" />
+<img width="1531" height="811" alt="image" src="https://github.com/user-attachments/assets/5636986d-c928-4343-8b40-55becb43907c" />
 
 <br/>
 
@@ -102,13 +102,8 @@ verbly.spring
 │
 ├── global
 │   ├── common
-│   │   ├── aws
-│   │   │   └── s3
 │   │   ├── code
 │   │   ├── constants
-│   │   ├── dto
-│   │   │   ├── gemini
-│   │   │   └── openai
 │   │   ├── entity
 │   │   ├── exception
 │   │   ├── handler
@@ -117,6 +112,18 @@ verbly.spring
 │   │
 │   ├── config
 │   │   └── properties
+│   │
+│   ├── infrastructure
+│   │   ├── aws
+│   │   │   └── s3
+│   │   ├── gemini
+│   │       └── dto
+│   │   ├── kakao
+│   │   │   └── dto
+│   │   ├── openai
+│   │   │   └── dto
+│   │   └── paypal
+│   │       └── dto
 │   │
 │   ├── security
 │   │   ├── auth

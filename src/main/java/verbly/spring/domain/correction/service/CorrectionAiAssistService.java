@@ -2,6 +2,7 @@ package verbly.spring.domain.correction.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import verbly.spring.domain.correction.ai.AiAssistPanelJson;
@@ -11,11 +12,17 @@ import verbly.spring.domain.correction.dto.response.CorrectionAiAssistResponseDT
 import verbly.spring.domain.correction.entity.Correction;
 import verbly.spring.domain.correction.exception.CorrectionHandler;
 import verbly.spring.domain.correction.repository.CorrectionRepository;
+import verbly.spring.domain.library.dto.response.LibraryAiDTO;
+import verbly.spring.domain.library.service.LibraryAiService;
+import verbly.spring.domain.library.service.LibraryAutoFillService;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.security.utils.SecurityUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -70,6 +77,8 @@ public class CorrectionAiAssistService {
     private final CorrectionRepository correctionRepository;
     private final AiClientRouter aiClientRouter;
     private final ObjectMapper objectMapper;
+    private final LibraryAiService libraryAiService;
+    private final LibraryAutoFillService libraryAutoFillService;
 
     public CorrectionAiAssistResponseDTO.Result runAiAssist(Long correctionId) {
         Correction correction = correctionRepository.findById(correctionId)
@@ -93,7 +102,82 @@ public class CorrectionAiAssistService {
         );
 
         AiAssistPanelJson parsed = parseJsonOrThrow(json);
+
+        try {
+            Long userId = SecurityUtils.getCurrentUserId();
+            autofillLibraryFromSuggestions(userId, correctionId, parsed);
+        } catch (Exception e) {
+            // 라이브러리 저장 실패시에도 AI 도우미는 정상 반환
+            log.warn("Library autofill failed. correctionId={}", correctionId, e);
+        }
+
         return toResponse(parsed);
+    }
+
+    private void autofillLibraryFromSuggestions(Long userId, Long correctionId, AiAssistPanelJson parsed) {
+        if (parsed == null || parsed.getSuggestions() == null || parsed.getSuggestions().isEmpty()) return;
+
+        for (AiAssistPanelJson.Suggestion s : parsed.getSuggestions()) {
+            if (s == null) continue;
+
+            String original = safeTrim(s.getOriginal());
+            String revised = safeTrim(s.getRevised());
+
+            if (original.isBlank() || revised.isBlank()) continue;
+            if (Objects.equals(original, revised)) continue;
+
+            LibraryAiDTO learning = libraryAiService.createLearningPoint(original, revised);
+
+            List<LibraryAutoFillService.ExampleInput> inputs = mapToLibraryInputs(learning);
+
+            if (!inputs.isEmpty()) {
+                libraryAutoFillService.fillFromCorrection(userId, correctionId, inputs);
+            }
+        }
+    }
+
+    private List<LibraryAutoFillService.ExampleInput> mapToLibraryInputs(LibraryAiDTO dto) {
+        if (dto == null || dto.getPoints() == null) return List.of();
+
+        List<LibraryAutoFillService.ExampleInput> result = new ArrayList<>();
+
+        for (LibraryAiDTO.LearningPoint p : dto.getPoints()) {
+            if (p == null) continue;
+
+            String lemma = safeTrim(p.getRootExpression());
+            if (lemma.isBlank()) continue;
+
+            String meaningKo = safeTrimNullable(p.getMeaningKo());
+
+            List<LibraryAutoFillService.ExamplePairInput> pairs = new ArrayList<>();
+
+            if (p.getExamples() != null) {
+                for (LibraryAiDTO.Example ex : p.getExamples()) {
+                    if (ex == null) continue;
+
+                    String exEn = safeTrim(ex.getSentence());
+                    if (exEn.isBlank()) continue;
+
+                    String exKo = safeTrimNullable(ex.getTranslationKo());
+
+                    pairs.add(new LibraryAutoFillService.ExamplePairInput(exEn, exKo));
+                }
+            }
+
+            result.add(new LibraryAutoFillService.ExampleInput(lemma, meaningKo, pairs));
+        }
+
+        return result;
+    }
+
+
+    private String safeTrim(String s) {
+        return s == null ? "" : s.trim();
+    }
+
+    private String safeTrimNullable(String s) {
+        String t = safeTrim(s);
+        return t.isBlank() ? null : t;
     }
 
     private String buildUserPrompt(String content) {

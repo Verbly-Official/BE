@@ -38,7 +38,8 @@ public class UserHomeQueryServiceImpl implements UserHomeQueryService {
         User viewer = userRepository.findById(userId).orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
         long correctionReceived = postRepository.countByAuthorIdAndStatus(viewer.getId(), PostStatus.COMPLETED);
         long following = followRepository.countByFollowerId(viewer.getId());
-        return homeConverter.toHomeViewerInfoDTO(viewer, following, correctionReceived);
+        long correctionGiven = correctionFeedbackRepository.countDistinctCorrectionByCorrectorId(viewer.getId());
+        return homeConverter.toHomeViewerInfoDTO(viewer, following, correctionReceived, correctionGiven);
     }
 
     @Override
@@ -50,7 +51,7 @@ public class UserHomeQueryServiceImpl implements UserHomeQueryService {
         long follower = followRepository.countByFolloweeId(target.getId());
         long totalPosts = postRepository.countByAuthor_Id(target.getId());
         boolean isFollowing = followRepository.existsFollowByFollowerIdAndFolloweeId(viewer.getId(), target.getId());
-        long correctionReceived = postRepository.countByAuthorIdAndStatus(viewer.getId(), PostStatus.COMPLETED);
+        long correctionReceived = postRepository.countByAuthorIdAndStatus(target.getId(), PostStatus.COMPLETED);
         long correctionGiven = correctionFeedbackRepository.countDistinctCorrectionByCorrectorId(target.getId());
         return homeConverter.toHomeUserInfoDTO(target, totalPosts, following, follower, isFollowing, correctionReceived, correctionGiven);
     }

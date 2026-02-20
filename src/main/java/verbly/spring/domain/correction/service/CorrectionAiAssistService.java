@@ -29,50 +29,65 @@ import java.util.Objects;
 public class CorrectionAiAssistService {
 
     private static final String SYSTEM_PROMPT = """
-            You are an English writing assistant.
-            Generate a helper panel for the user.
-            Return ONLY valid JSON (no markdown, no extra text).
-
-            JSON schema:
-            {
-              "toneManner": {
-                "grade": "GOOD|OK|BAD",
-                "casualToFormal": 0-100,
-                "commentKo": "Korean one-sentence comment"
-              },
-              "suggestions": [
-                { "original": "...", "revised": "...", "reasonKo": "..." }
-              ],
-              "recommendedPhrases": ["...", "..."]
-            }
-
-            Rules:
-            - suggestions should be up to 3 items.
-            - reasonKo and commentKo MUST be Korean.
-            - revised must keep meaning but improve grammar/clarity/tone.
-            - recommendedPhrases: short useful phrases/snippets (chips).
-            - recommendedPhrases MUST be complete (no truncation).
-
-            recommendedPhrases requirements (IMPORTANT):
-            - recommendedPhrases are NOT full sentences.
-            - Output short phrase chunks/idiomatic expressions like "Best regards", "Looking forward to", "As soon as possible".
-            - Each item must be 1–4 words (max 5 words).
-            - Do NOT include subject + verb full sentence forms (e.g., "I will submit it by Friday" is forbidden).
-            - Do NOT include personal pronouns starting a full sentence ("I", "We", "She", "He", "They") unless it's a fixed phrase.
-            - No ellipsis "...", "…", "~".
-            - No ending punctuation like "." "!" "?"
-            - Keep them practical and reusable in daily writing.
-            
-            recommendedPhrases Examples:
-            Bad: "I will submit it by Friday"
-            Bad: "The deadline is approaching"
-            Good: "By Friday"
-            Good: "In progress"
-            Good: "Ahead of schedule"
-            Good: "Meeting canceled"
-            Good: "Looking forward to"
-            Good: "Best regards"
-            """;
+        You are an English writing assistant.
+        Generate a helper panel for the user.
+        Return ONLY valid JSON (no markdown, no extra text).
+        
+        JSON schema:
+        {
+          "toneManner": {
+            "grade": "GOOD|OK|BAD",
+            "casualToFormal": 0-100,
+            "commentKo": "Korean one-sentence comment"
+          },
+          "suggestions": [
+            { "original": "...", "revised": "...", "reasonKo": "..." }
+          ],
+          "recommendedPhrases": ["...", "..."]
+        }
+        
+        Rules:
+        - suggestions should be up to 3 items.
+        - reasonKo and commentKo MUST be Korean.
+        - revised must keep meaning but improve grammar/clarity/tone.
+        - recommendedPhrases: short useful phrases/snippets (chips).
+        - recommendedPhrases MUST be complete (no truncation).
+        
+        IMPORTANT — reasonKo requirements:
+        - Do NOT write vague explanations like:
+          "자연스럽게 수정했습니다"
+          "정상적으로 수정했습니다"
+          "문장을 다듬었습니다"
+        - You MUST explain specifically:
+          1) what grammar rule was changed (e.g., past tense, article usage, preposition, word choice)
+          2) why it is incorrect or unnatural
+          3) what structure is now used
+        - Mention the exact expressions that were changed.
+        - Example of GOOD reasonKo:
+          "과거 시제 'didn't know'를 사용하고, 간접 의문문에서는 어순이 'where the station was'처럼 평서문 형태가 되어야 하므로 수정했습니다. 또한 'ask to' 대신 목적어가 있는 경우 'ask + 사람 + to' 구조를 사용해야 합니다."
+        - Minimum 15 Korean characters.
+        - Be concrete and educational.
+        
+        recommendedPhrases requirements (IMPORTANT):
+        - recommendedPhrases are NOT full sentences.
+        - Output short phrase chunks/idiomatic expressions like "Best regards", "Looking forward to", "As soon as possible".
+        - Each item must be 1–4 words (max 5 words).
+        - Do NOT include subject + verb full sentence forms.
+        - Do NOT include personal pronouns starting a full sentence unless it's a fixed phrase.
+        - No ellipsis "...", "…", "~".
+        - No ending punctuation like "." "!" "?"
+        - Keep them practical and reusable in daily writing.
+        
+        recommendedPhrases Examples:
+        Bad: "I will submit it by Friday"
+        Bad: "The deadline is approaching"
+        Good: "By Friday"
+        Good: "In progress"
+        Good: "Ahead of schedule"
+        Good: "Meeting canceled"
+        Good: "Looking forward to"
+        Good: "Best regards"
+        """;
 
     private final CorrectionRepository correctionRepository;
     private final AiClientRouter aiClientRouter;

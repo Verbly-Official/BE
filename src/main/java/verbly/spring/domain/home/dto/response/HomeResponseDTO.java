@@ -19,6 +19,7 @@ public class HomeResponseDTO {
         Integer streak;
         Long point;
         Integer correctionReceived;
+        Integer correctionGiven;
         Level level;
     }
 

@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import verbly.spring.domain.follow.entity.Follow;
+import verbly.spring.domain.notification.entity.Notification;
+import verbly.spring.domain.payment.entity.Subscription;
 import verbly.spring.domain.post.entity.Comment;
 import verbly.spring.domain.post.entity.Post;
 import verbly.spring.domain.post.entity.PostLike;
@@ -80,14 +82,20 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
     private NotificationSettings notificationSettings;
 
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> receivedNotifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostLike> postLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> sentNotifications = new ArrayList<>();
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Stats stats;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostLike> postLikes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
@@ -104,6 +112,9 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "reviewee", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Review> receivedReviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Subscription> subscriptions = new ArrayList<>();
 
 
     public void setStats(Stats stats) {

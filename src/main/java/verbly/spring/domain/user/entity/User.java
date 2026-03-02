@@ -15,6 +15,7 @@ import verbly.spring.domain.stats.entity.Stats;
 import verbly.spring.domain.user.enums.AuthProvider;
 import verbly.spring.domain.user.enums.UserStatus;
 import verbly.spring.global.common.entity.BaseEntity;
+import verbly.spring.global.common.utils.PhoneUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,7 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
     private ProfileImage profileImage;
 
-    @Column(length = 50)
+    @Column(length = 20)
     private String nickname;
 
     @Column(columnDefinition = "TEXT") // 길이 제한 없도록
@@ -136,11 +137,7 @@ public class User extends BaseEntity {
         this.email = email;
     }
 
-    public void updatePhoneNumber(String phoneNumber) {
-        this.phoneNumber = normalizePhoneNumber(phoneNumber);
-    }
-
-    private String normalizePhoneNumber(String phone) {
-        return phone.replaceAll("-", "").replaceAll(" ", "");
+    public void updatePhoneNumber(String normalizedPhoneNumber) {
+        this.phoneNumber = normalizedPhoneNumber;
     }
 }

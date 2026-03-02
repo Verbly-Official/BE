@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import verbly.spring.domain.user.dto.request.SmsRequestDTO;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.common.exception.BaseException;
+import verbly.spring.global.common.utils.PhoneUtils;
 import verbly.spring.global.common.utils.SmsUtils;
 import verbly.spring.global.config.properties.SmsProperties;
 
@@ -28,30 +29,51 @@ public class SmsService {
     private static final long AUTH_CODE_TTL = 3; // 3분
 
     public void sendAuthCode(Long userId, SmsRequestDTO.SendDTO request) {
+        String normalizedPhone = PhoneUtils.normalize(request.getPhoneNumber());
+
+        // 동일 번호 1분 재발송 제한
+        String phoneSendKey = "SMS:SEND:PHONE:" + normalizedPhone;
+
+        Boolean alreadySent = redisTemplate.hasKey(phoneSendKey);
+        if (Boolean.TRUE.equals(alreadySent)) {
+            throw new BaseException(ErrorStatus.SMS_TOO_MANY_REQUEST);
+        }
+
+        redisTemplate.opsForValue().set(phoneSendKey, "1", 1, TimeUnit.MINUTES); // 1분 TTL 설정
+
         String authCode = smsUtil.generateAuthCode(); // 인증번호 생성
         String messageText = smsUtil.makeAuthMessage(authCode); // 메시지
 
         Message message = new Message();
         message.setFrom(smsProperties.getSender());
-        message.setTo(request.getPhoneNumber());
+        message.setTo(normalizedPhone);
         message.setText(messageText);
 
         SingleMessageSendingRequest requestSMS = new SingleMessageSendingRequest(message); // 요청 래핑
 
         // CoolSMS 발송 및 로그
         try {
-            SingleMessageSentResponse response = messageService.sendOne(requestSMS);
+            messageService.sendOne(requestSMS);
             log.info("[SMS] 발송 성공 - to: {}", request.getPhoneNumber());
         } catch (Exception e) {
             log.error("[SMS] 발송 실패 - to: {}", request.getPhoneNumber(), e);
+
+            redisTemplate.delete(phoneSendKey); // 실패 시 재발송 제한 키 제거 (롤백 개념)
+
             throw new BaseException(ErrorStatus.SMS_SEND_FAILED);
         }
 
-        // Redis에 인증번호 저장 (3분 유효)
+        // 기존 인증 관련 키 초기화
         String redisKey = buildKey(userId);
-        String normalizedPhone = normalizePhoneNumber(request.getPhoneNumber());
+        String tryKey = buildTryKey(userId);
+        String verifiedKey = buildVerifiedKey(userId);
+
+        redisTemplate.delete(redisKey);
+        redisTemplate.delete(tryKey);
+        redisTemplate.delete(verifiedKey);
+
         String value = normalizedPhone + ":" + authCode;
-        redisTemplate.opsForValue().set(redisKey, value, AUTH_CODE_TTL, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(redisKey, value, AUTH_CODE_TTL, TimeUnit.MINUTES); // Redis에 인증번호 저장 (3분 유효)
     }
 
     public void verifyAuthCode(Long userId, SmsRequestDTO.VerifyDTO request) {
@@ -72,7 +94,7 @@ public class SmsService {
 
         String storedValue = redisTemplate.opsForValue().get(redisKey);
 
-        String normalizedPhone = normalizePhoneNumber(request.getPhoneNumber());
+        String normalizedPhone = PhoneUtils.normalize(request.getPhoneNumber());
 
         if (storedValue == null) {
             log.warn("[SMS] 인증 실패 - 만료 - phone: {}", normalizedPhone);
@@ -105,10 +127,6 @@ public class SmsService {
 
     private String buildVerifiedKey(Long userId) {
         return "SMS:VERIFIED:USER:" + userId;
-    }
-
-    private String normalizePhoneNumber(String phone) {
-        return phone.replaceAll("-", "").replaceAll(" ", "");
     }
 
     private String buildTryKey(Long userId) {

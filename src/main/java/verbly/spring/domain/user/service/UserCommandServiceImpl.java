@@ -16,6 +16,7 @@ import verbly.spring.domain.user.repository.ProfileImageRepository;
 import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.domain.uuid.entity.Uuid;
 import verbly.spring.domain.uuid.repository.UuidRepository;
+import verbly.spring.global.common.utils.PhoneUtils;
 import verbly.spring.global.infrastructure.aws.s3.AmazonS3Manager;
 import verbly.spring.global.common.code.ErrorStatus;
 
@@ -58,6 +59,10 @@ public class UserCommandServiceImpl implements UserCommandService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
 
+        if (user.getPhoneNumber() != null) {
+            String normalizedPhone = PhoneUtils.normalize(user.getPhoneNumber());
+            redisTemplate.delete("SMS:SEND:PHONE:" + normalizedPhone);
+        }
         redisTemplate.delete("SMS:AUTH:USER:" + userId);
         redisTemplate.delete("SMS:VERIFIED:USER:" + userId);
         redisTemplate.delete("SMS:TRY:USER:" + userId);
@@ -87,21 +92,24 @@ public class UserCommandServiceImpl implements UserCommandService {
             user.updateEmail(request.getEmail());
         }
 
-        if (request.getPhoneNumber() != null && !request.getPhoneNumber().equals(user.getPhoneNumber())) {
+        String requestPhone = request.getPhoneNumber();
+        String normalizedPhone = null;
+
+        if (requestPhone != null) {
+            normalizedPhone = PhoneUtils.normalize(requestPhone);
+        }
+
+        if (normalizedPhone != null && !normalizedPhone.equals(user.getPhoneNumber())) {
             String verifiedKey = "SMS:VERIFIED:USER:" + userId;
             String verifiedPhone = redisTemplate.opsForValue().get(verifiedKey);
 
-            if (verifiedPhone == null) {
-                throw new UserHandler(ErrorStatus.SMS_VERIFICATION_REQUIRED);
-            }
-
-            if (!verifiedPhone.equals(request.getPhoneNumber())) {
+            if (verifiedPhone == null || !verifiedPhone.equals(normalizedPhone)) {
                 throw new UserHandler(ErrorStatus.SMS_VERIFICATION_REQUIRED);
             }
 
             redisTemplate.delete(verifiedKey); // 1회 사용
 
-            user.updatePhoneNumber(request.getPhoneNumber()); // 통과하면 업데이트
+            user.updatePhoneNumber(normalizedPhone); // 통과하면 업데이트
         }
 
         String profileImageUrl = null;

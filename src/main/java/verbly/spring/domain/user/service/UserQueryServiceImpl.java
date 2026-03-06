@@ -17,6 +17,7 @@ import verbly.spring.domain.user.repository.UserRepository;
 import verbly.spring.domain.user.validator.ProfileValidator;
 import verbly.spring.global.common.code.ErrorStatus;
 import verbly.spring.global.security.jwt.JwtTokenProvider;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.time.LocalDateTime;
 
@@ -34,6 +35,7 @@ public class UserQueryServiceImpl implements UserQueryService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "user:info", key = "#userId")
     public UserResponseDTO.UserInfoDTO getUserInfo(Long userId){
 //        Authentication authentication = jwtTokenProvider.extractAuthentication(request); // 토큰을 파싱하고, Authentication 객체를 추출
 //        String socialId = authentication.getName(); // 추출해낸 인증 객체(Authentication)을 통해 사용자 정보를 가져온다.

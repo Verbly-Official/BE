@@ -10,7 +10,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +29,7 @@ public class RedisConfig {
         Map<String, RedisCacheConfiguration> perCache = new HashMap<>();
         // perCache.put("users:profile", base.entryTtl(Duration.ofSeconds(20))); // 최신 글은 짧게 캐시
         // 예시로 users:profile를 작성해놓은 것이니 수정 후 주석 풀고 필요한 부분 있으면 아래로 각자 파트 추가
+        perCache.put("user:info", base.entryTtl(Duration.ofMinutes(5)));
 
         return RedisCacheManager.builder(cf)
                 .cacheDefaults(base) // 기본 TTL 30초

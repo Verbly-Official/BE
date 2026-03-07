@@ -2,6 +2,7 @@ package verbly.spring.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,7 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     @Transactional // @Transactional에 의해 메서드 종료 시 변경 사항이 DB에 자동 반영
+    @CacheEvict(value = "user:info", key = "#userId")
     public User onboardingUser(Long userId, UserRequestDTO.OnboardingDTO request) {
         // 기존 회원이 존재하는지를 따짐
         User user = userRepository.findById(userId)
@@ -55,6 +57,7 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "user:info", key = "#userId")
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
@@ -73,6 +76,7 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "user:info", key = "#userId")
     public UserResponseDTO.ProfileUpdateResultDTO updateUser(Long userId, UserRequestDTO.ProfileUpdateDTO request, MultipartFile profileImage) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));

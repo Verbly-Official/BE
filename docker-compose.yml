@@ -7,6 +7,12 @@ services:
     restart: always # 자동 재시작
     networks:
       - verbly-net # 내부 네트워크(컨테이너끼리 통신)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 
   spring:
     image: yunnij/verbly:latest  # Docker Hub에 푸시한 Spring 이미지 (앞에는 username)
@@ -18,6 +24,12 @@ services:
       - redis # redis 먼저 뜬 뒤 spring 실행
     networks:
       - verbly-net # nginx/redis와 같은 네트워크로 묶음
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 
   nginx:
     image: nginx:1.27-alpine # Nginx 공식 이미지
@@ -34,6 +46,12 @@ services:
       - spring  # spring 뜬 뒤 nginx 실행
     networks:
       - verbly-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 
   certbot:
     image: certbot/certbot
@@ -43,6 +61,11 @@ services:
       - /home/ubuntu/data/certbot/www:/var/www/certbot
     networks:
       - verbly-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   verbly-net:

@@ -63,3 +63,15 @@ jobs:
             docker compose up -d --remove-orphans
 
             docker image prune -f
+            
+            echo "== Disk before prune =="
+            docker system df || true
+            
+            docker image prune -a -f
+
+            docker builder prune -a -f || true
+
+            docker network prune -f || true
+            
+            echo "== Disk after prune =="
+            docker system df || true
